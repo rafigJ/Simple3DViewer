@@ -3,8 +3,6 @@ import com.cgvsu.math.Matrix4;
 import com.cgvsu.math.Point2;
 import com.cgvsu.math.Vector3;
 
-import javax.vecmath.*;
-
 public class GraphicConveyor {
 
     public static Matrix4 rotateScaleTranslate() { // переделать

@@ -27,13 +27,13 @@ public class RenderEngine {
         modelViewProjectionMatrix.increaseMatrix(viewMatrix);
         modelViewProjectionMatrix.increaseMatrix(projectionMatrix); // конец
 
-        final int nPolygons = mesh.polygons.size();
+        final int nPolygons = mesh.getPolygons().size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
-            final int nVerticesInPolygon = mesh.polygons.get(polygonInd).getVertexIndices().size();
+            final int nVerticesInPolygon = mesh.getPolygons().get(polygonInd).getVertexIndices().size();
 
             ArrayList<Point2> resultPoints = new ArrayList<>();
             for (int vertexInPolygonInd = 0; vertexInPolygonInd < nVerticesInPolygon; ++vertexInPolygonInd) {
-                Vector3 vertex = mesh.vertices.get(mesh.polygons.get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
+                Vector3 vertex = mesh.getVertices().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
 
                 Vector3 vertexVecmath = new Vector3(vertex.getX(), vertex.getY(), vertex.getZ());
 
@@ -58,5 +58,4 @@ public class RenderEngine {
             }
         }
     }
-
 }
