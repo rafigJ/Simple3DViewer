@@ -5,7 +5,7 @@ import javax.vecmath.*;
 
 public class GraphicConveyor {
 
-    public static Matrix4f rotateScaleTranslate() {
+    public static Matrix4f rotateScaleTranslate() { // переделать
         float[] matrix = new float[]{
                 1, 0, 0, 0,
                 0, 1, 0, 0,
@@ -14,11 +14,11 @@ public class GraphicConveyor {
         return new Matrix4f(matrix);
     }
 
-    public static Matrix4f lookAt(Vector3 eye, Vector3 target) {
+    public static Matrix4f lookAt(Vector3 eye, Vector3 target) { // переделать
         return lookAt(eye, target, new Vector3(0F, 1.0F, 0F));
     }
 
-    public static Matrix4f lookAt(Vector3 eye, Vector3 target, Vector3 up) {
+    public static Matrix4f lookAt(Vector3 eye, Vector3 target, Vector3 up) { // переделать
         Vector3 resultX = new Vector3();
         Vector3 resultY = new Vector3();
         Vector3 resultZ = new Vector3();
@@ -39,7 +39,7 @@ public class GraphicConveyor {
         return new Matrix4f(matrix);
     }
 
-    public static Matrix4f perspective(
+    public static Matrix4f perspective( // переделать
             final float fov,
             final float aspectRatio,
             final float nearPlane,
@@ -54,7 +54,7 @@ public class GraphicConveyor {
         return result;
     }
 
-    public static Vector3 multiplyMatrix4ByVector3(final Matrix4f matrix, final Vector3 vertex) {
+    public static Vector3 multiplyMatrix4ByVector3(final Matrix4f matrix, final Vector3 vertex) { // переделать
         final float x = (vertex.getX() * matrix.m00) + (vertex.getY() * matrix.m10) + (vertex.getZ() * matrix.m20) + matrix.m30;
         final float y = (vertex.getX() * matrix.m01) + (vertex.getY() * matrix.m11) + (vertex.getZ() * matrix.m21) + matrix.m31;
         final float z = (vertex.getX() * matrix.m02) + (vertex.getY() * matrix.m12) + (vertex.getZ() * matrix.m22) + matrix.m32;
