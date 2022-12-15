@@ -1,5 +1,6 @@
 package com.cgvsu.render_engine;
 import com.cgvsu.math.Matrix4;
+import com.cgvsu.math.Point2;
 import com.cgvsu.math.Vector3;
 
 import javax.vecmath.*;
@@ -69,7 +70,7 @@ public class GraphicConveyor {
         return new Vector3(x / w, y / w, z / w);
     }
 
-    public static Point2f vertexToPoint(final Vector3 vertex, final int width, final int height) {
-        return new Point2f(vertex.getX() * width + width / 2.0F, -vertex.getY() * height + height / 2.0F);
+    public static Point2 vertexToPoint(final Vector3 vertex, final int width, final int height) {
+        return new Point2(vertex.getX() * width + width / 2.0F, -vertex.getY() * height + height / 2.0F);
     }
 }

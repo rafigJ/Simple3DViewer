@@ -48,11 +48,11 @@ public class Camera {
         this.target.sum(target);
     }
 
-    Matrix4 getViewMatrix() { // переделать
+    Matrix4 getViewMatrix() {
         return GraphicConveyor.lookAt(position, target);
     }
 
-    Matrix4 getProjectionMatrix() { // Переделать
+    Matrix4 getProjectionMatrix() {
         return GraphicConveyor.perspective(fov, aspectRatio, nearPlane, farPlane);
     }
 
