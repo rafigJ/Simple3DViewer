@@ -8,7 +8,7 @@ public class Matrix4 {
     }
 
     public Matrix4() {
-
+        this.matrix = new float[4][4];
     }
 
     public float[][] getMatrix() {

@@ -4,7 +4,7 @@ public class Matrix3 {
     private float[][] matrix;
 
     public Matrix3() {
-
+        this.matrix = new float[3][3];
     }
 
     public Matrix3(float[][] matrix) {
