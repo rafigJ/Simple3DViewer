@@ -3,6 +3,7 @@ package com.cgvsu.render_engine;
 import java.util.ArrayList;
 
 import com.cgvsu.math.Matrix4;
+import com.cgvsu.math.Vector2;
 import com.cgvsu.math.Vector3;
 import javafx.scene.canvas.GraphicsContext;
 import com.cgvsu.model.Model;
@@ -33,17 +34,17 @@ public class RenderEngine {
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
             final int nVerticesInPolygon = mesh.getPolygons().get(polygonInd).getVertexIndices().size();
 
-            ArrayList<Point2> resultPoints = new ArrayList<>();
+            ArrayList<Vector2> resultPoints = new ArrayList<>();
             for (int vertexInPolygonInd = 0; vertexInPolygonInd < nVerticesInPolygon; ++vertexInPolygonInd) {
                 Vector3 vertex = mesh.getVertices().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
 
                 Vector3 vertexVecmath = new Vector3(vertex.getX(), vertex.getY(), vertex.getZ());
 
-                Point2 resultPoint = vertexToPoint(multiplyMatrix4ByVector3(modelViewProjectionMatrix, vertexVecmath), width, height); // переделать
+                Vector2 resultPoint = vertexToPoint(multiplyMatrix4ByVector3(modelViewProjectionMatrix, vertexVecmath), width, height); // переделать
                 resultPoints.add(resultPoint);
             }
 
-            for (int vertexInPolygonInd = 2; vertexInPolygonInd < nVerticesInPolygon; ++vertexInPolygonInd) {
+            for (int vertexInPolygonInd = 1; vertexInPolygonInd < nVerticesInPolygon; ++vertexInPolygonInd) {
                 graphicsContext.strokeLine(
                         resultPoints.get(vertexInPolygonInd - 1).getX(),
                         resultPoints.get(vertexInPolygonInd - 1).getY(),

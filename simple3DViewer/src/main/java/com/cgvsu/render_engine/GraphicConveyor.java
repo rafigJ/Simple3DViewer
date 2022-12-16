@@ -1,5 +1,6 @@
 package com.cgvsu.render_engine;
 import com.cgvsu.math.Matrix4;
+import com.cgvsu.math.Vector2;
 import com.cgvsu.math.Vector3;
 import com.cgvsu.math.Vector4;
 
@@ -20,13 +21,13 @@ public class GraphicConveyor {
     }
 
     public static Matrix4 lookAt(Vector3 eye, Vector3 target, Vector3 up) { // переделать
-        Vector3 resultX = new Vector3();
-        Vector3 resultY = new Vector3();
-        Vector3 resultZ = new Vector3();
+        Vector3 resultX;
+        Vector3 resultY;
+        Vector3 resultZ;
 
-        resultZ.sub(target, eye);
-        resultX = resultX.crossProduct(up, resultZ);
-        resultY = resultY.crossProduct(resultZ, resultX);
+        resultZ = Vector3.sub(target, eye);
+        resultX = Vector3.crossProduct(up, resultZ);
+        resultY = Vector3.crossProduct(resultZ, resultX);
 
         resultX.normalization();
         resultY.normalization();
@@ -40,7 +41,7 @@ public class GraphicConveyor {
         };
         Matrix4 matrix4 = new Matrix4(matrix);
         matrix4.transposeInPlace();
-        return new Matrix4(matrix4.getData());
+        return matrix4;
     }
 
     public static Matrix4 perspective( // переделать
@@ -65,7 +66,7 @@ public class GraphicConveyor {
         return new Vector3(vertex.getX() / v4.getM(), v4.getY() / v4.getM(), v4.getZ() / v4.getM());
     }
 
-    public static Point2 vertexToPoint(final Vector3 vertex, final int width, final int height) {
-        return new Point2(vertex.getX() * width + width / 2.0F, -vertex.getY() * height + height / 2.0F);
+    public static Vector2 vertexToPoint(final Vector3 vertex, final int width, final int height) {
+        return new Vector2(vertex.getX() * width + width / 2.0F, -vertex.getY() * height + height / 2.0F);
     }
 }

@@ -16,11 +16,11 @@ public class Vector2 {
     }
 
     public float getX() {
-        return this.x;
+        return x;
     }
 
     public float getY() {
-        return this.y;
+        return y;
     }
 
     public void sum(final Vector2 v2) {

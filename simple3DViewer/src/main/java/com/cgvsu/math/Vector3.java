@@ -17,11 +17,11 @@ public class Vector3 {
     }
 
     public float getX() {
-        return this.x;
+        return x;
     }
 
     public float getY() {
-        return this.y;
+        return y;
     }
 
     public  float getZ() {
