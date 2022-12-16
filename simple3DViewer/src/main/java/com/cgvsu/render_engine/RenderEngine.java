@@ -3,7 +3,6 @@ package com.cgvsu.render_engine;
 import java.util.ArrayList;
 
 import com.cgvsu.math.Matrix4;
-import com.cgvsu.math.Point2;
 import com.cgvsu.math.Vector3;
 import javafx.scene.canvas.GraphicsContext;
 import com.cgvsu.model.Model;
@@ -23,9 +22,12 @@ public class RenderEngine {
         Matrix4 viewMatrix = camera.getViewMatrix();
         Matrix4 projectionMatrix = camera.getProjectionMatrix();
 
-        Matrix4 modelViewProjectionMatrix = new Matrix4(modelMatrix.getMatrix());
-        modelViewProjectionMatrix.increaseMatrix(viewMatrix);
-        modelViewProjectionMatrix.increaseMatrix(projectionMatrix); // конец
+//        projectionMatrix.increaseMatrix(viewMatrix);
+//        projectionMatrix.increaseMatrix(modelMatrix);
+
+        Matrix4 modelViewProjectionMatrix = new Matrix4(modelMatrix.getData());
+        modelViewProjectionMatrix.multiply(viewMatrix);
+        modelViewProjectionMatrix.multiply(projectionMatrix); // конец
 
         final int nPolygons = mesh.getPolygons().size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {

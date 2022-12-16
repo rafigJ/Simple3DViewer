@@ -1,142 +1,172 @@
 package com.cgvsu.math;
 
 public class Matrix4 {
-    private float[][] matrix;
+    private float[][] data;
 
     public Matrix4(float[][] matrix) {
-        this.matrix = matrix;
+        this.data = matrix;
     }
 
     public Matrix4() {
-        this.matrix = new float[4][4];
+        this.data = new float[4][4];
     }
 
-    public float[][] getMatrix() {
+    public float[][] getData() {
+        return data;
+    }
+
+    public void sum(final Matrix4 matrix1) {
+        for (int col = 0; col < matrix1.getData()[0].length; col++) {
+            for (int row = 0; row < matrix1.getData().length; row++) {
+                data[row][col] += matrix1.getData()[row][col];
+            }
+        }
+    }
+
+    public static Matrix4 sum(final Matrix4 matrix1, final Matrix4 matrix2) {
+        Matrix4 matrixResult = new Matrix4();
+        for (int col = 0; col < matrix1.getData()[0].length; col++) {
+            for (int row = 0; row < matrix1.getData().length; row++) {
+                matrixResult.getData()[row][col] = matrix1.getData()[row][col] + matrix2.getData()[row][col];
+            }
+        }
+        return matrixResult;
+    }
+
+    public void sub(final Matrix4 matrix1) {
+        for (int col = 0; col < matrix1.getData()[0].length; col++) {
+            for (int row = 0; row < matrix1.getData().length; row++) {
+                data[row][col] -= matrix1.getData()[row][col];
+            }
+        }
+    }
+
+    public static Matrix4 sub(final Matrix4 matrix1, final Matrix4 matrix2) {
+        Matrix4 matrixResult = new Matrix4();
+        for (int col = 0; col < matrix1.getData()[0].length; col++) {
+            for (int row = 0; row < matrix1.getData().length; row++) {
+                matrixResult.getData()[row][col] = matrix1.getData()[row][col] - matrix2.getData()[row][col];
+            }
+        }
+        return matrixResult;
+    }
+
+    public Vector4 multiply(final Vector4 vector) {
+        float[][] matrixResult = new float[4][1];
+        final float[][] vectorMatrix = new float[4][1];
+        vectorMatrix[0][0] = vector.getX();
+        vectorMatrix[1][0] = vector.getY();
+        vectorMatrix[2][0] = vector.getZ();
+        vectorMatrix[3][0] = vector.getM();
+
+        for (int row = 0; row < data.length; row++) {
+            for (int col = 0; col < data[0].length; col++) {
+                matrixResult[row][0] += data[row][col] * vectorMatrix[col][0];
+            }
+        }
+        return new Vector4(matrixResult[0][0], matrixResult[1][0], matrixResult[2][0], matrixResult[3][0]);
+    }
+
+    public static Vector4 multiply(final Matrix4 matrix, final Vector4 vector) {
+        float[][] matrixResult = new float[4][1];
+        float[][] vectorMatrix = new float[4][1];
+        vectorMatrix[0][0] = vector.getX();
+        vectorMatrix[1][0] = vector.getY();
+        vectorMatrix[2][0] = vector.getZ();
+        vectorMatrix[3][0] = vector.getM();
+
+        for (int row = 0; row < matrix.getData().length; row++) {
+            for (int col = 0; col < matrix.getData()[0].length; col++) {
+                matrixResult[row][0] += matrix.getData()[row][col] * vectorMatrix[col][0];
+            }
+        }
+        return new Vector4(matrixResult[0][0], matrixResult[1][0], matrixResult[2][0], matrixResult[3][0]);
+    }
+
+    public void multiply(final Matrix4 matrix1) {
+        float[][] matrixResult = new float[4][4];
+
+        for (int row = 0; row < data.length; row++) {
+            for (int col = 0; col < matrix1.getData()[0].length; col++) {
+                for (int i = 0; i < matrix1.getData().length; i++) {
+                    matrixResult[row][col] += (data[row][i] * matrix1.getData()[i][col]);
+                }
+            }
+        }
+        data = matrixResult;
+    }
+
+    public static Matrix4 multiply(final Matrix4 matrix1,final Matrix4 matrix2) {
+        Matrix4 matrixResult = new Matrix4();
+        for (int row = 0; row < matrix1.getData().length; row++) {
+            for (int col = 0; col < matrix2.getData()[0].length; col++) {
+                for (int i = 0; i < matrix2.getData().length; i++) {
+                    matrixResult.getData()[row][col] += (matrix1.getData()[row][i] * matrix2.getData()[i][col]);
+                }
+            }
+        }
+        return matrixResult;
+    }
+
+    public void transposeInPlace() {
+        float[][] matrixResult = new float[4][4];
+        for (int col = 0; col < data[0].length; col++) {
+            for (int row = 0; row < data.length; row++) {
+                matrixResult[col][row] = data[row][col];
+            }
+        }
+        data = matrixResult;
+    }
+
+    public void transpose(final Matrix4 matrix1) {
+        for (int col = 0; col < matrix1.getData()[0].length; col++) {
+            for (int row = 0; row < matrix1.getData().length; row++) {
+                data[col][row] = matrix1.getData()[row][col];
+            }
+        }
+    }
+
+    public void setZero() {
+        for (int row = 0; row < data[0].length; row++) {
+            for (int col = 0; col < data.length; col++) {
+                data[row][col] = 0;
+            }
+        }
+    }
+
+    public static Matrix4 zeroMatrix() {
+        Matrix4 matrix = new Matrix4();
+        for (int row = 0; row < matrix.getData()[0].length; row++) {
+            for (int col = 0; col < matrix.getData().length; col++) {
+                matrix.getData()[row][col] = 0;
+            }
+        }
         return matrix;
     }
 
-    public void sum(Matrix4 matrix1) {
-        for (int col = 0; col < matrix1.getMatrix()[0].length; col++) {
-            for (int row = 0; row < matrix1.getMatrix().length; row++) {
-                matrix[row][col] += matrix1.getMatrix()[row][col];
-            }
-        }
-    }
-
-    public void sum(Matrix4 matrix1, Matrix4 matrix2) {
-        for (int col = 0; col < matrix1.getMatrix()[0].length; col++) {
-            for (int row = 0; row < matrix1.getMatrix().length; row++) {
-                matrix[row][col] = matrix1.getMatrix()[row][col] + matrix2.getMatrix()[row][col];
-            }
-        }
-    }
-
-    public void sub(Matrix4 matrix1) {
-        for (int col = 0; col < matrix1.getMatrix()[0].length; col++) {
-            for (int row = 0; row < matrix1.getMatrix().length; row++) {
-                matrix[row][col] -= matrix1.getMatrix()[row][col];
-            }
-        }
-    }
-
-    public void sub(Matrix4 matrix1, Matrix4 matrix2) {
-        for (int col = 0; col < matrix1.getMatrix()[0].length; col++) {
-            for (int row = 0; row < matrix1.getMatrix().length; row++) {
-                matrix[row][col] = matrix1.getMatrix()[row][col] - matrix2.getMatrix()[row][col];
-            }
-        }
-    }
-
-    public float[][] increaseOnVector(Vector4 vector) {
-        float[][] matrixResult = new float[4][1];
-        float[][] vectorMatrix = new float[4][1];
-        vectorMatrix[0][0] = vector.getX();
-        vectorMatrix[1][0] = vector.getY();
-        vectorMatrix[2][0] = vector.getZ();
-        vectorMatrix[3][0] = vector.getM();
-
-        for (int row = 0; row < matrix.length; row++) {
-            for (int col = 0; col < matrix[0].length; col++) {
-                matrixResult[row][0] += matrix[row][col] * vectorMatrix[col][0];
-            }
-        }
-        return matrixResult;
-    }
-
-    public float[][] increaseOnVector(Matrix4 matrix, Vector4 vector) {
-        float[][] matrixResult = new float[4][1];
-        float[][] vectorMatrix = new float[4][1];
-        vectorMatrix[0][0] = vector.getX();
-        vectorMatrix[1][0] = vector.getY();
-        vectorMatrix[2][0] = vector.getZ();
-        vectorMatrix[3][0] = vector.getM();
-
-        for (int row = 0; row < matrix.getMatrix().length; row++) {
-            for (int col = 0; col < matrix.getMatrix()[0].length; col++) {
-                matrixResult[row][0] += matrix.getMatrix()[row][col] * vectorMatrix[col][0];
-            }
-        }
-        return matrixResult;
-    }
-
-    public void increaseMatrix(Matrix4 matrix1) {
-        float[][] matrixResult = new float[4][4];
-
-        for (int row = 0; row < matrix.length; row++) {
-            for (int col = 0; col < matrix1.getMatrix()[0].length; col++) {
-                for (int i = 0; i < matrix1.getMatrix().length; i++) {
-                    matrixResult[row][col] += (matrix[row][i] * matrix1.getMatrix()[i][col]);
-                }
-            }
-        }
-        matrix = matrixResult;
-    }
-
-    public void increaseMatrix(Matrix4 matrix1, Matrix4 matrix2) {
-        for (int row = 0; row < matrix1.getMatrix().length; row++) {
-            for (int col = 0; col < matrix2.getMatrix()[0].length; col++) {
-                for (int i = 0; i < matrix2.getMatrix().length; i++) {
-                    matrix[row][col] += (matrix1.getMatrix()[row][i] * matrix2.getMatrix()[i][col]);
-                }
-            }
-        }
-    }
-
-    public void transMatrix() {
-        float[][] matrixResult = new float[4][4];
-        for (int col = 0; col < matrix[0].length; col++) {
-            for (int row = 0; row < matrix.length; row++) {
-                matrixResult[col][row] = matrix[row][col];
-            }
-        }
-        matrix = matrixResult;
-    }
-
-    public void transMatrix(Matrix4 matrix1) {
-        for (int col = 0; col < matrix1.getMatrix()[0].length; col++) {
-            for (int row = 0; row < matrix1.getMatrix().length; row++) {
-                matrix[col][row] = matrix1.getMatrix()[row][col];
-            }
-        }
-    }
-
-    public void  nullMatrix() {
-        for (int row = 0; row < matrix[0].length; row++) {
-            for (int col = 0; col < matrix.length; col++) {
-                matrix[row][col] = 0;
-            }
-        }
-    }
-
-    public void oneMatrix() {
-        for (int row = 0; row < matrix[0].length; row++) {
-            for (int col = 0; col < matrix.length; col++) {
+    public void setIdentity() {
+        for (int row = 0; row < data[0].length; row++) {
+            for (int col = 0; col < data.length; col++) {
                 if(row == col) {
-                    matrix[row][col] = 1;
+                    data[row][col] = 1;
                     continue;
                 }
-                matrix[row][col] = 0;
+                data[row][col] = 0;
             }
         }
+    }
+
+    public static Matrix4 identityMatrix() {
+        Matrix4 matrix = new Matrix4();
+        for (int row = 0; row < matrix.getData()[0].length; row++) {
+            for (int col = 0; col < matrix.getData().length; col++) {
+                if(row == col) {
+                    matrix.getData()[row][col] = 1;
+                    continue;
+                }
+                matrix.getData()[row][col] = 0;
+            }
+        }
+        return matrix;
     }
 }

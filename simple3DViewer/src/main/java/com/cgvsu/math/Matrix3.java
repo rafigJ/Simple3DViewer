@@ -15,7 +15,7 @@ public class Matrix3 {
         return matrix;
     }
 
-    public void sum(Matrix3 matrix1) {
+    public void sum(final Matrix3 matrix1) {
         for (int col = 0; col < matrix1.getMatrix()[0].length; col++) {
             for (int row = 0; row < matrix1.getMatrix().length; row++) {
                 matrix[row][col] += matrix1.getMatrix()[row][col];
@@ -23,15 +23,17 @@ public class Matrix3 {
         }
     }
 
-    public void sum(Matrix3 matrix1, Matrix3 matrix2) {
+    public static Matrix3 sum(final Matrix3 matrix1, final Matrix3 matrix2) {
+        Matrix3 matrixResult = new Matrix3();
         for (int col = 0; col < matrix1.getMatrix()[0].length; col++) {
             for (int row = 0; row < matrix1.getMatrix().length; row++) {
-                matrix[row][col] = matrix1.getMatrix()[row][col] + matrix2.getMatrix()[row][col];
+                matrixResult.getMatrix()[row][col] = matrix1.getMatrix()[row][col] + matrix2.getMatrix()[row][col];
             }
         }
+        return matrixResult;
     }
 
-    public void sub(Matrix3 matrix1) {
+    public void sub(final Matrix3 matrix1) {
         for (int col = 0; col < matrix1.getMatrix()[0].length; col++) {
             for (int row = 0; row < matrix1.getMatrix().length; row++) {
                 matrix[row][col] -= matrix1.getMatrix()[row][col];
@@ -39,15 +41,17 @@ public class Matrix3 {
         }
     }
 
-    public void sub(Matrix3 matrix1, Matrix3 matrix2) {
+    public static Matrix3 sub(final Matrix3 matrix1, final Matrix3 matrix2) {
+        Matrix3 matrixResult = new Matrix3();
         for (int col = 0; col < matrix1.getMatrix()[0].length; col++) {
             for (int row = 0; row < matrix1.getMatrix().length; row++) {
-                matrix[row][col] = matrix1.getMatrix()[row][col] - matrix2.getMatrix()[row][col];
+                matrixResult.getMatrix()[row][col] = matrix1.getMatrix()[row][col] - matrix2.getMatrix()[row][col];
             }
         }
+        return matrixResult;
     }
 
-    public float[][] increaseOnVector(Vector3 vector) {
+    public float[][] multiply(final Vector3 vector) {
         float[][] matrixResult = new float[3][1];
         float[][] vectorMatrix = new float[3][1];
         vectorMatrix[0][0] = vector.getX();
@@ -62,7 +66,7 @@ public class Matrix3 {
         return matrixResult;
     }
 
-    public float[][] increaseOnVector(Matrix3 matrix, Vector3 vector) {
+    public static float[][] multiply(final Matrix3 matrix, final Vector3 vector) {
         float[][] matrixResult = new float[3][1];
         float[][] vectorMatrix = new float[3][1];
         vectorMatrix[0][0] = vector.getX();
@@ -77,7 +81,7 @@ public class Matrix3 {
         return matrixResult;
     }
 
-    public void increaseMatrix(Matrix3 matrix1) {
+    public void multiply(final Matrix3 matrix1) {
         float[][] matrixResult = new float[3][3];
         for (int row = 0; row < matrix.length; row++) {
             for (int col = 0; col < matrix1.getMatrix()[0].length; col++) {
@@ -89,14 +93,16 @@ public class Matrix3 {
         matrix = matrixResult;
     }
 
-    public void increaseMatrix(Matrix3 matrix1, Matrix3 matrix2) {
+    public static Matrix3 multiply(final Matrix3 matrix1, final Matrix3 matrix2) {
+        Matrix3 matrixResult = new Matrix3();
         for (int row = 0; row < matrix1.getMatrix().length; row++) {
             for (int col = 0; col < matrix2.getMatrix()[0].length; col++) {
                 for (int i = 0; i < matrix2.getMatrix().length; i++) {
-                    matrix[row][col] += (matrix1.getMatrix()[row][i] * matrix2.getMatrix()[i][col]);
+                    matrixResult.getMatrix()[row][col] += (matrix1.getMatrix()[row][i] * matrix2.getMatrix()[i][col]);
                 }
             }
         }
+        return matrixResult;
     }
 
     public void transMatrix() {
@@ -109,15 +115,17 @@ public class Matrix3 {
         matrix = matrixResult;
     }
 
-    public void transMatrix(Matrix3 matrix1) {
+    public static Matrix3 transMatrix(final Matrix3 matrix1) {
+        Matrix3 matrixResult = new Matrix3();
         for (int col = 0; col < matrix1.getMatrix()[0].length; col++) {
             for (int row = 0; row < matrix1.getMatrix().length; row++) {
-                matrix[col][row] = matrix1.getMatrix()[row][col];
+                matrixResult.getMatrix()[col][row] = matrix1.getMatrix()[row][col];
             }
         }
+        return matrixResult;
     }
 
-    public void nullMatrix() {
+    public void setZero() {
         for (int row = 0; row < matrix[0].length; row++) {
             for (int col = 0; col < matrix.length; col++) {
                 matrix[row][col] = 0;
@@ -125,7 +133,17 @@ public class Matrix3 {
         }
     }
 
-    public void oneMatrix() {
+    public static Matrix3 zeroMatrix() {
+        Matrix3 matrixResult = new Matrix3();
+        for (int row = 0; row < matrixResult.getMatrix()[0].length; row++) {
+            for (int col = 0; col < matrixResult.getMatrix().length; col++) {
+                matrixResult.getMatrix()[row][col] = 0;
+            }
+        }
+        return matrixResult;
+    }
+
+    public void setIdentity() {
         for (int row = 0; row < matrix[0].length; row++) {
             for (int col = 0; col < matrix.length; col++) {
                 if(row == col){
@@ -137,4 +155,17 @@ public class Matrix3 {
         }
     }
 
+    public static Matrix3 identityMatrix() {
+        Matrix3 matrixResult = new Matrix3();
+        for (int row = 0; row < matrixResult.getMatrix()[0].length; row++) {
+            for (int col = 0; col < matrixResult.getMatrix().length; col++) {
+                if(row == col){
+                    matrixResult.getMatrix()[row][col] = 1;
+                    continue;
+                }
+                matrixResult.getMatrix()[row][col] = 0;
+            }
+        }
+        return matrixResult;
+    }
 }

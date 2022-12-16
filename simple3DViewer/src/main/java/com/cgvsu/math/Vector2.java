@@ -4,6 +4,8 @@ public class Vector2 {
     private float x;
     private float y;
 
+    private static final float eps = 1e-7f;
+
     public Vector2(float x, float y) {
         this.x = x;
         this.y = y;
@@ -21,68 +23,74 @@ public class Vector2 {
         return this.y;
     }
 
-    public void sum(Vector2 v2) {
+    public void sum(final Vector2 v2) {
         this.x += v2.getX();
         this.y += v2.getY();
     }
 
-    public void sum(Vector2 v1, Vector2 v2) {
-        this.x = v1.getX() + v2.getX();
-        this.y = v1.getY() + v2.getY();
+    public static Vector2 sum(final Vector2 v1, final Vector2 v2) {
+        final float x = v1.getX() + v2.getX();
+        final float y = v1.getY() + v2.getY();
+
+        return new Vector2(x,y);
     }
 
-    public void sub(Vector2 v2) {
+    public void sub(final Vector2 v2) {
         this.x -= v2.getX();
         this.y -= v2.getY();
     }
 
-    public void sub(Vector2 v1, Vector2 v2) {
-        this.x = v1.getX() - v2.getX();
-        this.y = v1.getY() - v2.getY();
+    public static Vector2 sub(Vector2 v1, Vector2 v2) {
+        final float x = v1.getX() - v2.getX();
+        final float y = v1.getY() - v2.getY();
+        return new Vector2(x, y);
     }
 
-    public void increaseOnNumber(float n) {
+    public void multiply(final float n) {
         this.x *= n;
         this.y *= n;
     }
 
-    public void increaseOnNumber(Vector2 v1, float n) {
-        this.x = v1.getX() * n;
-        this.y = v1.getY() * n;
+    public static Vector2 multiply(final Vector2 v1, final float n) {
+        final float x = v1.getX() * n;
+        final float y = v1.getY() * n;
+
+        return new Vector2(x, y);
     }
 
-    public void divisionOnNumber(float n) {
-        if(n == 0) {
-            System.out.println("На 0 делить нельзя");
-            return;
+    public void divide(final float n) throws Exception {
+        if(n - 0 < eps) {
+            throw new Exception("На 0 делить нельзя");
         }
 
         this.x = this.x / n;
         this.y = this.y / n;
     }
 
-    public void divisionOnNumber(Vector2 v1, float n) {
-        if(n == 0) {
-            System.out.println("На 0 делить нельзя");
-            return;
+    public static Vector2 divide(final Vector2 v1,final float n) throws Exception {
+        if(n - 0 < eps) {
+            throw new Exception("На 0 делить нельзя");
         }
-        this.x = v1.getX() / n;
-        this.y = v1.getY() / n;
+
+        final float x = v1.getX() / n;
+        final float y = v1.getY() / n;
+
+        return new Vector2(x, y);
     }
 
     public float length() {
         return (float) Math.sqrt(this.getX() * this.getX() + this.getY() * this.getY());
     }
 
-    public float length(Vector2 v1) {
+    public static float length(final Vector2 v1) {
         return (float) Math.sqrt(v1.getX() * v1.getX() + v1.getY() * v1.getY());
     }
 
-    public float scalarProduct(Vector2 v2) {
+    public float dotProduct(final Vector2 v2) {
         return this.getX() * v2.getX() + this.getY() * v2.getY();
     }
 
-    public float scalarProduct(Vector2 v1, Vector2 v2) {
+    public static float dotProduct(final Vector2 v1, final Vector2 v2) {
         return v1.getX() * v2.getX() + v1.getY() * v2.getY();
     }
 
@@ -92,10 +100,12 @@ public class Vector2 {
         this.y *= invLength;
     }
 
-    public void normalization(Vector2 v1) {
+    public static Vector2 normalization(final Vector2 v1) {
         float invLength = (float) (1 / (Math.sqrt(v1.getX() * v1.getX() + v1.getY() * v1.getY())));
-        this.x = v1.getX() * invLength;
-        this.y = v1.getY() * invLength;
+        final float x = v1.getX() * invLength;
+        final float y = v1.getY() * invLength;
+
+        return new Vector2(x, y);
     }
 
 }
