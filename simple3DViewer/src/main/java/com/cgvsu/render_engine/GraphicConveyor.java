@@ -6,7 +6,7 @@ import com.cgvsu.math.Vector4;
 
 public class GraphicConveyor {
 
-    public static Matrix4 rotateScaleTranslate() { // переделать
+    public static Matrix4 rotateScaleTranslate() {
         float[][] matrix = new float[][]{
                 {1, 0, 0, 0},
                 {0, 1, 0, 0},
@@ -16,11 +16,11 @@ public class GraphicConveyor {
         return new Matrix4(matrix);
     }
 
-    public static Matrix4 lookAt(Vector3 eye, Vector3 target) { // переделать
+    public static Matrix4 lookAt(Vector3 eye, Vector3 target) {
         return lookAt(eye, target, new Vector3(0F, 1.0F, 0F));
     }
 
-    public static Matrix4 lookAt(Vector3 eye, Vector3 target, Vector3 up) { // переделать
+    public static Matrix4 lookAt(Vector3 eye, Vector3 target, Vector3 up) {
         Vector3 resultZ = Vector3.sub(target, eye);
         Vector3 resultX = Vector3.crossProduct(up, resultZ);
         Vector3 resultY = Vector3.crossProduct(resultZ, resultX);
@@ -40,7 +40,7 @@ public class GraphicConveyor {
         return matrix4;
     }
 
-    public static Matrix4 perspective( // переделать
+    public static Matrix4 perspective(
             final float fov,
             final float aspectRatio,
             final float nearPlane,
@@ -55,7 +55,7 @@ public class GraphicConveyor {
         return result;
     }
 
-    public static Vector3 multiplyMatrix4ByVector3(final Matrix4 matrix, final Vector3 vertex) { // Переделывал
+    public static Vector3 multiplyMatrix4ByVector3(final Matrix4 matrix, final Vector3 vertex) {
         Vector4 v4 = new Vector4(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F);
         v4 = matrix.multiply(v4);
         return new Vector3(v4.getX() / v4.getM(), v4.getY() / v4.getM(), v4.getZ() / v4.getM());
