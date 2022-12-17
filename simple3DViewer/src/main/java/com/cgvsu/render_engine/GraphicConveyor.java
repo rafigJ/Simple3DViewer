@@ -35,7 +35,9 @@ public class GraphicConveyor {
                 {resultX.getZ(), resultY.getZ(), resultZ.getZ(), 0},
                 {-resultX.dotProduct(eye), -resultY.dotProduct(eye), -resultZ.dotProduct(eye), 1}
         };
-        return new Matrix4(matrix);
+        Matrix4 matrix4 = new Matrix4(matrix);
+        matrix4.transposeInPlace();
+        return matrix4;
     }
 
     public static Matrix4 perspective( // переделать
@@ -48,8 +50,8 @@ public class GraphicConveyor {
         result.getData()[0][0] = tangentMinusOnDegree / aspectRatio;
         result.getData()[1][1] = tangentMinusOnDegree;
         result.getData()[2][2] = (farPlane + nearPlane) / (farPlane - nearPlane);
-        result.getData()[2][3] = 1.0F;
-        result.getData()[3][2] = 2 * (nearPlane * farPlane) / (nearPlane - farPlane);
+        result.getData()[3][2] = 1.0F;
+        result.getData()[2][3] = 2 * (nearPlane * farPlane) / (nearPlane - farPlane);
         return result;
     }
 

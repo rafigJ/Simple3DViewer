@@ -23,10 +23,6 @@ public class RenderEngine {
         Matrix4 viewMatrix = camera.getViewMatrix();
         Matrix4 projectionMatrix = camera.getProjectionMatrix();
 
-        viewMatrix.transposeInPlace();
-        projectionMatrix.transposeInPlace();
-
-
 //        Matrix4 projectionViewModelMatrix = new Matrix4(viewMatrix.getData());
 //        projectionViewModelMatrix.multiply(modelMatrix);
 //        projectionViewModelMatrix.multiply(projectionMatrix);
