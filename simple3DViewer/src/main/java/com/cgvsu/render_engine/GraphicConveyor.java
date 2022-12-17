@@ -21,13 +21,9 @@ public class GraphicConveyor {
     }
 
     public static Matrix4 lookAt(Vector3 eye, Vector3 target, Vector3 up) { // переделать
-        Vector3 resultX;
-        Vector3 resultY;
-        Vector3 resultZ;
-
-        resultZ = Vector3.sub(target, eye);
-        resultX = Vector3.crossProduct(up, resultZ);
-        resultY = Vector3.crossProduct(resultZ, resultX);
+        Vector3 resultZ = Vector3.sub(target, eye);
+        Vector3 resultX = Vector3.crossProduct(up, resultZ);
+        Vector3 resultY = Vector3.crossProduct(resultZ, resultX);
 
         resultX.normalization();
         resultY.normalization();
@@ -39,9 +35,7 @@ public class GraphicConveyor {
                 {resultX.getZ(), resultY.getZ(), resultZ.getZ(), 0},
                 {-resultX.dotProduct(eye), -resultY.dotProduct(eye), -resultZ.dotProduct(eye), 1}
         };
-        Matrix4 matrix4 = new Matrix4(matrix);
-        matrix4.transposeInPlace();
-        return matrix4;
+        return new Matrix4(matrix);
     }
 
     public static Matrix4 perspective( // переделать
@@ -56,14 +50,13 @@ public class GraphicConveyor {
         result.getData()[2][2] = (farPlane + nearPlane) / (farPlane - nearPlane);
         result.getData()[2][3] = 1.0F;
         result.getData()[3][2] = 2 * (nearPlane * farPlane) / (nearPlane - farPlane);
-        result.transposeInPlace();
         return result;
     }
 
     public static Vector3 multiplyMatrix4ByVector3(final Matrix4 matrix, final Vector3 vertex) { // Переделывал
-        Vector4 v4 = new Vector4(vertex.getX(), vertex.getY(), vertex.getZ(), 1f);
+        Vector4 v4 = new Vector4(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F);
         v4 = matrix.multiply(v4);
-        return new Vector3(vertex.getX() / v4.getM(), v4.getY() / v4.getM(), v4.getZ() / v4.getM());
+        return new Vector3(v4.getX() / v4.getM(), v4.getY() / v4.getM(), v4.getZ() / v4.getM());
     }
 
     public static Vector2 vertexToPoint(final Vector3 vertex, final int width, final int height) {

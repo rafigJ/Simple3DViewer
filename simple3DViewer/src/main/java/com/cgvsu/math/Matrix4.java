@@ -109,21 +109,23 @@ public class Matrix4 {
     }
 
     public void transposeInPlace() {
-        float[][] matrixResult = new float[4][4];
+        Matrix4 matrixResult = new Matrix4();
         for (int col = 0; col < data[0].length; col++) {
             for (int row = 0; row < data.length; row++) {
-                matrixResult[col][row] = data[row][col];
+                matrixResult.getData()[row][col] = data[col][row];
             }
         }
-        data = matrixResult;
+        data = matrixResult.getData();
     }
 
-    public void transpose(final Matrix4 matrix1) {
+    public static Matrix4 transpose(final Matrix4 matrix1) {
+        Matrix4 matrixResult = new Matrix4();
         for (int col = 0; col < matrix1.getData()[0].length; col++) {
             for (int row = 0; row < matrix1.getData().length; row++) {
-                data[col][row] = matrix1.getData()[row][col];
+                matrixResult.getData()[col][row] = matrix1.getData()[row][col];
             }
         }
+        return matrixResult;
     }
 
     public void setZero() {

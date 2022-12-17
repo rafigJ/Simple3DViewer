@@ -23,12 +23,24 @@ public class RenderEngine {
         Matrix4 viewMatrix = camera.getViewMatrix();
         Matrix4 projectionMatrix = camera.getProjectionMatrix();
 
-//        projectionMatrix.increaseMatrix(viewMatrix);
-//        projectionMatrix.increaseMatrix(modelMatrix);
+        viewMatrix.transposeInPlace();
+        projectionMatrix.transposeInPlace();
 
-        Matrix4 modelViewProjectionMatrix = new Matrix4(modelMatrix.getData());
-        modelViewProjectionMatrix.multiply(viewMatrix);
-        modelViewProjectionMatrix.multiply(projectionMatrix); // конец
+
+//        Matrix4 projectionViewModelMatrix = new Matrix4(viewMatrix.getData());
+//        projectionViewModelMatrix.multiply(modelMatrix);
+//        projectionViewModelMatrix.multiply(projectionMatrix);
+
+//        Matrix4 modelViewProjectionMatrix = new Matrix4(modelMatrix.getData());
+//        modelViewProjectionMatrix.multiply(viewMatrix);
+//        modelViewProjectionMatrix.multiply(projectionMatrix);
+
+//        for (int i = 0; i < projectionViewModelMatrix.getData().length; i++) {
+//            for (int j = 0; j < projectionViewModelMatrix.getData()[0].length; j++) {
+//                System.out.print(" " + projectionViewModelMatrix.getData()[i][j]);
+//            }
+//            System.out.println();
+//        }
 
         final int nPolygons = mesh.getPolygons().size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
@@ -39,8 +51,10 @@ public class RenderEngine {
                 Vector3 vertex = mesh.getVertices().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
 
                 Vector3 vertexVecmath = new Vector3(vertex.getX(), vertex.getY(), vertex.getZ());
+                Vector3 v = multiplyMatrix4ByVector3(modelMatrix, vertexVecmath);
+                v = multiplyMatrix4ByVector3(viewMatrix, v);
 
-                Vector2 resultPoint = vertexToPoint(multiplyMatrix4ByVector3(modelViewProjectionMatrix, vertexVecmath), width, height); // переделать
+                Vector2 resultPoint = vertexToPoint(multiplyMatrix4ByVector3(projectionMatrix, v), width, height); // переделать
                 resultPoints.add(resultPoint);
             }
 
