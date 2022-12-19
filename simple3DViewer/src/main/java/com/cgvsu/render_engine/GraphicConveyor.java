@@ -1,10 +1,17 @@
 package com.cgvsu.render_engine;
-import com.cgvsu.math.Matrix4;
-import com.cgvsu.math.Vector2;
-import com.cgvsu.math.Vector3;
-import com.cgvsu.math.Vector4;
+import com.cgvsu.math.*;
 
 public class GraphicConveyor {
+
+    public static Matrix4 rotateScaleTranslate(Vector3 vS, Vector3 vR, Vector3 vT) {
+        float[][] matrix = new float[][]{
+                {1, 0, 0, 0},
+                {0, 1, 0, 0},
+                {0, 0, 1, 0},
+                {0, 0, 0, 1}
+        };
+        return Matrix4.multiply(Matrix4.multiply(scale(vS), rotate(vR)), translate(vT));
+    }
 
     public static Matrix4 rotateScaleTranslate() {
         float[][] matrix = new float[][]{
@@ -29,7 +36,7 @@ public class GraphicConveyor {
         resultY.normalization();
         resultZ.normalization();
 
-        float[][] matrix = new float[][]{
+        float[][] matrix = new float[][]{ // заменить руками
                 {resultX.getX(), resultY.getX(), resultZ.getX(), 0},
                 {resultX.getY(), resultY.getY(), resultZ.getY(), 0},
                 {resultX.getZ(), resultY.getZ(), resultZ.getZ(), 0},
@@ -63,5 +70,43 @@ public class GraphicConveyor {
 
     public static Vector2 vertexToPoint(final Vector3 vertex, final int width, final int height) {
         return new Vector2(vertex.getX() * width + width / 2.0F, -vertex.getY() * height + height / 2.0F);
+    }
+
+    public static Matrix4 scale(final Vector3 vS) {
+        float[][] matrix = new float[][]{
+                {vS.getX(), 0, 0, 0},
+                {0, vS.getY(), 0, 0},
+                {0, 0, vS.getZ(), 0},
+                {0, 0, 0, 1}
+        };
+        return new Matrix4(matrix);
+    }
+
+    public static Matrix4 rotate(final Vector3 vR) {
+        final float sinX = (float) Math.sin(vR.getX());
+        final float cosX = (float) Math.cos(vR.getX());
+        final float sinY = (float) Math.sin(vR.getY());
+        final float cosY = (float) Math.cos(vR.getY());
+        final float sinZ = (float) Math.sin(vR.getX());
+        final float cosZ = (float) Math.cos(vR.getX());
+
+        float[][] matrix = new float[][] {
+                {cosY * cosZ, sinX * sinY * cosZ - cosX * sinZ, cosX * sinY * cosZ + sinX * sinZ, 0},
+                {cosY * sinZ, sinX * sinY * sinZ + cosX * cosZ, cosX * sinY * sinZ - sinX * cosZ, 0},
+                {-sinY, sinX * cosY, cosX * cosY, 0},
+                {0, 0, 0, 0}
+        };
+
+        return new Matrix4(matrix);
+    }
+
+    public static Matrix4 translate(final Vector3 vT) {
+        float[][] matrix = new float[][]{
+                {1, 0, 0, vT.getX()},
+                {0, 1, 0, vT.getY()},
+                {0, 0, 1, vT.getZ()},
+                {0, 0, 0, 1}
+        };
+        return new Matrix4(matrix);
     }
 }
