@@ -4,12 +4,6 @@ import com.cgvsu.math.*;
 public class GraphicConveyor {
 
     public static Matrix4 rotateScaleTranslate(Vector3 vS, Vector3 vR, Vector3 vT) {
-        float[][] matrix = new float[][]{
-                {1, 0, 0, 0},
-                {0, 1, 0, 0},
-                {0, 0, 1, 0},
-                {0, 0, 0, 1}
-        };
         return Matrix4.multiply(Matrix4.multiply(scale(vS), rotate(vR)), translate(vT));
     }
 
@@ -36,15 +30,14 @@ public class GraphicConveyor {
         resultY.normalization();
         resultZ.normalization();
 
-        float[][] matrix = new float[][]{ // заменить руками
-                {resultX.getX(), resultY.getX(), resultZ.getX(), 0},
-                {resultX.getY(), resultY.getY(), resultZ.getY(), 0},
-                {resultX.getZ(), resultY.getZ(), resultZ.getZ(), 0},
-                {-resultX.dotProduct(eye), -resultY.dotProduct(eye), -resultZ.dotProduct(eye), 1}
+        float[][] matrix = new float[][] {
+                {resultX.getX(), resultX.getY(), resultX.getZ(), -resultX.dotProduct(eye)},
+                {resultY.getX(), resultY.getY(), resultY.getZ(), -resultY.dotProduct(eye)},
+                {resultZ.getX(), resultZ.getY(), resultZ.getZ(), -resultZ.dotProduct(eye)},
+                {0, 0, 0, 1}
         };
-        Matrix4 matrix4 = new Matrix4(matrix);
-        matrix4.transposeInPlace();
-        return matrix4;
+
+        return new Matrix4(matrix);
     }
 
     public static Matrix4 perspective(

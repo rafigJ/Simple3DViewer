@@ -1,6 +1,7 @@
 package com.cgvsu;
 
 import com.cgvsu.math.Vector3;
+import com.cgvsu.model.ModelOnScene;
 import com.cgvsu.render_engine.RenderEngine;
 import javafx.fxml.FXML;
 import javafx.animation.Animation;
@@ -12,6 +13,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
+import javafx.scene.control.TextField;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
@@ -29,9 +31,35 @@ public class GuiController {
     AnchorPane anchorPane;
 
     @FXML
+    private TextField sX;
+    @FXML
+    private TextField sY;
+    @FXML
+    private TextField sZ;
+
+    @FXML
+    private TextField rX;
+    @FXML
+    private TextField rY;
+    @FXML
+    private TextField rZ;
+
+    @FXML
+    private TextField tX;
+    @FXML
+    private TextField tY;
+    @FXML
+    private TextField tZ;
+
+    @FXML
     private Canvas canvas;
 
+    private Vector3 sV;
+    private Vector3 vR;
+    private Vector3 vT;
+
     private Model mesh = null;
+    private ModelOnScene modelOnScene = null;
 
     private Camera camera = new Camera(
             new Vector3(0, 00, 25),
@@ -57,7 +85,10 @@ public class GuiController {
 
 
             if (mesh != null) {
-                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
+                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, null, (int) width, (int) height);
+            }
+            if(modelOnScene != null) {
+                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, modelOnScene, (int) width, (int) height);
             }
         });
 
@@ -85,6 +116,26 @@ public class GuiController {
         } catch (IOException exception) {
 
         }
+    }
+
+    @FXML
+    public void rST() {
+        final float scX = Float.parseFloat(sX.getText());
+        final float scY = Float.parseFloat(sY.getText());
+        final float scZ = Float.parseFloat(sZ.getText());
+        sV = new Vector3(scX, scY, scZ);
+
+        final float roX = Float.parseFloat(rX.getText());
+        final float roY = Float.parseFloat(rY.getText());
+        final float roZ = Float.parseFloat(rZ.getText());
+        vR = new Vector3(roX, roY, roZ);
+
+        final float trX = Float.parseFloat(tX.getText());
+        final float trY = Float.parseFloat(tY.getText());
+        final float trZ = Float.parseFloat(tZ.getText());
+        vT = new Vector3(trX, trY, trZ);
+
+        modelOnScene = new ModelOnScene(mesh.getVertices(), mesh.getTextureVertices(), mesh.getNormals(), mesh.getPolygons(), sV, vR, vT);
     }
 
     @FXML
