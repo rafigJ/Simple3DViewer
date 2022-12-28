@@ -153,26 +153,18 @@ public class GuiController {
     }
 
     private void initializeSpinners(){
-        SpinnerValueFactory<Double> scaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 30, 0.5);
-        scaX.setValue(1.0);
-        SpinnerValueFactory<Double> scaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 30, 0.5);
-        scaY.setValue(1.0);
-        SpinnerValueFactory<Double> scaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 30, 0.5);
-        scaZ.setValue(1.0);
+        SpinnerValueFactory<Double> scaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+        SpinnerValueFactory<Double> scaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+        SpinnerValueFactory<Double> scaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
 
-        SpinnerValueFactory<Double> roaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 30, 0.5);
-        roaX.setValue(1.0);
-        SpinnerValueFactory<Double> roaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 30, 0.5);
-        roaY.setValue(1.0);
-        SpinnerValueFactory<Double> roaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 30, 0.5);
-        roaZ.setValue(1.0);
 
-        SpinnerValueFactory<Double> traX = new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 30, 0.5);
-        traX.setValue(1.0);
-        SpinnerValueFactory<Double> traY = new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 30, 0.5);
-        traY.setValue(1.0);
-        SpinnerValueFactory<Double> traZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(1, 30, 0.5);
-        traZ.setValue(1.0);
+        SpinnerValueFactory<Double> roaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+        SpinnerValueFactory<Double> roaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+        SpinnerValueFactory<Double> roaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+
+        SpinnerValueFactory<Double> traX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+        SpinnerValueFactory<Double> traY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+        SpinnerValueFactory<Double> traZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
 
         sX.setValueFactory(scaX);
         sY.setValueFactory(scaY);
