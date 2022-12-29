@@ -57,9 +57,13 @@ public class GuiController {
     private Canvas canvas;
 
     @FXML
-    private Button changeButton;
-
-
+    private CheckBox textureCheck;
+    @FXML
+    private CheckBox shadowCheck;
+    @FXML
+    private CheckBox meshCheck;
+    @FXML
+    private CheckBox fillCheck;
 
     @FXML
     private TitledPane titledPane;
@@ -72,7 +76,9 @@ public class GuiController {
 
 
     private Camera camera = new Camera(
-            new Vector3(0, 00, 300),
+
+            new Vector3(0, 0, 300),
+
             new Vector3(0, 0, 0),
             1.0F, 1, 0.01F, 100);
 
@@ -96,7 +102,9 @@ public class GuiController {
 
 
             if (mesh != null) {
-                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh,  (int) width, (int) height);
+
+                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
+
             }
             if(modelOnScene != null) {
                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
@@ -138,7 +146,9 @@ public class GuiController {
         final float scY = sY.getValue().floatValue();
         final float scZ = sZ.getValue().floatValue();
         sV = new Vector3(scX, scY, scZ);
-
+        System.out.println(scX);
+        System.out.println(scY);
+        System.out.println(scZ);
         final float roX = rX.getValue().floatValue();
         final float roY = rY.getValue().floatValue();
         final float roZ = rZ.getValue().floatValue();
