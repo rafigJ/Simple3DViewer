@@ -1,14 +1,18 @@
 package com.cgvsu.model;
+
 import com.cgvsu.math.Vector2;
 import com.cgvsu.math.Vector3;
 import com.cgvsu.objreader.ReaderExceptions;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Model {
     private List<Vector3> vertices;
     private List<Vector2> textureVertices;
+
     public List<Vector3> normals;
+
     private List<Polygon> polygons;
 
     public Model(final List<Vector3> vertices, final List<Vector2> textureVertices, final List<Vector3> normals, final List<Polygon> polygons) {
@@ -34,6 +38,7 @@ public class Model {
     }
 
     public List<Vector3> getNormals() {
+        //ModelUtils.recalculateNormals(this);
         return normals;
     }
 
@@ -99,7 +104,6 @@ public class Model {
         return true;
     }
 
-
     public void triangulate() {
         List<Polygon> triangulatedPolygons = new ArrayList<>();
         List<Vector2> textureVertices = new ArrayList<>();
@@ -122,4 +126,6 @@ public class Model {
         polygons = triangulatedPolygons;
 
     }
+
 }
+

@@ -2,7 +2,9 @@ package com.cgvsu.render_engine;
 
 
 
+
 import java.awt.*;
+
 
 public class Triangle {
     private static float X1;

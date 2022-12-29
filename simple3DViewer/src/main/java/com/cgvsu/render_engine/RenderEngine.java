@@ -74,7 +74,9 @@ public class RenderEngine {
 
 
         //List<List<Integer>> triangles = triangulate(mesh);
+        
         // final int nVerticesInPolygon = mesh.getPolygons().get(polygonInd).getVertexIndices().size();
+
         final int nPolygons = mesh.getPolygons().size();
         //int nTriangles = triangulate(mesh).size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
@@ -201,8 +203,10 @@ public class RenderEngine {
             if (zBuffer[zIndex] < depth) {
                 zBuffer[zIndex] = depth;
                 int color1 = new Color(r,g,b).getRGB();
-                // int color = new Color(Color.cyan.getRed() * shade, Color.cyan.getGreen() * shade, Color.cyan.getBlue() * shade).getRGB();
-                graphicsContext.getPixelWriter().setArgb((int) x, (int) (y),  (color1));
+
+                   // int color = new Color(Color.cyan.getRed() * shade, Color.cyan.getGreen() * shade, Color.cyan.getBlue() * shade).getRGB();
+                    graphicsContext.getPixelWriter().setArgb((int) x, (int) (y),  (color1));
+
 
                 //graphicsContext.getPixelWriter().setArgb((int) x, (int) y, img.getRGB((int) ((VX * ((float)img.getWidth() ))), (int) (VY1 * (float) (img.getHeight() ) )));
             }

@@ -76,7 +76,9 @@ public class GuiController {
 
 
     private Camera camera = new Camera(
+
             new Vector3(0, 0, 300),
+
             new Vector3(0, 0, 0),
             1.0F, 1, 0.01F, 100);
 
@@ -100,7 +102,9 @@ public class GuiController {
 
 
             if (mesh != null) {
+
                  RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
+
             }
             if(modelOnScene != null) {
                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
