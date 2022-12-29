@@ -70,7 +70,7 @@ public class Vector3 {
         return new Vector3(x, y, z);
     }
 
-    public Vector3 divide(final float n) throws Exception{
+    public void divide(final float n) throws Exception{
         if(n - 0 < eps) {
             throw new Exception("На 0 делить нельзя");
         }
@@ -78,7 +78,7 @@ public class Vector3 {
         this.x = this.x / n;
         this.y = this.y / n;
         this.z = this.z / n;
-        return new Vector3(x,y,z);
+
     }
 
     public static Vector3 divide(Vector3 v1, float n) throws Exception {

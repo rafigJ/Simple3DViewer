@@ -49,7 +49,9 @@ public class Vector3f {
     }
 
 
+
     public static Vector3f sum(ArrayList<Vector3> vectors){
+
 
         float x = vectors.get(0).getX();
         float y = vectors.get(0).getY();
