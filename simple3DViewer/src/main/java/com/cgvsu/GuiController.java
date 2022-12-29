@@ -2,6 +2,7 @@ package com.cgvsu;
 
 import com.cgvsu.math.Vector3;
 import com.cgvsu.model.ModelOnScene;
+import com.cgvsu.model.ModelUtils;
 import com.cgvsu.render_engine.RenderEngine;
 import javafx.fxml.FXML;
 import javafx.animation.Animation;
@@ -71,7 +72,7 @@ public class GuiController {
 
 
     private Camera camera = new Camera(
-            new Vector3(0, 00, 25),
+            new Vector3(0, 00, 300),
             new Vector3(0, 0, 0),
             1.0F, 1, 0.01F, 100);
 
@@ -95,10 +96,10 @@ public class GuiController {
 
 
             if (mesh != null) {
-                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, null, (int) width, (int) height);
+                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh,  (int) width, (int) height);
             }
             if(modelOnScene != null) {
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, modelOnScene, (int) width, (int) height);
+                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
             }
         });
 
@@ -122,6 +123,8 @@ public class GuiController {
         try {
             String fileContent = Files.readString(fileName);
             mesh = ObjReader.read(fileContent, false);
+            ModelUtils.recalculateNormals(mesh);
+            mesh.triangulate();
             // todo: обработка ошибок
         } catch (IOException exception) {
 
