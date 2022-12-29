@@ -9,11 +9,12 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
-import javafx.scene.control.TextField;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
@@ -31,35 +32,43 @@ public class GuiController {
     AnchorPane anchorPane;
 
     @FXML
-    private TextField sX;
+    private Spinner<Double> sX;
     @FXML
-    private TextField sY;
+    private Spinner<Double> sY;
     @FXML
-    private TextField sZ;
+    private Spinner<Double> sZ;
 
     @FXML
-    private TextField rX;
+    private Spinner<Double> rX;
     @FXML
-    private TextField rY;
+    private Spinner<Double> rY;
     @FXML
-    private TextField rZ;
+    private Spinner<Double> rZ;
 
     @FXML
-    private TextField tX;
+    private Spinner<Double> tX;
     @FXML
-    private TextField tY;
+    private Spinner<Double> tY;
     @FXML
-    private TextField tZ;
+    private Spinner<Double> tZ;
 
     @FXML
     private Canvas canvas;
 
+    @FXML
+    private Button changeButton;
+
+
+
+    @FXML
+    private TitledPane titledPane;
     private Vector3 sV;
     private Vector3 vR;
     private Vector3 vT;
 
     private Model mesh = null;
     private ModelOnScene modelOnScene = null;
+
 
     private Camera camera = new Camera(
             new Vector3(0, 00, 25),
@@ -70,6 +79,7 @@ public class GuiController {
 
     @FXML
     private void initialize() {
+        initializeSpinners();
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
 
@@ -85,7 +95,7 @@ public class GuiController {
 
 
             if (mesh != null) {
-                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, null, (int) width, (int) height);
+                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, null, (int) width, (int) height);
             }
             if(modelOnScene != null) {
                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, modelOnScene, (int) width, (int) height);
@@ -120,23 +130,55 @@ public class GuiController {
 
     @FXML
     public void rST() {
-        final float scX = Float.parseFloat(sX.getText());
-        final float scY = Float.parseFloat(sY.getText());
-        final float scZ = Float.parseFloat(sZ.getText());
+
+        final float scX = sX.getValue().floatValue();
+        final float scY = sY.getValue().floatValue();
+        final float scZ = sZ.getValue().floatValue();
         sV = new Vector3(scX, scY, scZ);
 
-        final float roX = Float.parseFloat(rX.getText());
-        final float roY = Float.parseFloat(rY.getText());
-        final float roZ = Float.parseFloat(rZ.getText());
+        final float roX = rX.getValue().floatValue();
+        final float roY = rY.getValue().floatValue();
+        final float roZ = rZ.getValue().floatValue();
         vR = new Vector3(roX, roY, roZ);
 
-        final float trX = Float.parseFloat(tX.getText());
-        final float trY = Float.parseFloat(tY.getText());
-        final float trZ = Float.parseFloat(tZ.getText());
+        final float trX = tX.getValue().floatValue();
+        final float trY = tY.getValue().floatValue();
+        final float trZ = tZ.getValue().floatValue();
         vT = new Vector3(trX, trY, trZ);
 
         modelOnScene = new ModelOnScene(mesh.getVertices(), mesh.getTextureVertices(), mesh.getNormals(), mesh.getPolygons(), sV, vR, vT);
+        titledPane.setExpanded(false);
+        titledPane.setFocusTraversable(true);
+        titledPane.setFocusTraversable(false);
     }
+
+    private void initializeSpinners(){
+        SpinnerValueFactory<Double> scaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+        SpinnerValueFactory<Double> scaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+        SpinnerValueFactory<Double> scaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+
+
+        SpinnerValueFactory<Double> roaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+        SpinnerValueFactory<Double> roaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+        SpinnerValueFactory<Double> roaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+
+        SpinnerValueFactory<Double> traX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+        SpinnerValueFactory<Double> traY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+        SpinnerValueFactory<Double> traZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 30, 0.5, 0.5);
+
+        sX.setValueFactory(scaX);
+        sY.setValueFactory(scaY);
+        sZ.setValueFactory(scaZ);
+
+        rX.setValueFactory(roaX);
+        rY.setValueFactory(roaY);
+        rZ.setValueFactory(roaZ);
+
+        tX.setValueFactory(traX);
+        tY.setValueFactory(traY);
+        tZ.setValueFactory(traZ);
+    }
+
 
     @FXML
     public void handleCameraForward(ActionEvent actionEvent) {

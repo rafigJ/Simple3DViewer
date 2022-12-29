@@ -4,7 +4,7 @@ import com.cgvsu.math.*;
 public class GraphicConveyor {
 
     public static Matrix4 rotateScaleTranslate(Vector3 vS, Vector3 vR, Vector3 vT) {
-        return Matrix4.multiply(Matrix4.multiply(scale(vS), rotate(vR)), translate(vT));
+        return Matrix4.multiply(Matrix4.multiply(translate(vT), rotate(vR)),scale(vS));
     }
 
     public static Matrix4 rotateScaleTranslate() {

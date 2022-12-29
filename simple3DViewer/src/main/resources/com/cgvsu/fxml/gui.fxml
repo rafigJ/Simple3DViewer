@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.canvas.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.input.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Point3D?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane fx:id="anchorPane" prefHeight="763.0" prefWidth="1359.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cgvsu.GuiController">
     <MenuBar>
@@ -48,63 +55,74 @@
         </Menu>
     </MenuBar>
 
-    <Label layoutX="1500" text="Масштабирование">
+    <Canvas fx:id="canvas" focusTraversable="true" height="489.0" layoutX="56.0" layoutY="182.0" width="1019.0" AnchorPane.topAnchor="182.0" />
+   <TitledPane fx:id="titledPane" expanded="false" focusTraversable="false" layoutX="1198.0" pickOnBounds="false" prefHeight="426.0" prefWidth="209.0">
+     <content>
+       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="410.0" prefWidth="259.0">
+            <children>
+            
+                            <Label layoutX="52.0" layoutY="14.0" text="Масштабирование">
     </Label>
-
-    <Label layoutX="1485" layoutY="30" text="X: ">
+            
+                <Label layoutX="19.0" layoutY="40.0" text="X: ">
     </Label>
-    <TextField fx:id="sX" layoutX="1500" layoutY="25">
-    </TextField>
-
-    <Label layoutX="1485" layoutY="60" text="Y: ">
+                <Spinner fx:id="sX" editable="true" layoutX="34.0" layoutY="35.0">
+    </Spinner>
+            
+                <Label layoutX="19.0" layoutY="70.0" text="Y: ">
     </Label>
-    <TextField fx:id="sY" layoutX="1500" layoutY="55">
-    </TextField>
-
-    <Label layoutX="1485" layoutY="90" text="Z: ">
+                <Spinner fx:id="sY" editable="true" layoutX="34.0" layoutY="65.0">
+    </Spinner>
+            
+                <Label layoutX="19.0" layoutY="100.0" text="Z: ">
     </Label>
-    <TextField fx:id="sZ" layoutX="1500" layoutY="85">
-    </TextField>
-
-    <Label layoutX="1500" layoutY="115" text="Поворот">
+                <Spinner fx:id="sZ" editable="true" layoutX="34.0" layoutY="95.0">
+    </Spinner>
+            
+                <Label layoutX="74.0" layoutY="126.0" text="Поворот">
     </Label>
-
-    <Label layoutX="1485" layoutY="145" text="X: ">
+            
+                <Label layoutX="19.0" layoutY="155.0" text="X: ">
     </Label>
-    <TextField fx:id="rX" layoutX="1500" layoutY="140">
-    </TextField>
-
-    <Label layoutX="1485" layoutY="175" text="Y: ">
+                <Spinner fx:id="rX" editable="true" layoutX="34.0" layoutY="150.0">
+    </Spinner>
+            
+                <Label layoutX="19.0" layoutY="185.0" text="Y: ">
     </Label>
-    <TextField fx:id="rY" layoutX="1500" layoutY="170">
-    </TextField>
-
-    <Label layoutX="1485" layoutY="205" text="Z: ">
+                <Spinner fx:id="rY" editable="true" layoutX="34.0" layoutY="180.0">
+    </Spinner>
+            
+                <Label layoutX="19.0" layoutY="215.0" text="Z: ">
     </Label>
-    <TextField fx:id="rZ" layoutX="1500" layoutY="200">
-    </TextField>
-
-    <Label layoutX="1500" layoutY="230" text="Смещение">
+                <Spinner fx:id="rZ" editable="true" layoutX="34.0" layoutY="210.0">
+    </Spinner>
+            
+                <Label layoutX="74.0" layoutY="246.0" text="Смещение">
     </Label>
-
-    <Label layoutX="1485" layoutY="265" text="X: ">
+            
+                <Label layoutX="19.0" layoutY="275.0" text="X: ">
     </Label>
-    <TextField fx:id="tX" layoutX="1500" layoutY="260">
-    </TextField>
-
-    <Label layoutX="1485" layoutY="295" text="Y: ">
+                <Spinner fx:id="tX" editable="true" layoutX="34.0" layoutY="270.0">
+    </Spinner>
+            
+                <Label layoutX="19.0" layoutY="305.0" text="Y: ">
     </Label>
-    <TextField fx:id="tY" layoutX="1500" layoutY="290">
-    </TextField>
-
-    <Label layoutX="1485" layoutY="325" text="Z: ">
+                <Spinner fx:id="tY" editable="true" layoutX="34.0" layoutY="300.0">
+    </Spinner>
+            
+                <Label layoutX="19.0" layoutY="335.0" text="Z: ">
     </Label>
-    <TextField fx:id="tZ" layoutX="1500" layoutY="320">
-    </TextField>
-
-    <Button layoutX="1540" layoutY="350" onAction="#rST" text="Изменить">
+                <Spinner fx:id="tZ" editable="true" layoutX="34.0" layoutY="330.0">
+    </Spinner>
+            
+                <Button fx:id="changeButton" layoutX="63.0" layoutY="361.0" onAction="#rST" text="Изменить">
 
     </Button>
-
-    <Canvas fx:id="canvas" height="489.0" layoutX="55.0" layoutY="381.0" width="1019.0" AnchorPane.topAnchor="381.0" />
+            </children>
+         </AnchorPane>
+     </content>
+   </TitledPane>
+   <rotationAxis>
+      <Point3D />
+   </rotationAxis>
 </AnchorPane>
