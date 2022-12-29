@@ -22,6 +22,7 @@ public class RenderEngine {
             final int width,
             final int height)
     {
+
         Matrix4 modelMatrix;
         if(modelOnScene == null) {
             modelMatrix = rotateScaleTranslate();

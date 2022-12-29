@@ -56,9 +56,13 @@ public class GuiController {
     private Canvas canvas;
 
     @FXML
-    private Button changeButton;
-
-
+    private CheckBox textureCheck;
+    @FXML
+    private CheckBox shadowCheck;
+    @FXML
+    private CheckBox meshCheck;
+    @FXML
+    private CheckBox fillCheck;
 
     @FXML
     private TitledPane titledPane;
@@ -135,7 +139,9 @@ public class GuiController {
         final float scY = sY.getValue().floatValue();
         final float scZ = sZ.getValue().floatValue();
         sV = new Vector3(scX, scY, scZ);
-
+        System.out.println(scX);
+        System.out.println(scY);
+        System.out.println(scZ);
         final float roX = rX.getValue().floatValue();
         final float roY = rY.getValue().floatValue();
         final float roZ = rZ.getValue().floatValue();
