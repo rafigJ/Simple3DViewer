@@ -10,9 +10,7 @@ import java.util.List;
 public class Model {
     private List<Vector3> vertices;
     private List<Vector2> textureVertices;
-
     public List<Vector3> normals;
-
     private List<Polygon> polygons;
 
     public Model(final List<Vector3> vertices, final List<Vector2> textureVertices, final List<Vector3> normals, final List<Polygon> polygons) {
@@ -38,7 +36,6 @@ public class Model {
     }
 
     public List<Vector3> getNormals() {
-        //ModelUtils.recalculateNormals(this);
         return normals;
     }
 
@@ -73,7 +70,7 @@ public class Model {
                         "The unified format for specifying polygon descriptions is not defined.");
             }
             if (vertexIndices.size() != normalIndices.size()
-                    && vertexIndices.size() != 0 &&  normalIndices.size() != 0) {
+                    && vertexIndices.size() != 0 && normalIndices.size() != 0) {
                 throw new ReaderExceptions.NotDefinedUniformFormatException(
                         "The unified format for specifying polygon descriptions is not defined.");
             }
@@ -124,8 +121,6 @@ public class Model {
             }
         }
         polygons = triangulatedPolygons;
-
     }
-
 }
 
