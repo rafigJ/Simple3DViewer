@@ -56,7 +56,7 @@
     </MenuBar>
 
     <Canvas fx:id="canvas" focusTraversable="true" height="489.0" layoutX="56.0" layoutY="182.0" width="1019.0" AnchorPane.topAnchor="182.0" />
-   <TitledPane fx:id="titledPane" expanded="false" focusTraversable="false" layoutX="1198.0" pickOnBounds="false" prefHeight="426.0" prefWidth="209.0">
+   <TitledPane fx:id="titledPane" expanded="false" focusTraversable="false" layoutX="1198.0" pickOnBounds="false" prefHeight="426.0" prefWidth="209.0" AnchorPane.rightAnchor="1.0">
      <content>
        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="410.0" prefWidth="259.0">
             <children>
