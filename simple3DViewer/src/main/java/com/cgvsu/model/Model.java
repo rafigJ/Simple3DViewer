@@ -8,7 +8,7 @@ import java.util.*;
 public class Model {
     private List<Vector3> vertices;
     private List<Vector2> textureVertices;
-    private List<Vector3> normals;
+    public List<Vector3> normals;
     private List<Polygon> polygons;
 
     public Model(final List<Vector3> vertices, final List<Vector2> textureVertices, final List<Vector3> normals, final List<Polygon> polygons) {
@@ -97,5 +97,29 @@ public class Model {
             }
         }
         return true;
+    }
+
+
+    public void triangulate() {
+        List<Polygon> triangulatedPolygons = new ArrayList<>();
+        List<Vector2> textureVertices = new ArrayList<>();
+        for (Polygon polygon : polygons) {
+            List<Integer> vertexIndices = polygon.getVertexIndices();
+            List<Integer> TextureVertexIndices = polygon.getTextureVertexIndices();
+            if (vertexIndices.size() > 3) {
+                for (int i = 2; i < vertexIndices.size(); i++) {
+                    Polygon triangle = new Polygon();
+                    triangle.getVertexIndices().add(vertexIndices.get(0));
+                    triangle.getVertexIndices().add(vertexIndices.get(i - 1));
+                    triangle.getVertexIndices().add(vertexIndices.get(i));
+                    triangulatedPolygons.add(triangle);
+                }
+            } else {
+                triangulatedPolygons.add(polygon);
+
+            }
+        }
+        polygons = triangulatedPolygons;
+
     }
 }
