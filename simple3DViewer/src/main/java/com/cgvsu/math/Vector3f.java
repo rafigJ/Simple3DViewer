@@ -48,7 +48,9 @@ public class Vector3f {
         return new Vector3f(x,y,z);
     }
 
-    public static Vector3 sum(ArrayList<Vector3> vectors){
+
+    public static Vector3f sum(ArrayList<Vector3> vectors){
+
         float x = vectors.get(0).getX();
         float y = vectors.get(0).getY();
         float z = vectors.get(0).getZ();
@@ -57,7 +59,7 @@ public class Vector3f {
             y += vectors.get(i).getY();
             z += vectors.get(i).getZ();
         }
-        return new Vector3(x,y,z);
+        return new Vector3f(x,y,z);
     }
 
 
