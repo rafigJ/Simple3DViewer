@@ -9,10 +9,12 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
 
 <AnchorPane fx:id="anchorPane" prefHeight="763.0" prefWidth="1359.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cgvsu.GuiController">
     <MenuBar>
@@ -57,7 +59,7 @@
         </Menu>
     </MenuBar>
 
-    <Canvas fx:id="canvas" focusTraversable="true" height="489.0" layoutX="56.0" layoutY="182.0" width="1019.0" AnchorPane.topAnchor="182.0" />
+    <Canvas fx:id="canvas" focusTraversable="true" height="489.0" layoutX="75.0" layoutY="182.0" width="1019.0" AnchorPane.topAnchor="182.0" />
    <TitledPane fx:id="titledPane" expanded="false" focusTraversable="false" layoutX="1198.0" pickOnBounds="false" prefHeight="426.0" prefWidth="209.0" AnchorPane.rightAnchor="1.0">
      <content>
        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="410.0" prefWidth="259.0">
@@ -131,6 +133,12 @@
    <CheckBox fx:id="shadowCheck" layoutX="14.0" layoutY="74.0" mnemonicParsing="false" text="Shadow" AnchorPane.leftAnchor="14.0" />
    <CheckBox fx:id="meshCheck" layoutX="14.0" layoutY="98.0" mnemonicParsing="false" text="Mesh" AnchorPane.leftAnchor="14.0" />
    <CheckBox fx:id="fillCheck" layoutX="14.0" layoutY="122.0" mnemonicParsing="false" text="Fill" AnchorPane.leftAnchor="14.0" />
+   <Pane fx:id="speedPane" layoutX="9.0" layoutY="549.0" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" prefHeight="191.0" prefWidth="309.0" AnchorPane.bottomAnchor="23.0" AnchorPane.leftAnchor="9.0">
+      <children>
+         <Slider fx:id="speedSlider" layoutX="30.0" layoutY="38.0" orientation="VERTICAL" />
+         <Label fx:id="speedLabel" layoutX="14.0" layoutY="13.0" text="Speed: 0" />
+      </children>
+   </Pane>
    <rotationAxis>
       <Point3D />
    </rotationAxis>
