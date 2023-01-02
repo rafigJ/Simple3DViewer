@@ -119,7 +119,7 @@
                     </ImageView>
                 </children>
             </VBox>
-            <VBox alignment="CENTER" prefHeight="44.0" prefWidth="44.0" style="-fx-background-color: #4e4e4e;" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <VBox alignment="CENTER" prefHeight="44.0" prefWidth="44.0" style="-fx-background-color: #2f2f2f;" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <children>
                     <ImageView fx:id="menu" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                         <image>
@@ -202,7 +202,7 @@
                     </ImageView>
                 </children>
             </VBox>
-            <VBox alignment="CENTER" prefHeight="44.0" prefWidth="44.0" style="-fx-background-color: #4e4e4e;" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <VBox alignment="CENTER" prefHeight="44.0" prefWidth="44.0" style="-fx-background-color: #2f2f2f;" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <children>
                     <ImageView fx:id="menu1" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                         <image>

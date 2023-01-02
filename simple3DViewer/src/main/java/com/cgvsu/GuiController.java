@@ -90,10 +90,10 @@ public class GuiController {
             camera.setAspectRatio((float) (width / height));
             for (Model mesh : objList.values()) {
                 if (mesh != null) {
-                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
+                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, null, (int) width, (int) height);
                 }
                 if (modelOnScene != null) {
-                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
+                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, null, (int) width, (int) height);
                 }
             }
         });
