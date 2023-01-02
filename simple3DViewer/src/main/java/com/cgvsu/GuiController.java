@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -55,10 +56,10 @@ public class GuiController {
 
     private Model mesh = null;
     private ModelOnScene modelOnScene = null;
-    private LinkedList<Model> modelList;
+
 
     private final Camera camera = new Camera(
-            new Vector3(0, 0, 100),
+            new Vector3(0, 0, 300),
             new Vector3(0, 0, 0),
             1.0F, 1, 0.01F, 100);
 
@@ -82,6 +83,7 @@ public class GuiController {
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
             double width = canvas.getWidth();
             double height = canvas.getHeight();
+            boolean[] params = {textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected()};
             speedSlider.setMax(10F);
             speedSlider.setMin(0.5F);
             TRANSLATION = (float) speedSlider.getValue();
@@ -90,10 +92,10 @@ public class GuiController {
             camera.setAspectRatio((float) (width / height));
             for (Model mesh : objList.values()) {
                 if (mesh != null) {
-                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, null, (int) width, (int) height);
+                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
                 }
                 if (modelOnScene != null) {
-                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, null, (int) width, (int) height);
+                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
                 }
             }
         });
@@ -185,8 +187,7 @@ public class GuiController {
         Vector3 vT = new Vector3(trX, trY, trZ);
         modelOnScene = new ModelOnScene(mesh.getVertices(), mesh.getTextureVertices(), mesh.getNormals(), mesh.getPolygons(), sV, vR, vT);
         titledPane.setExpanded(false);
-        titledPane.setFocusTraversable(true);
-        titledPane.setFocusTraversable(false);
+        canvas.requestFocus();
     }
 
     private void initializeSpinners() {
@@ -258,6 +259,7 @@ public class GuiController {
             translateTransition1.play();
             menu1.getParent().getParent().setVisible(true);
             menu.getParent().getParent().setVisible(false);
+            canvas.requestFocus();
         });
         menu.setOnMouseClicked(pane1.getOnMouseClicked());
     }
@@ -293,4 +295,8 @@ public class GuiController {
         camera.movePosition(new Vector3(0, -TRANSLATION, 0));
     }
 
+    public void canvasClick(MouseEvent mouseEvent) {
+        titledPane.setExpanded(false);
+        canvas.requestFocus();
+    }
 }
