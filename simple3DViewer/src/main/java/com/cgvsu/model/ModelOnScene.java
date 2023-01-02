@@ -88,4 +88,5 @@ public class ModelOnScene {
     public void setVR(final Vector3 vR) {
         this.vR = vR;
     }
+
 }

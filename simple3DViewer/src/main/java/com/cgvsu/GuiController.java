@@ -4,17 +4,15 @@ import com.cgvsu.math.Vector3;
 import com.cgvsu.model.ModelOnScene;
 import com.cgvsu.model.ModelUtils;
 import com.cgvsu.render_engine.RenderEngine;
-import javafx.animation.TranslateTransition;
+import javafx.animation.*;
 import javafx.fxml.FXML;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
@@ -23,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
 import java.io.File;
+import java.util.*;
 
 import com.cgvsu.model.Model;
 import com.cgvsu.objreader.ObjReader;
@@ -31,6 +30,9 @@ import com.cgvsu.render_engine.Camera;
 public class GuiController {
 
     public Pane speedPane;
+    public javafx.scene.image.ImageView menu, menu1;
+    public LinkedList<Button> objList;
+    public VBox vBox;
     private float TRANSLATION;
 
     @FXML
@@ -38,69 +40,45 @@ public class GuiController {
     @FXML
     private Label speedLabel;
     @FXML
-    AnchorPane anchorPane;
-
+    AnchorPane anchorPane, pane1, pane2;
     @FXML
-    private Spinner<Double> sX;
-    @FXML
-    private Spinner<Double> sY;
-    @FXML
-    private Spinner<Double> sZ;
-
-    @FXML
-    private Spinner<Double> rX;
-    @FXML
-    private Spinner<Double> rY;
-    @FXML
-    private Spinner<Double> rZ;
-
-    @FXML
-    private Spinner<Double> tX;
-    @FXML
-    private Spinner<Double> tY;
-    @FXML
-    private Spinner<Double> tZ;
+    private Spinner<Double> sX, sY, sZ, rX, rY, rZ, tX, tY, tZ;
 
     @FXML
     private Canvas canvas;
 
     @FXML
-    private CheckBox textureCheck;
-    @FXML
-    private CheckBox shadowCheck;
-    @FXML
-    private CheckBox meshCheck;
-    @FXML
-    private CheckBox fillCheck;
+    private CheckBox textureCheck, shadowCheck, meshCheck, fillCheck;
 
     @FXML
     private TitledPane titledPane;
-    private Vector3 sV;
-    private Vector3 vR;
-    private Vector3 vT;
 
     private Model mesh = null;
     private ModelOnScene modelOnScene = null;
+    private LinkedList<Model> modelList;
 
-
-    private Camera camera = new Camera(
-
-            new Vector3(0, 0, 300),
-
+    private final Camera camera = new Camera(
+            new Vector3(0, 0, 100),
             new Vector3(0, 0, 0),
             1.0F, 1, 0.01F, 100);
-
-    private Timeline timeline;
 
     @FXML
     private void initialize() {
         initializeSpinners();
+        objList = new LinkedList<>();
+        modelList = new LinkedList<Model>();
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
         speedSlider.setVisible(false);
         speedLabel.setVisible(false);
-        timeline = new Timeline();
+        textureCheck.setVisible(false);
+        fillCheck.setVisible(false);
+        meshCheck.setVisible(false);
+        shadowCheck.setVisible(false);
+        Timeline timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
+        initializeAnimMenu();
+
 
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
             double width = canvas.getWidth();
@@ -111,13 +89,13 @@ public class GuiController {
             speedLabel.setText("Speed: " + TRANSLATION);
             canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
             camera.setAspectRatio((float) (width / height));
-
-
-            if (mesh != null) {
-                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
-            }
-            if(modelOnScene != null) {
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
+            for (Model mesh : modelList) {
+                if (mesh != null) {
+                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
+                }
+                if (modelOnScene != null) {
+                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
+                }
             }
         });
 
@@ -125,18 +103,26 @@ public class GuiController {
         timeline.play();
     }
 
-    public void mouseEntered(MouseEvent mouseEvent) {
+    public void mouseEntered() {
+        textureCheck.setVisible(true);
+        fillCheck.setVisible(true);
+        meshCheck.setVisible(true);
+        shadowCheck.setVisible(true);
         speedSlider.setVisible(true);
         speedLabel.setVisible(true);
     }
 
-    public void mouseExited(MouseEvent mouseEvent) {
+    public void mouseExited() {
+        textureCheck.setVisible(false);
+        fillCheck.setVisible(false);
+        meshCheck.setVisible(false);
+        shadowCheck.setVisible(false);
         speedSlider.setVisible(false);
         speedLabel.setVisible(false);
     }
 
     @FXML
-    private void onOpenModelMenuItemClick() {
+    private void onOpenModel() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
         fileChooser.setTitle("Load Model");
@@ -145,6 +131,7 @@ public class GuiController {
         if (file == null) {
             return;
         }
+        String name = file.getName();
 
         Path fileName = Path.of(file.getAbsolutePath());
 
@@ -153,36 +140,54 @@ public class GuiController {
             mesh = ObjReader.read(fileContent, false);
             ModelUtils.recalculateNormals(mesh);
             mesh.triangulate();
+            if (modelList.size() <= 6) {
+                modelList.add(mesh);
+                Button objFile = new Button(name);
+                objFile.setFocusTraversable(false);
+                objFile.setMnemonicParsing(false);
+                objFile.setPrefHeight(40.0);
+                objFile.setPrefWidth(209.0);
+                objFile.setFont(new Font(15));
+                if(!objList.contains(objFile)){
+                    vBox.getChildren().add(objFile);
+                    objList.add(objFile);
+                }
+            } else {
+                System.out.println("max six models");
+            }
+            updateObjBox();
             // todo: обработка ошибок
-        } catch (IOException exception) {
+        } catch (IOException ignored) {
 
         }
     }
 
+    private void onDeleteModel(){
+
+    }
     @FXML
     public void rST() {
         final float scX = sX.getValue().floatValue();
         final float scY = sY.getValue().floatValue();
         final float scZ = sZ.getValue().floatValue();
-        sV = new Vector3(scX, scY, scZ);
+        Vector3 sV = new Vector3(scX, scY, scZ);
 
         final float roX = rX.getValue().floatValue();
         final float roY = rY.getValue().floatValue();
         final float roZ = rZ.getValue().floatValue();
-        vR = new Vector3(roX, roY, roZ);
+        Vector3 vR = new Vector3(roX, roY, roZ);
 
         final float trX = tX.getValue().floatValue();
         final float trY = tY.getValue().floatValue();
         final float trZ = tZ.getValue().floatValue();
-        vT = new Vector3(trX, trY, trZ);
-
+        Vector3 vT = new Vector3(trX, trY, trZ);
         modelOnScene = new ModelOnScene(mesh.getVertices(), mesh.getTextureVertices(), mesh.getNormals(), mesh.getPolygons(), sV, vR, vT);
         titledPane.setExpanded(false);
         titledPane.setFocusTraversable(true);
         titledPane.setFocusTraversable(false);
     }
 
-    private void initializeSpinners(){
+    private void initializeSpinners() {
         SpinnerValueFactory<Double> scaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
         SpinnerValueFactory<Double> scaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
         SpinnerValueFactory<Double> scaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
@@ -208,6 +213,60 @@ public class GuiController {
         tZ.setValueFactory(traZ);
     }
 
+    private void initializeAnimMenu() {
+        pane1.setVisible(false);
+
+        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), pane1);
+        fadeTransition.setFromValue(1);
+        fadeTransition.setToValue(0);
+        fadeTransition.play();
+
+        TranslateTransition translateTransition = new TranslateTransition(Duration.seconds(0.5), pane2);
+        translateTransition.setByX(-600);
+        translateTransition.play();
+
+        menu1.setOnMouseClicked(event -> {
+            pane1.setVisible(true);
+            FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane1);
+            fadeTransition1.setFromValue(0);
+            fadeTransition1.setToValue(0.15);
+            fadeTransition1.play();
+
+            TranslateTransition translateTransition1 = new TranslateTransition(Duration.seconds(0.5), pane2);
+            translateTransition1.setByX(+600);
+            translateTransition1.setToX(0);
+            translateTransition1.play();
+            menu1.getParent().getParent().setVisible(false);
+            menu.getParent().getParent().setVisible(true);
+        });
+
+        pane1.setOnMouseClicked(event -> {
+            FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane1);
+            fadeTransition1.setFromValue(0.15);
+            fadeTransition1.setToValue(0);
+            fadeTransition1.play();
+
+            fadeTransition1.setOnFinished(event1 -> {
+                pane1.setVisible(false);
+            });
+
+            TranslateTransition translateTransition1 = new TranslateTransition(Duration.seconds(0.5), pane2);
+            translateTransition1.setByX(-600);
+            translateTransition1.setToX(-600);
+            translateTransition1.play();
+            menu1.getParent().getParent().setVisible(true);
+            menu.getParent().getParent().setVisible(false);
+        });
+        menu.setOnMouseClicked(pane1.getOnMouseClicked());
+    }
+
+    private void updateObjBox(){
+        objList.forEach(button -> {
+            if(!button.isVisible()){
+                vBox.getChildren().remove(button);
+            }
+        });
+    }
 
     @FXML
     public void handleCameraForward(ActionEvent actionEvent) {
@@ -238,4 +297,5 @@ public class GuiController {
     public void handleCameraDown(ActionEvent actionEvent) {
         camera.movePosition(new Vector3(0, -TRANSLATION, 0));
     }
+
 }
