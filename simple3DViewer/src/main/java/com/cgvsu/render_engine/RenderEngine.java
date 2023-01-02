@@ -1,5 +1,6 @@
 package com.cgvsu.render_engine;
 
+import com.cgvsu.math.Barycentric;
 import com.cgvsu.math.Matrix4;
 import com.cgvsu.math.Vector2;
 import com.cgvsu.math.Vector3;
@@ -29,13 +30,26 @@ public class RenderEngine {
         }
     }
 
-    private static float shade(Vector3 norm, Camera camera) {
+    private static float shade(
+            Vector3 norm,
+            Camera camera) {
+
         Vector3 v = Vector3.sub(camera.getTarget(), camera.getPosition());
         float cosine = Vector3.dotProduct(Vector3.normalization(norm), Vector3.normalization(v));
         return Math.abs(cosine);
     }
 
-    private static void texture(Matrix4 projectionViewModelMatrix, Camera camera, GraphicsContext graphicsContext, Model mesh, int width, int height, double[] zBuffer, boolean shadow, boolean fill) {
+    private static void texture(
+            Matrix4 projectionViewModelMatrix,
+            Camera camera,
+            GraphicsContext graphicsContext,
+            Model mesh,
+            int width,
+            int height,
+            float[] zBuffer,
+            boolean shadow,
+            boolean fill) {
+
         final int nPolygons = mesh.getPolygons().size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
             ArrayList<Float> pointsZ = new ArrayList<>();
@@ -44,7 +58,7 @@ public class RenderEngine {
             ArrayList<Float> N = new ArrayList<>();
             for (int vertexInPolygonInd = 0; vertexInPolygonInd < 3; ++vertexInPolygonInd) {
                 Vector3 vertex = mesh.getVertices().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
-                Vector2 VTVertex = mesh.getTextureVertices().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
+                Vector2 VTVertex = mesh.getTextureVertices().get(mesh.getPolygons().get(polygonInd).getTextureVertexIndices().get(vertexInPolygonInd));
                 Vector3 vertexVecmath = new Vector3(vertex.getX(), vertex.getY(), vertex.getZ());
                 Vector3 norm = mesh.getNormals().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
                 Vector2 resultPoint = vertexToPoint(multiplyMatrix4ByVector3(projectionViewModelMatrix, vertexVecmath), width, height);
@@ -67,7 +81,13 @@ public class RenderEngine {
 
     }
 
-    private static void mesh(Matrix4 projectionViewModelMatrix, GraphicsContext graphicsContext, Model mesh, int width, int height) {
+    private static void mesh(
+            Matrix4 projectionViewModelMatrix,
+            GraphicsContext graphicsContext,
+            Model mesh,
+            int width,
+            int height) {
+
         final int nPolygons = mesh.getPolygons().size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
             final int nVerticesInPolygon = mesh.getPolygons().get(polygonInd).getVertexIndices().size();
@@ -103,7 +123,7 @@ public class RenderEngine {
             final int height,
             final boolean[] params) {
 
-        double[] zBuffer = new double[width * height];
+        float[] zBuffer = new float[width * height];
         Arrays.fill(zBuffer, Float.NEGATIVE_INFINITY);
         Matrix4 modelMatrix = rotateScaleTranslate();
         Matrix4 viewMatrix = camera.getViewMatrix();
@@ -127,35 +147,54 @@ public class RenderEngine {
 
     }
 
-    private static void getColor(float x, float y, float x1, float y1, float x2, float y2, float x3, float y3, float z1, float z2, float z3,
-                                 int width, GraphicsContext graphicsContext, double[] zBuffer, ArrayList<Vector2> VT, ArrayList<Float> N, boolean shadow, boolean fill) {
-        Triangle t = new Triangle(x1, y1, x2, y2, x3, y3);
+    private static void getColor(
+            float x,
+            float y,
+            float x1,
+            float y1,
+            float x2,
+            float y2,
+            float x3,
+            float y3,
+            float z1,
+            float z2,
+            float z3,
+            int width,
+            GraphicsContext graphicsContext,
+            float[] zBuffer,
+            ArrayList<Vector2> VT,
+            ArrayList<Float> N,
+            boolean shadow,
+            boolean fill) {
 
-        float l1, l2, l3;
-        l1 = ((t.getY2() - t.getY3()) * (x - t.getX3()) + (t.getX3() - t.getX2()) * (y - t.getY3())) /
-                ((t.getY2() - t.getY3()) * (t.getX1() - t.getX3()) + (t.getX3() - t.getX2()) * (t.getY1() - t.getY3()));
-
-        l2 = ((t.getY3() - t.getY1()) * (x - t.getX3()) + (t.getX1() - t.getX3()) * (y - t.getY3())) /
-                ((t.getY2() - t.getY3()) * (t.getX1() - t.getX3()) + (t.getX3() - t.getX2()) * (t.getY1() - t.getY3()));
-
-        l3 = 1 - l1 - l2;
-
-        if (l1 >= 0 && l1 <= 1 && l2 >= 0 && l2 <= 1 && l3 >= 0 && l3 <= 1) {
-            float depth = l1 * z1 + l2 * z2 + l3 * z3;
-            float shade = shadow ? l1 * N.get(0) + l2 * N.get(1) + l3 * N.get(2) : 1;
-            float VX = l1 * VT.get(0).getX() + l2 * VT.get(1).getX() + l3 * VT.get(2).getX();
-            float VY = l1 * VT.get(0).getY() + l2 * VT.get(1).getY() + l3 * VT.get(2).getY();
-            float VY1 = 1 - VY;
-            int color = img.getRGB((int) ((VX * ((float) img.getWidth()))), (int) (VY1 * (float) (img.getHeight())));
-            int r = (int) (((color >> 16) & 0xff) * shade);
-            int g = (int) (((color >> 8) & 0xff) * shade);
-            int b = (int) (((color) & 0xff) * shade);
+        Barycentric barycentric = new Barycentric(new Triangle(x1, y1, x2, y2, x3, y3), x, y);
+        if (barycentric.isInside()) {
+            float depth = barycentric.getL1() * z1 + barycentric.getL2() * z2 + barycentric.getL3() * z3;
+            float shade = shadow ? barycentric.getL1() * N.get(0) + barycentric.getL2() * N.get(1) + barycentric.getL3() * N.get(2) : 1;
+            float VX = barycentric.getL1() * VT.get(0).getX() + barycentric.getL2() * VT.get(1).getX() + barycentric.getL3() * VT.get(2).getX();
+            float VY = 1 - (barycentric.getL1() * VT.get(0).getY() + barycentric.getL2() * VT.get(1).getY() + barycentric.getL3() * VT.get(2).getY());
             int zIndex = (int) (y * width + x);
             if (zBuffer[zIndex] < depth) {
                 zBuffer[zIndex] = depth;
-                int color1 = fill ? Color.CYAN.getRGB() : new Color(r, g, b).getRGB();
-                graphicsContext.getPixelWriter().setArgb((int) x, (int) (y), (color1));
+                int color = fill ? setDefaultColor(shade) : setTextureColor(shade, VX, VY);
+                graphicsContext.getPixelWriter().setArgb((int) x, (int) (y), (color));
             }
         }
+    }
+
+    private static int setTextureColor(float shade, float x, float y) {
+        int color = img.getRGB((int) ((x * ((float) img.getWidth()))), (int) (y * (float) (img.getHeight())));
+        int r = (int) (((color >> 16) & 0xff) * shade);
+        int g = (int) (((color >> 8) & 0xff) * shade);
+        int b = (int) (((color) & 0xff) * shade);
+        return new Color(r, g, b).getRGB();
+    }
+
+    private static int setDefaultColor(float shade) {
+        int color = Color.CYAN.getRGB();
+        int r = (int) (((color >> 16) & 0xff) * shade);
+        int g = (int) (((color >> 8) & 0xff) * shade);
+        int b = (int) (((color) & 0xff) * shade);
+        return new Color(r, g, b).getRGB();
     }
 }

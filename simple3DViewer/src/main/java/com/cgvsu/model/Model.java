@@ -103,16 +103,18 @@ public class Model {
 
     public void triangulate() {
         List<Polygon> triangulatedPolygons = new ArrayList<>();
-        List<Vector2> textureVertices = new ArrayList<>();
         for (Polygon polygon : polygons) {
             List<Integer> vertexIndices = polygon.getVertexIndices();
-            List<Integer> TextureVertexIndices = polygon.getTextureVertexIndices();
+            List<Integer> textureVertexIndices = polygon.getTextureVertexIndices();
             if (vertexIndices.size() > 3) {
                 for (int i = 2; i < vertexIndices.size(); i++) {
                     Polygon triangle = new Polygon();
                     triangle.getVertexIndices().add(vertexIndices.get(0));
+                    triangle.getTextureVertexIndices().add(textureVertexIndices.get(0));
                     triangle.getVertexIndices().add(vertexIndices.get(i - 1));
+                    triangle.getTextureVertexIndices().add(textureVertexIndices.get(i - 1));
                     triangle.getVertexIndices().add(vertexIndices.get(i));
+                    triangle.getTextureVertexIndices().add(textureVertexIndices.get(i));
                     triangulatedPolygons.add(triangle);
                 }
             } else {
