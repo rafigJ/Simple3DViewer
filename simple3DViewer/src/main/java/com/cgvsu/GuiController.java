@@ -31,7 +31,7 @@ public class GuiController {
 
     public Pane speedPane;
     public javafx.scene.image.ImageView menu, menu1;
-    public LinkedList<Button> objList;
+    public HashMap<Button, Model> objList;
     public VBox vBox;
     private float TRANSLATION;
 
@@ -65,8 +65,7 @@ public class GuiController {
     @FXML
     private void initialize() {
         initializeSpinners();
-        objList = new LinkedList<>();
-        modelList = new LinkedList<Model>();
+        objList = new HashMap<>(6);
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
         speedSlider.setVisible(false);
@@ -89,7 +88,7 @@ public class GuiController {
             speedLabel.setText("Speed: " + TRANSLATION);
             canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
             camera.setAspectRatio((float) (width / height));
-            for (Model mesh : modelList) {
+            for (Model mesh : objList.values()) {
                 if (mesh != null) {
                     RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
                 }
@@ -140,30 +139,33 @@ public class GuiController {
             mesh = ObjReader.read(fileContent, false);
             ModelUtils.recalculateNormals(mesh);
             mesh.triangulate();
-            if (modelList.size() <= 6) {
-                modelList.add(mesh);
+            if (objList.size() <= 6) {
                 Button objFile = new Button(name);
-                objFile.setFocusTraversable(false);
+                objFile.setFocusTraversable(true);
                 objFile.setMnemonicParsing(false);
                 objFile.setPrefHeight(40.0);
                 objFile.setPrefWidth(209.0);
                 objFile.setFont(new Font(15));
-                if(!objList.contains(objFile)){
+                if(!objList.containsKey(objFile)){
                     vBox.getChildren().add(objFile);
-                    objList.add(objFile);
+                    objList.put(objFile, mesh);
                 }
             } else {
                 System.out.println("max six models");
             }
-            updateObjBox();
             // todo: обработка ошибок
         } catch (IOException ignored) {
 
         }
     }
-
+    @FXML
     private void onDeleteModel(){
-
+        for (Button b : objList.keySet()) {
+            if(b.isFocused()){
+                vBox.getChildren().remove(b);
+                objList.remove(b);
+            }
+        }
     }
     @FXML
     public void rST() {
@@ -260,13 +262,6 @@ public class GuiController {
         menu.setOnMouseClicked(pane1.getOnMouseClicked());
     }
 
-    private void updateObjBox(){
-        objList.forEach(button -> {
-            if(!button.isVisible()){
-                vBox.getChildren().remove(button);
-            }
-        });
-    }
 
     @FXML
     public void handleCameraForward(ActionEvent actionEvent) {
