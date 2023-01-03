@@ -7,6 +7,7 @@ import com.cgvsu.render_engine.RenderEngine;
 import javafx.animation.*;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
+import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -18,6 +19,7 @@ import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
+import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
@@ -28,14 +30,16 @@ import com.cgvsu.model.Model;
 import com.cgvsu.objreader.ObjReader;
 import com.cgvsu.render_engine.Camera;
 
+import static javax.imageio.ImageIO.read;
+
 public class GuiController {
 
     public Pane speedPane;
     public javafx.scene.image.ImageView menu, menu1;
     public HashMap<Button, Model> objList;
     public VBox vBox;
+    public ListView<String> multiList;
     private float TRANSLATION;
-
     @FXML
     private Slider speedSlider;
     @FXML
@@ -66,19 +70,13 @@ public class GuiController {
     @FXML
     private void initialize() {
         initializeSpinners();
+        initializeAnimMenu();
+        tooltip();
         objList = new HashMap<>(6);
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
-        speedSlider.setVisible(false);
-        speedLabel.setVisible(false);
-        textureCheck.setVisible(false);
-        fillCheck.setVisible(false);
-        meshCheck.setVisible(false);
-        shadowCheck.setVisible(false);
         Timeline timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
-        initializeAnimMenu();
-
 
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
             double width = canvas.getWidth();
@@ -104,24 +102,34 @@ public class GuiController {
         timeline.play();
     }
 
+    //Pane
     public void mouseEntered() {
-        textureCheck.setVisible(true);
-        fillCheck.setVisible(true);
-        meshCheck.setVisible(true);
-        shadowCheck.setVisible(true);
-        speedSlider.setVisible(true);
-        speedLabel.setVisible(true);
+        meshCheck.getParent().getChildrenUnmodifiable().forEach(n -> n.setVisible(true));
     }
-
     public void mouseExited() {
-        textureCheck.setVisible(false);
-        fillCheck.setVisible(false);
-        meshCheck.setVisible(false);
-        shadowCheck.setVisible(false);
-        speedSlider.setVisible(false);
-        speedLabel.setVisible(false);
+        meshCheck.getParent().getChildrenUnmodifiable().forEach(n -> n.setVisible(false));
     }
 
+    public void tooltip(){
+        Font f = new Font(13);
+        Tooltip t1 = new Tooltip("Открыть меню");
+        Tooltip t2 = new Tooltip("Закрыть меню");
+        Tooltip t3 = new Tooltip("Добавить объект (.obj)");
+        Tooltip t4 = new Tooltip("Удалить объект из списка");
+        Tooltip t5 = new Tooltip("Скачать преобразованный obj файл"); // Пока не используется
+        t1.setFont(f);
+        t2.setFont(f);
+        t3.setFont(f);
+        t4.setFont(f);
+        t5.setFont(f);
+        Tooltip.install(menu1, t1);
+        Tooltip.install(menu, t2);
+        Parent n = (Parent) menu1.getParent().getParent().getChildrenUnmodifiable().get(0);
+        Tooltip.install(n.getChildrenUnmodifiable().get(0), t3);
+        n = (Parent) menu.getParent().getParent().getChildrenUnmodifiable().get(0);
+        Tooltip.install(n.getChildrenUnmodifiable().get(0), t3);
+        Tooltip.install(n.getChildrenUnmodifiable().get(2), t4);
+    }
     @FXML
     private void onOpenModel() {
         FileChooser fileChooser = new FileChooser();
@@ -133,7 +141,6 @@ public class GuiController {
             return;
         }
         String name = file.getName();
-
         Path fileName = Path.of(file.getAbsolutePath());
 
         try {
@@ -148,6 +155,21 @@ public class GuiController {
                 objFile.setPrefHeight(40.0);
                 objFile.setPrefWidth(209.0);
                 objFile.setFont(new Font(15));
+                objFile.setOnMouseClicked(mouseEvent -> {
+                    if(mouseEvent.isControlDown()){
+                        if(!multiList.getItems().contains(objFile.getText()))multiList.getItems().add(objFile.getText());
+                        if(!multiList.isVisible()){
+                            FadeTransition s = new FadeTransition(Duration.seconds(0.5), multiList);
+                            multiList.setVisible(true);
+                            s.setFromValue(0);
+                            s.setToValue(0.35);
+                            s.play();
+                        }
+                    }
+                    else {
+                        evaporationList();
+                    }
+                });
                 if(!objList.containsKey(objFile)){
                     vBox.getChildren().add(objFile);
                     objList.put(objFile, mesh);
@@ -160,14 +182,22 @@ public class GuiController {
 
         }
     }
+
     @FXML
     private void onDeleteModel(){
+        var remove = new HashSet<Button>(6);
         for (Button b : objList.keySet()) {
-            if(b.isFocused()){
+            if (multiList.isVisible() && multiList.getItems().contains(b.getText())) {
                 vBox.getChildren().remove(b);
-                objList.remove(b);
+                remove.add(b);
+            }
+            if (!multiList.isVisible() && b.isFocused()) {
+                vBox.getChildren().remove(b);
+                remove.add(b);
             }
         }
+        if(multiList.isVisible()) evaporationList();
+        remove.forEach(b -> objList.remove(b));
     }
     @FXML
     public void rST() {
@@ -214,9 +244,19 @@ public class GuiController {
         tX.setValueFactory(traX);
         tY.setValueFactory(traY);
         tZ.setValueFactory(traZ);
+        // видимость всех-всех узлов на pane
+        meshCheck.getParent().getChildrenUnmodifiable().forEach(n -> n.setVisible(false));
+        meshCheck.setSelected(true);
     }
 
     private void initializeAnimMenu() {
+        multiList.setVisible(false);
+
+        FadeTransition m = new FadeTransition(Duration.seconds(0.5), multiList);
+        m.setFromValue(1);
+        m.setToValue(0);
+        m.play();
+
         pane1.setVisible(false);
 
         FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), pane1);
@@ -232,7 +272,7 @@ public class GuiController {
             pane1.setVisible(true);
             FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane1);
             fadeTransition1.setFromValue(0);
-            fadeTransition1.setToValue(0.15);
+            fadeTransition1.setToValue(0.35);
             fadeTransition1.play();
 
             TranslateTransition translateTransition1 = new TranslateTransition(Duration.seconds(0.5), pane2);
@@ -245,7 +285,7 @@ public class GuiController {
 
         pane1.setOnMouseClicked(event -> {
             FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane1);
-            fadeTransition1.setFromValue(0.15);
+            fadeTransition1.setFromValue(0.35);
             fadeTransition1.setToValue(0);
             fadeTransition1.play();
 
@@ -259,11 +299,24 @@ public class GuiController {
             translateTransition1.play();
             menu1.getParent().getParent().setVisible(true);
             menu.getParent().getParent().setVisible(false);
+            evaporationList();
             canvas.requestFocus();
         });
         menu.setOnMouseClicked(pane1.getOnMouseClicked());
     }
 
+    private void evaporationList(){
+        multiList.getItems().remove(0, multiList.getItems().size());
+        FadeTransition s = new FadeTransition(Duration.seconds(0.5), multiList);
+        if(multiList.isVisible()) {
+            s.setFromValue(0.35);
+            s.setToValue(0);
+            s.play();
+            s.setOnFinished(event1 -> {
+                multiList.setVisible(false);
+            });
+        }
+    }
 
     @FXML
     public void handleCameraForward(ActionEvent actionEvent) {
@@ -298,5 +351,22 @@ public class GuiController {
     public void canvasClick(MouseEvent mouseEvent) {
         titledPane.setExpanded(false);
         canvas.requestFocus();
+    }
+    // загрузка текстуры для каждой модели по отдельности. Пока что меняю статическое поле в render
+    public void onOpenTexture(MouseEvent mouseEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg"));
+        fileChooser.setTitle("Load Texture");
+
+        File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());
+        if (file == null) {
+            return;
+        }
+        try {
+            BufferedImage img = read(file);
+            RenderEngine.setImg(img);   // надо добавить такой метод
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
