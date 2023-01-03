@@ -102,9 +102,7 @@ public class GuiController {
 
 
             if (mesh != null) {
-
                  RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
-
             }
             if(modelOnScene != null) {
                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
@@ -141,7 +139,6 @@ public class GuiController {
 
     @FXML
     public void rST() {
-
         final float scX = sX.getValue().floatValue();
         final float scY = sY.getValue().floatValue();
         final float scZ = sZ.getValue().floatValue();
@@ -169,7 +166,6 @@ public class GuiController {
         SpinnerValueFactory<Double> scaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
         SpinnerValueFactory<Double> scaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
         SpinnerValueFactory<Double> scaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
-
 
         SpinnerValueFactory<Double> roaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
         SpinnerValueFactory<Double> roaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
