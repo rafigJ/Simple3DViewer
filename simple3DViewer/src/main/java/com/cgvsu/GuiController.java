@@ -5,6 +5,8 @@ import com.cgvsu.model.ModelOnScene;
 import com.cgvsu.model.ModelUtils;
 import com.cgvsu.render_engine.RenderEngine;
 import javafx.animation.*;
+import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -37,8 +39,9 @@ public class GuiController {
     public Pane speedPane;
     public javafx.scene.image.ImageView menu, menu1;
     public HashMap<Button, Model> objList;
+    public LinkedList<Button> multiList;
     public VBox vBox;
-    public ListView<String> multiList;
+    private Button activeB;
     private float TRANSLATION;
     @FXML
     private Slider speedSlider;
@@ -73,6 +76,7 @@ public class GuiController {
         initializeAnimMenu();
         tooltip();
         objList = new HashMap<>(6);
+        multiList = new LinkedList<>();
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
         Timeline timeline = new Timeline();
@@ -106,11 +110,12 @@ public class GuiController {
     public void mouseEntered() {
         meshCheck.getParent().getChildrenUnmodifiable().forEach(n -> n.setVisible(true));
     }
+
     public void mouseExited() {
         meshCheck.getParent().getChildrenUnmodifiable().forEach(n -> n.setVisible(false));
     }
 
-    public void tooltip(){
+    public void tooltip() {
         Font f = new Font(13);
         Tooltip t1 = new Tooltip("Открыть меню");
         Tooltip t2 = new Tooltip("Закрыть меню");
@@ -130,6 +135,7 @@ public class GuiController {
         Tooltip.install(n.getChildrenUnmodifiable().get(0), t3);
         Tooltip.install(n.getChildrenUnmodifiable().get(2), t4);
     }
+
     @FXML
     private void onOpenModel() {
         FileChooser fileChooser = new FileChooser();
@@ -137,46 +143,22 @@ public class GuiController {
         fileChooser.setTitle("Load Model");
 
         File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());
-        if (file == null) {
+        if (file == null || objList.size() >= 6) {
             return;
         }
         String name = file.getName();
         Path fileName = Path.of(file.getAbsolutePath());
-
         try {
             String fileContent = Files.readString(fileName);
             mesh = ObjReader.read(fileContent, false);
             ModelUtils.recalculateNormals(mesh);
             mesh.triangulate();
-            if (objList.size() <= 6) {
-                Button objFile = new Button(name);
-                objFile.setFocusTraversable(true);
-                objFile.setMnemonicParsing(false);
-                objFile.setPrefHeight(40.0);
-                objFile.setPrefWidth(209.0);
-                objFile.setFont(new Font(15));
-                objFile.setOnMouseClicked(mouseEvent -> {
-                    if(mouseEvent.isControlDown()){
-                        if(!multiList.getItems().contains(objFile.getText()))multiList.getItems().add(objFile.getText());
-                        if(!multiList.isVisible()){
-                            FadeTransition s = new FadeTransition(Duration.seconds(0.5), multiList);
-                            multiList.setVisible(true);
-                            s.setFromValue(0);
-                            s.setToValue(0.35);
-                            s.play();
-                        }
-                    }
-                    else {
-                        evaporationList();
-                    }
-                });
-                if(!objList.containsKey(objFile)){
-                    vBox.getChildren().add(objFile);
-                    objList.put(objFile, mesh);
-                }
-            } else {
-                System.out.println("max six models");
-            }
+            Button modelButton = newObjButton(name);
+
+            // исправить или не исправлять добавление одинаковых объектов
+            vBox.getChildren().add(modelButton);
+            objList.put(modelButton, mesh);
+
             // todo: обработка ошибок
         } catch (IOException ignored) {
 
@@ -184,21 +166,56 @@ public class GuiController {
     }
 
     @FXML
-    private void onDeleteModel(){
-        var remove = new HashSet<Button>(6);
-        for (Button b : objList.keySet()) {
-            if (multiList.isVisible() && multiList.getItems().contains(b.getText())) {
+    private void onDeleteModel() {
+        if (!multiList.isEmpty()) {
+            for (Button b : multiList) {
+                objList.remove(b);
                 vBox.getChildren().remove(b);
-                remove.add(b);
             }
-            if (!multiList.isVisible() && b.isFocused()) {
+            multiList.removeAll(multiList);
+        } else {
+            var r = new HashSet<Button>();
+            objList.keySet().forEach(b -> {
+                if (b.isFocused()) r.add(b);
+            });
+            r.forEach(b ->{
+                objList.remove(b);
                 vBox.getChildren().remove(b);
-                remove.add(b);
-            }
+            });
         }
-        if(multiList.isVisible()) evaporationList();
-        remove.forEach(b -> objList.remove(b));
     }
+
+    private Button newObjButton(String name) {
+        String standardStyle = "-fx-background-color: white;";
+        String enterStyle = "-fx-background-color: white; -fx-border-color: red;";
+        String activeStyle = "-fx-background-color: white; -fx-border-width: 3px; -fx-border-style: solid; -fx-border-color: #32a1ce; -fx-border-height: 3px;";
+        Button objFile = new Button(name);
+        objFile.setFocusTraversable(true);
+        objFile.setMnemonicParsing(false);
+        objFile.setPrefHeight(40.0);
+        objFile.setPrefWidth(209.0);
+        objFile.setFont(new Font(15));
+        objFile.setStyle(standardStyle);
+        objFile.setOnMouseEntered(e -> {
+            if (!objFile.equals(activeB) && !e.isControlDown()) objFile.setStyle(enterStyle);
+        });
+        objFile.setOnMouseExited(e -> {
+            if (!objFile.equals(activeB) && !e.isControlDown()) objFile.setStyle(standardStyle);
+        });
+        objFile.setOnMouseClicked(mouseEvent -> {
+            if (mouseEvent.isControlDown()) {
+                objFile.setStyle(activeStyle);
+                if (!multiList.contains(objFile)) multiList.add(objFile);
+            } else {
+                if (activeB != null) activeB.setStyle(standardStyle);
+                if(!multiList.isEmpty()) multiList.removeAll(multiList);
+                activeB = objFile;
+                activeB.setStyle(activeStyle);
+            }
+        });
+        return objFile;
+    }
+
     @FXML
     public void rST() {
         final float scX = sX.getValue().floatValue();
@@ -225,9 +242,9 @@ public class GuiController {
         SpinnerValueFactory<Double> scaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
         SpinnerValueFactory<Double> scaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
 
-        SpinnerValueFactory<Double> roaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
-        SpinnerValueFactory<Double> roaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
-        SpinnerValueFactory<Double> roaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
+        SpinnerValueFactory<Double> roaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 360, 15, 0.5);
+        SpinnerValueFactory<Double> roaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 360, 15, 0.5);
+        SpinnerValueFactory<Double> roaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 360, 15, 0.5);
 
         SpinnerValueFactory<Double> traX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
         SpinnerValueFactory<Double> traY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
@@ -250,13 +267,6 @@ public class GuiController {
     }
 
     private void initializeAnimMenu() {
-        multiList.setVisible(false);
-
-        FadeTransition m = new FadeTransition(Duration.seconds(0.5), multiList);
-        m.setFromValue(1);
-        m.setToValue(0);
-        m.play();
-
         pane1.setVisible(false);
 
         FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), pane1);
@@ -299,23 +309,9 @@ public class GuiController {
             translateTransition1.play();
             menu1.getParent().getParent().setVisible(true);
             menu.getParent().getParent().setVisible(false);
-            evaporationList();
             canvas.requestFocus();
         });
         menu.setOnMouseClicked(pane1.getOnMouseClicked());
-    }
-
-    private void evaporationList(){
-        multiList.getItems().remove(0, multiList.getItems().size());
-        FadeTransition s = new FadeTransition(Duration.seconds(0.5), multiList);
-        if(multiList.isVisible()) {
-            s.setFromValue(0.35);
-            s.setToValue(0);
-            s.play();
-            s.setOnFinished(event1 -> {
-                multiList.setVisible(false);
-            });
-        }
     }
 
     @FXML
@@ -352,6 +348,7 @@ public class GuiController {
         titledPane.setExpanded(false);
         canvas.requestFocus();
     }
+
     // загрузка текстуры для каждой модели по отдельности. Пока что меняю статическое поле в render
     public void onOpenTexture(MouseEvent mouseEvent) {
         FileChooser fileChooser = new FileChooser();

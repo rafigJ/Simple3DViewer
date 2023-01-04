@@ -7,7 +7,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -84,7 +83,7 @@
                     <Spinner fx:id="tZ" editable="true" layoutX="34.0" layoutY="330.0">
                     </Spinner>
 
-                    <Button fx:id="changeButton" layoutX="63.0" layoutY="361.0" onAction="#rST" text="Изменить">
+                    <Button layoutX="63.0" layoutY="361.0" onAction="#rST" text="Изменить">
 
                     </Button>
                 </children>
@@ -222,7 +221,7 @@
         <children>
             <VBox fx:id="vBox" alignment="TOP_CENTER" layoutY="11.0" prefHeight="366.0" prefWidth="209.0" spacing="10.0" AnchorPane.bottomAnchor="348.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             </VBox>
-         <VBox fx:id="vBox1" alignment="TOP_CENTER" layoutY="586.0" prefHeight="140.0" prefWidth="209.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+         <VBox alignment="TOP_CENTER" layoutY="586.0" prefHeight="140.0" prefWidth="209.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
             <children>
                <Button focusTraversable="false" mnemonicParsing="false" onMouseClicked="#onOpenTexture" prefHeight="51.0" prefWidth="209.0" text="Загрузить текстуру (.jpg)">
                   <font>
@@ -233,7 +232,6 @@
          </VBox>
         </children>
     </AnchorPane>
-   <ListView fx:id="multiList" focusTraversable="false" layoutX="253.0" layoutY="38.0" mouseTransparent="true" opacity="0.7" prefHeight="103.0" prefWidth="179.0" style="-fx-background-color: black;" />
     <rotationAxis>
         <Point3D />
     </rotationAxis>
