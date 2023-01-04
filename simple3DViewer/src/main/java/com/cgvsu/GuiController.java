@@ -12,6 +12,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
@@ -19,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
 import java.io.File;
-import java.util.ArrayList;
 
 import com.cgvsu.model.Model;
 import com.cgvsu.objreader.ObjReader;
@@ -73,33 +73,16 @@ public class GuiController {
 
     private Model mesh = null;
     private ModelOnScene modelOnScene = null;
-   // private Camera camera = null;
-    private final ArrayList<Camera> cameras = new ArrayList<Camera>();
 
 
     private Camera camera = new Camera(
+
             new Vector3(0, 0, 300),
+
             new Vector3(0, 0, 0),
             1.0F, 1, 0.01F, 100);
 
-
     private Timeline timeline;
-
-    private void setCamera(
-            int i,
-            Vector3 pos,
-            Vector3 target,
-            final float fov,
-            final float aspectRatio,
-            final float nearPlane,
-            final float farPlane){
-        cameras.add(i, new Camera(pos,target,fov,aspectRatio,nearPlane,farPlane));
-    }
-
-    private void getCamera(int i){
-        this.camera = cameras.get(i);
-    }
-
 
     @FXML
     private void initialize() {
@@ -117,14 +100,14 @@ public class GuiController {
             canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
             camera.setAspectRatio((float) (width / height));
 
-            boolean[] params = {textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected()};
+
             if (mesh != null) {
 
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height,params );
+                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
 
             }
-            if (modelOnScene != null) {
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height,params);
+            if(modelOnScene != null) {
+                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
             }
         });
 
@@ -138,11 +121,13 @@ public class GuiController {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
         fileChooser.setTitle("Load Model");
 
-        File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
+        File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());
         if (file == null) {
             return;
         }
+
         Path fileName = Path.of(file.getAbsolutePath());
+
         try {
             String fileContent = Files.readString(fileName);
             mesh = ObjReader.read(fileContent, false);
@@ -150,7 +135,7 @@ public class GuiController {
             mesh.triangulate();
             // todo: обработка ошибок
         } catch (IOException exception) {
-            exception.printStackTrace();
+
         }
     }
 
@@ -180,7 +165,7 @@ public class GuiController {
         titledPane.setFocusTraversable(false);
     }
 
-    private void initializeSpinners() {
+    private void initializeSpinners(){
         SpinnerValueFactory<Double> scaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
         SpinnerValueFactory<Double> scaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
         SpinnerValueFactory<Double> scaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
