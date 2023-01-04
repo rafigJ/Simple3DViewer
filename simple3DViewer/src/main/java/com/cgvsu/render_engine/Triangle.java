@@ -1,5 +1,9 @@
 package com.cgvsu.render_engine;
 
+import com.cgvsu.math.Vector2;
+
+import java.util.ArrayList;
+
 public class Triangle {
     private static float X1;
     private static float Y1;
@@ -32,12 +36,12 @@ public class Triangle {
         return Y3;
     }
 
-    public Triangle(float x1, float y1, float x2, float y2, float x3, float y3) {
-        X1 = x1;
-        Y1 = y1;
-        X2 = x2;
-        Y2 = y2;
-        X3 = x3;
-        Y3 = y3;
+    public Triangle(ArrayList<Vector2> resultPoints) {
+        X1 = resultPoints.get(0).getX();
+        Y1 = resultPoints.get(0).getY();
+        X2 = resultPoints.get(1).getX();
+        Y2 = resultPoints.get(1).getY();
+        X3 = resultPoints.get(2).getX();
+        Y3 = resultPoints.get(2).getY();
     }
 }

@@ -1,10 +1,8 @@
 package com.cgvsu.render_engine;
 
-import com.cgvsu.math.Barycentric;
-import com.cgvsu.math.Matrix4;
-import com.cgvsu.math.Vector2;
-import com.cgvsu.math.Vector3;
+import com.cgvsu.math.*;
 import com.cgvsu.model.Model;
+import com.cgvsu.model.ModelOnScene;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.awt.*;
@@ -52,6 +50,7 @@ public class RenderEngine {
 
         final int nPolygons = mesh.getPolygons().size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
+
             ArrayList<Float> pointsZ = new ArrayList<>();
             ArrayList<Vector2> resultPoints = new ArrayList<>();
             ArrayList<Vector2> VT = new ArrayList<>();
@@ -67,14 +66,10 @@ public class RenderEngine {
                 VT.add(VTVertex);
                 N.add(shade(norm, camera));
             }
-            float minX = (float) Math.max(0, Math.ceil(Math.min(resultPoints.get(0).getX(), Math.min(resultPoints.get(1).getX(), resultPoints.get(2).getX()))));
-            float maxX = (float) Math.min(width - 1, Math.floor(Math.max(resultPoints.get(0).getX(), Math.max(resultPoints.get(1).getX(), resultPoints.get(2).getX()))));
-            float minY = (float) Math.max(0, Math.ceil(Math.min(resultPoints.get(0).getY(), Math.min(resultPoints.get(1).getY(), resultPoints.get(2).getY()))));
-            float maxY = (float) Math.min(height - 1, Math.floor(Math.max(resultPoints.get(0).getY(), Math.max(resultPoints.get(1).getY(), resultPoints.get(2).getY()))));
-            for (float y = minY; y <= maxY; y++) {
-                for (float x = minX; x <= maxX; x++) {
-                    getColor(x, y, resultPoints.get(0).getX(), resultPoints.get(0).getY(), resultPoints.get(1).getX(), resultPoints.get(1).getY(),
-                            resultPoints.get(2).getX(), resultPoints.get(2).getY(), pointsZ.get(0), pointsZ.get(1), pointsZ.get(2), width, graphicsContext, zBuffer, VT, N, shadow, fill);
+            MinMaxValue m = new MinMaxValue(resultPoints);
+            for (float y = m.getMinY(); y <= m.getMaxY(); y++) {
+                for (float x = m.getMinX(); x <= m.getMaxX(); x++) {
+                    getColor(x, y, resultPoints, pointsZ, width, graphicsContext, zBuffer, VT, N, shadow, fill);
                 }
             }
         }
@@ -95,8 +90,8 @@ public class RenderEngine {
             ArrayList<Vector2> resultPoints = new ArrayList<>();
             for (int vertexInPolygonInd = 0; vertexInPolygonInd < nVerticesInPolygon; ++vertexInPolygonInd) {
                 Vector3 vertex = mesh.getVertices().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
-                Vector3 vertexVecmath = new Vector3(vertex.getX(), vertex.getY(), vertex.getZ());
-                Vector2 resultPoint = vertexToPoint(multiplyMatrix4ByVector3(projectionViewModelMatrix, vertexVecmath), width, height);
+                Vector3 vertexVecMath = new Vector3(vertex.getX(), vertex.getY(), vertex.getZ());
+                Vector2 resultPoint = vertexToPoint(multiplyMatrix4ByVector3(projectionViewModelMatrix, vertexVecMath), width, height);
                 resultPoints.add(resultPoint);
             }
             for (int vertexInPolygonInd = 1; vertexInPolygonInd < nTVerticesInPolygon - 1; vertexInPolygonInd++) {
@@ -132,33 +127,21 @@ public class RenderEngine {
         projectionViewModelMatrix.multiply(viewMatrix);
         projectionViewModelMatrix.multiply(modelMatrix);
 
-        if (params[0] && !params[3]) {
+        if (params[0]) {
             texture(projectionViewModelMatrix, camera, graphicsContext, mesh, width, height, zBuffer, params[1], false);
-        }
-        if (params[0] && params[3]) {
-            texture(projectionViewModelMatrix, camera, graphicsContext, mesh, width, height, zBuffer, params[1], false);
-        }
-        if (params[3] && !params[0]) {
+        }else if (params[3]){
             texture(projectionViewModelMatrix, camera, graphicsContext, mesh, width, height, zBuffer, params[1], true);
         }
         if (params[2]) {
             mesh(projectionViewModelMatrix, graphicsContext, mesh, width, height);
         }
-
     }
 
     private static void getColor(
             float x,
             float y,
-            float x1,
-            float y1,
-            float x2,
-            float y2,
-            float x3,
-            float y3,
-            float z1,
-            float z2,
-            float z3,
+            ArrayList<Vector2> resultPoints,
+            ArrayList<Float> pointsZ,
             int width,
             GraphicsContext graphicsContext,
             float[] zBuffer,
@@ -167,16 +150,15 @@ public class RenderEngine {
             boolean shadow,
             boolean fill) {
 
-        Barycentric barycentric = new Barycentric(new Triangle(x1, y1, x2, y2, x3, y3), x, y);
+        Triangle triangle = new Triangle(resultPoints);
+        Barycentric barycentric = new Barycentric(triangle, x, y);
+        Characteristics c = new Characteristics(pointsZ,VT,N,barycentric,shadow);
+
         if (barycentric.isInside()) {
-            float depth = barycentric.getL1() * z1 + barycentric.getL2() * z2 + barycentric.getL3() * z3;
-            float shade = shadow ? barycentric.getL1() * N.get(0) + barycentric.getL2() * N.get(1) + barycentric.getL3() * N.get(2) : 1;
-            float VX = barycentric.getL1() * VT.get(0).getX() + barycentric.getL2() * VT.get(1).getX() + barycentric.getL3() * VT.get(2).getX();
-            float VY = 1 - (barycentric.getL1() * VT.get(0).getY() + barycentric.getL2() * VT.get(1).getY() + barycentric.getL3() * VT.get(2).getY());
             int zIndex = (int) (y * width + x);
-            if (zBuffer[zIndex] < depth) {
-                zBuffer[zIndex] = depth;
-                int color = fill ? setDefaultColor(shade) : setTextureColor(shade, VX, VY);
+            if (zBuffer[zIndex] < c.getDepth()) {
+                zBuffer[zIndex] = c.getDepth();
+                int color = fill ? setDefaultColor(c.getShade()) : setTextureColor(c.getShade(), c.getVX(), c.getVY());
                 graphicsContext.getPixelWriter().setArgb((int) x, (int) (y), (color));
             }
         }
