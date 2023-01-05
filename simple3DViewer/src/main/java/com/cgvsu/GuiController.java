@@ -38,7 +38,7 @@ public class GuiController {
 
     public Pane speedPane;
     public javafx.scene.image.ImageView menu, menu1;
-    public HashMap<Button, Model> modelMap;
+    public HashMap<Button, ModelOnScene> modelMap;
     public LinkedList<Button> multiList;
     public VBox vBox, vBoxCam;
     private HashMap<Button, Camera> cameraMap;
@@ -62,7 +62,9 @@ public class GuiController {
 
     @FXML
     private TitledPane titledPane;
-
+    private Vector3 vS = new Vector3(1, 1,1);
+    private Vector3 vR = new Vector3(0,0,0);
+    private Vector3 vT = new Vector3(0,0,0);
     private Model mesh = null;
     private ModelOnScene modelOnScene = null;
 
@@ -97,13 +99,13 @@ public class GuiController {
             speedLabel.setText("Speed: " + TRANSLATION);
             canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
             camera.setAspectRatio((float) (width / height));
-            for (Model mesh : modelMap.values()) {
-                if (mesh != null) {
-                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
-                }
-                if (modelOnScene != null) {
-                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
-                }
+            for (ModelOnScene mesh : modelMap.values()) {
+//                if (mesh != null) {
+//                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
+//                }
+
+                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
+
             }
         });
 
@@ -169,11 +171,12 @@ public class GuiController {
             mesh = ObjReader.read(fileContent, false);
             ModelUtils.recalculateNormals(mesh);
             mesh.triangulate();
+            modelOnScene = new ModelOnScene(mesh, vS, vR, vT);
             Button modelButton = newObjButton(name);
 
             // исправить или не исправлять добавление одинаковых объектов
             vBox.getChildren().add(modelButton);
-            modelMap.put(modelButton, mesh);
+            modelMap.put(modelButton, modelOnScene);
 
             // todo: обработка ошибок
         } catch (IOException ignored) {
@@ -249,37 +252,45 @@ public class GuiController {
 
     @FXML
     public void rST() {
-        final float scX = sX.getValue().floatValue();
-        final float scY = sY.getValue().floatValue();
-        final float scZ = sZ.getValue().floatValue();
+        float scX = sX.getValue().floatValue();
+        float scY = sY.getValue().floatValue();
+        float scZ = sZ.getValue().floatValue();
         Vector3 sV = new Vector3(scX, scY, scZ);
 
-        final float roX = rX.getValue().floatValue();
-        final float roY = rY.getValue().floatValue();
-        final float roZ = rZ.getValue().floatValue();
+        float roX = rX.getValue().floatValue();
+        float roY = rY.getValue().floatValue();
+        float roZ = rZ.getValue().floatValue();
         Vector3 vR = new Vector3(roX, roY, roZ);
 
-        final float trX = tX.getValue().floatValue();
-        final float trY = tY.getValue().floatValue();
-        final float trZ = tZ.getValue().floatValue();
+        float trX = tX.getValue().floatValue();
+        float trY = tY.getValue().floatValue();
+        float trZ = tZ.getValue().floatValue();
         Vector3 vT = new Vector3(trX, trY, trZ);
-        modelOnScene = new ModelOnScene(mesh.getVertices(), mesh.getTextureVertices(), mesh.getNormals(), mesh.getPolygons(), sV, vR, vT);
+
+        if(modelMap != null && activeB != null){
+            modelMap.get(activeB).setVectors(vS, vR, vT);
+        }
+        if(multiList!= null && multiList.isEmpty()){
+            multiList.forEach(n->{
+                modelMap.get(n).setVectors(vS, vR, vT);
+            });
+        }
         titledPane.setExpanded(false);
         canvas.requestFocus();
     }
 
     private void initializeSpinners() {
-        SpinnerValueFactory<Double> scaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
-        SpinnerValueFactory<Double> scaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
-        SpinnerValueFactory<Double> scaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
+        SpinnerValueFactory<Double> scaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 1, 0.5);
+        SpinnerValueFactory<Double> scaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 1, 0.5);
+        SpinnerValueFactory<Double> scaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 1, 0.5);
 
-        SpinnerValueFactory<Double> roaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 360, 15, 0.5);
-        SpinnerValueFactory<Double> roaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 360, 15, 0.5);
-        SpinnerValueFactory<Double> roaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 360, 15, 0.5);
+        SpinnerValueFactory<Double> roaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(-360, 360, 0, 0.5);
+        SpinnerValueFactory<Double> roaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(-360, 360, 0, 0.5);
+        SpinnerValueFactory<Double> roaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(-360, 360, 0, 0.5);
 
-        SpinnerValueFactory<Double> traX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
-        SpinnerValueFactory<Double> traY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
-        SpinnerValueFactory<Double> traZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 15, 0.5);
+        SpinnerValueFactory<Double> traX = new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.5);
+        SpinnerValueFactory<Double> traY = new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.5);
+        SpinnerValueFactory<Double> traZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.5);
 
         sX.setValueFactory(scaX);
         sY.setValueFactory(scaY);

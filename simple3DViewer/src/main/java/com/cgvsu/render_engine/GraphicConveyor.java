@@ -3,18 +3,8 @@ import com.cgvsu.math.*;
 
 public class GraphicConveyor {
 
-    public static Matrix4 rotateScaleTranslate(Vector3 vS, Vector3 vR, Vector3 vT) {
-        return Matrix4.multiply(Matrix4.multiply(scale(vS), rotate(vR)), translate(vT));
-    }
-
-    public static Matrix4 rotateScaleTranslate() {
-        float[][] matrix = new float[][]{
-                {1, 0, 0, 0},
-                {0, 1, 0, 0},
-                {0, 0, 1, 0},
-                {0, 0, 0, 1}
-        };
-        return new Matrix4(matrix);
+    public static Matrix4 translateRotateScale(Vector3 vS, Vector3 vR, Vector3 vT) {
+        return Matrix4.multiply(Matrix4.multiply(translate(vT), rotate(vR)), scale(vS));
     }
 
     public static Matrix4 lookAt(Vector3 eye, Vector3 target) {
@@ -87,7 +77,7 @@ public class GraphicConveyor {
                 {cosY * cosZ, sinX * sinY * cosZ - cosX * sinZ, cosX * sinY * cosZ + sinX * sinZ, 0},
                 {cosY * sinZ, sinX * sinY * sinZ + cosX * cosZ, cosX * sinY * sinZ - sinX * cosZ, 0},
                 {-sinY, sinX * cosY, cosX * cosY, 0},
-                {0, 0, 0, 0}
+                {0, 0, 0, 1}
         };
 
         return new Matrix4(matrix);
