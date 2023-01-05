@@ -1,52 +1,42 @@
 package com.cgvsu.model;
-
+import com.cgvsu.math.Matrix4;
 import com.cgvsu.math.Vector2;
 import com.cgvsu.math.Vector3;
+import com.cgvsu.render_engine.GraphicConveyor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ModelOnScene {
-    private List<Vector3> vertices;
-    private List<Vector2> textureVertices;
-    private List<Vector3> normals;
-    private List<Polygon> polygons;
-    private  Vector3 vS;
-    private Vector3 vR;
-    private Vector3 vT;
+    private Model mesh;
+    private Vector3 vS = new Vector3(1, 1,1);
+    private Vector3 vR = new Vector3(0,0,0);
+    private Vector3 vT = new Vector3(0,0,0);
 
-    public ModelOnScene(final List<Vector3> vertices, final List<Vector2> textureVertices, final List<Vector3> normals, final List<Polygon> polygons,
-                        final Vector3 vS, final Vector3 vR, final Vector3 vT) {
-        this.vertices = vertices;
-        this.textureVertices = textureVertices;
-        this.normals = normals;
-        this.polygons = polygons;
+    public ModelOnScene(final Model mesh, final Vector3 vS, final Vector3 vR, final Vector3 vT) {
+        this.mesh = mesh;
         this.vS = vS;
         this.vR = vR;
         this.vT = vT;
     }
 
     public ModelOnScene() {
-        vertices = new ArrayList<>();
-        textureVertices = new ArrayList<>();
-        normals = new ArrayList<>();
-        polygons = new ArrayList<>();
+        mesh = new Model();
     }
 
     public List<Vector3> getVertices() {
-        return vertices;
+        return mesh.getVertices();
     }
 
     public List<Vector2> getTextureVertices() {
-        return textureVertices;
+        return mesh.getTextureVertices();
     }
 
     public List<Vector3> getNormals() {
-        return normals;
+        return mesh.getNormals();
     }
 
     public List<Polygon> getPolygons() {
-        return polygons;
+        return mesh.getPolygons();
     }
 
     public Vector3 getVS() {
@@ -61,20 +51,34 @@ public class ModelOnScene {
         return vT;
     }
 
+    public void setVectors(final Vector3 vS, final Vector3 vR, final Vector3 vT) {
+        this.vS = vS;
+        this.vR = vR;
+        this.vT = vT;
+    }
+
     public void setVertices(final List<Vector3> vertices) {
-        this.vertices = vertices;
+        mesh.setVertices(vertices);
     }
 
     public void setTextureVertices(final List<Vector2> vertices) {
-        this.textureVertices = vertices;
+        mesh.setTextureVertices(vertices);
     }
 
     public void setNormals(final List<Vector3> vertices) {
-        this.normals = vertices;
+        mesh.setNormals(vertices);
     }
 
     public void setPolygons(final List<Polygon> vertices) {
-        this.polygons = vertices;
+        mesh.setPolygons(vertices);
+    }
+
+    public void setMesh(final Model mesh) {
+        this.mesh = mesh;
+    }
+
+    public Model getMesh() {
+        return mesh;
     }
 
     public void setVS(final Vector3 vS) {
@@ -87,5 +91,9 @@ public class ModelOnScene {
 
     public void setVR(final Vector3 vR) {
         this.vR = vR;
+    }
+
+    public Matrix4 getModelMatrix() {
+        return GraphicConveyor.translateRotateScale(vS, vR, vT);
     }
 }
