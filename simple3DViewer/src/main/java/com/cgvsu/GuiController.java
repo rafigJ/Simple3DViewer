@@ -5,8 +5,7 @@ import com.cgvsu.model.ModelOnScene;
 import com.cgvsu.model.ModelUtils;
 import com.cgvsu.render_engine.RenderEngine;
 import javafx.animation.*;
-import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
+
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -27,6 +26,7 @@ import java.nio.file.Path;
 import java.io.IOException;
 import java.io.File;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import com.cgvsu.model.Model;
 import com.cgvsu.objreader.ObjReader;
@@ -38,9 +38,11 @@ public class GuiController {
 
     public Pane speedPane;
     public javafx.scene.image.ImageView menu, menu1;
-    public HashMap<Button, Model> objList;
+    public HashMap<Button, Model> modelMap;
     public LinkedList<Button> multiList;
-    public VBox vBox;
+    public VBox vBox, vBoxCam;
+    private HashMap<Button, Camera> cameraMap;
+    public TextField positionText, directionText;
     private Button activeB;
     private float TRANSLATION;
     @FXML
@@ -64,8 +66,7 @@ public class GuiController {
     private Model mesh = null;
     private ModelOnScene modelOnScene = null;
 
-
-    private final Camera camera = new Camera(
+    private Camera camera = new Camera(
             new Vector3(0, 0, 300),
             new Vector3(0, 0, 0),
             1.0F, 1, 0.01F, 100);
@@ -74,14 +75,18 @@ public class GuiController {
     private void initialize() {
         initializeSpinners();
         initializeAnimMenu();
+        initializeTextFields();
         tooltip();
-        objList = new HashMap<>(6);
+        cameraMap = new HashMap<>(6);
+        modelMap = new HashMap<>(6);
         multiList = new LinkedList<>();
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
         Timeline timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
-
+        Button n = newCameraButton("Standard");
+        cameraMap.put(n, camera);
+        vBoxCam.getChildren().add(n);
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
             double width = canvas.getWidth();
             double height = canvas.getHeight();
@@ -92,7 +97,7 @@ public class GuiController {
             speedLabel.setText("Speed: " + TRANSLATION);
             canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
             camera.setAspectRatio((float) (width / height));
-            for (Model mesh : objList.values()) {
+            for (Model mesh : modelMap.values()) {
                 if (mesh != null) {
                     RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
                 }
@@ -115,7 +120,7 @@ public class GuiController {
         meshCheck.getParent().getChildrenUnmodifiable().forEach(n -> n.setVisible(false));
     }
 
-    public void tooltip() {
+    private void tooltip() {
         Font f = new Font(13);
         Tooltip t1 = new Tooltip("Открыть меню");
         Tooltip t2 = new Tooltip("Закрыть меню");
@@ -135,6 +140,16 @@ public class GuiController {
         Tooltip.install(n.getChildrenUnmodifiable().get(0), t3);
         Tooltip.install(n.getChildrenUnmodifiable().get(2), t4);
     }
+    // только цифры и запятые.
+    private void initializeTextFields(){
+        Pattern p = Pattern.compile("(\\d+\\.?\\d*)?([ ,]+)?(\\d+\\.?\\d*)?([ ,]+)?(\\d+\\.?\\d*)?");
+        directionText.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!p.matcher(newValue).matches()) directionText.setText(oldValue);
+        });
+        positionText.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!p.matcher(newValue).matches()) positionText.setText(oldValue);
+        });
+    }
 
     @FXML
     private void onOpenModel() {
@@ -143,7 +158,7 @@ public class GuiController {
         fileChooser.setTitle("Load Model");
 
         File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());
-        if (file == null || objList.size() >= 6) {
+        if (file == null || modelMap.size() >= 6) {
             return;
         }
         String name = file.getName();
@@ -157,7 +172,7 @@ public class GuiController {
 
             // исправить или не исправлять добавление одинаковых объектов
             vBox.getChildren().add(modelButton);
-            objList.put(modelButton, mesh);
+            modelMap.put(modelButton, mesh);
 
             // todo: обработка ошибок
         } catch (IOException ignored) {
@@ -169,17 +184,17 @@ public class GuiController {
     private void onDeleteModel() {
         if (!multiList.isEmpty()) {
             for (Button b : multiList) {
-                objList.remove(b);
+                modelMap.remove(b);
                 vBox.getChildren().remove(b);
             }
             multiList.removeAll(multiList);
         } else {
             var r = new HashSet<Button>();
-            objList.keySet().forEach(b -> {
+            modelMap.keySet().forEach(b -> {
                 if (b.isFocused()) r.add(b);
             });
-            r.forEach(b ->{
-                objList.remove(b);
+            r.forEach(b -> {
+                modelMap.remove(b);
                 vBox.getChildren().remove(b);
             });
         }
@@ -189,32 +204,38 @@ public class GuiController {
         String standardStyle = "-fx-background-color: white;";
         String enterStyle = "-fx-background-color: white; -fx-border-color: red;";
         String activeStyle = "-fx-background-color: white; -fx-border-width: 3px; -fx-border-style: solid; -fx-border-color: #32a1ce; -fx-border-height: 3px;";
-        Button objFile = new Button(name);
-        objFile.setFocusTraversable(true);
-        objFile.setMnemonicParsing(false);
-        objFile.setPrefHeight(40.0);
-        objFile.setPrefWidth(209.0);
-        objFile.setFont(new Font(15));
-        objFile.setStyle(standardStyle);
-        objFile.setOnMouseEntered(e -> {
-            if (!objFile.equals(activeB) && !e.isControlDown()) objFile.setStyle(enterStyle);
+        Button objB = new Button(name);
+        objB.setFocusTraversable(true);
+        objB.setMnemonicParsing(false);
+        objB.setPrefHeight(40.0);
+        objB.setPrefWidth(209.0);
+        objB.setFont(new Font(15));
+        objB.setStyle(standardStyle);
+        // поработать
+        objB.setOnMouseEntered(e -> {
+            if (objB.getStyle().equals(activeStyle)) objB.setStyle(activeStyle);
+            else if (!objB.equals(activeB)) objB.setStyle(enterStyle);
         });
-        objFile.setOnMouseExited(e -> {
-            if (!objFile.equals(activeB) && !e.isControlDown()) objFile.setStyle(standardStyle);
+        objB.setOnMouseExited(e -> {
+            if (!objB.equals(activeB) && !e.isControlDown() && multiList.isEmpty()) objB.setStyle(standardStyle);
         });
-        objFile.setOnMouseClicked(mouseEvent -> {
+        objB.setOnMouseClicked(mouseEvent -> {
             if (mouseEvent.isControlDown()) {
-                objFile.setStyle(activeStyle);
-                if (!multiList.contains(objFile)) multiList.add(objFile);
+                objB.setStyle(activeStyle);
+                if (!multiList.contains(objB)) multiList.add(objB);
             } else {
-                if (activeB != null) activeB.setStyle(standardStyle);
-                if(!multiList.isEmpty()) multiList.removeAll(multiList);
-                activeB = objFile;
+                if (activeB != null) {
+                    activeB.setStyle(standardStyle);
+                    activeB = null;
+                }
+                if (!multiList.isEmpty()) multiList.removeAll(multiList);
+                activeB = objB;
                 activeB.setStyle(activeStyle);
             }
         });
-        return objFile;
+        return objB;
     }
+
 
     @FXML
     public void rST() {
@@ -349,7 +370,7 @@ public class GuiController {
         canvas.requestFocus();
     }
 
-    // загрузка текстуры для каждой модели по отдельности. Пока что меняю статическое поле в render
+    // Загрузка текстуры для каждой модели по отдельности. Пока что меняю статическое поле в render
     public void onOpenTexture(MouseEvent mouseEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg"));
@@ -365,5 +386,51 @@ public class GuiController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+
+    public void addCamera(MouseEvent mouseEvent) {
+        String s1[] = positionText.getText().split("[, ]");
+        String s2[] = directionText.getText().split("[, ]");
+        if(s1.length == 3 && s2.length == 3){
+            Vector3 v1, v2;
+            v1 = new Vector3(Float.parseFloat(s1[0]), Float.parseFloat(s1[1]), Float.parseFloat(s1[2]));
+            v2 = new Vector3(Float.parseFloat(s2[0]), Float.parseFloat(s2[1]), Float.parseFloat(s2[2]));
+            Camera c = new Camera(v1, v2,
+                    1.0F, 1, 0.01F, 100);
+            Button n = newCameraButton(Integer.toString(cameraMap.size()));
+            if(cameraMap.size() < 6){
+                cameraMap.put(n, c);
+                vBoxCam.getChildren().add(n);
+            }
+        }
+    }
+
+    private Button newCameraButton(String name) {
+        String standardStyle = "-fx-background-color: white;";
+        String enterStyle = "-fx-background-color: white; -fx-border-color: red;";
+        String activeStyle = "-fx-background-color: white; -fx-border-width: 3px; -fx-border-style: solid; -fx-border-color: #32a1ce; -fx-border-height: 3px;";
+        Button camB = new Button(name);
+        camB.setFocusTraversable(true);
+        camB.setMnemonicParsing(false);
+        camB.setPrefHeight(40.0);
+        camB.setPrefWidth(209.0);
+        camB.setFont(new Font(15));
+        camB.setStyle(standardStyle);
+        camB.setOnMouseEntered(e -> {
+            if (!camB.getStyle().equals(activeStyle)) camB.setStyle(enterStyle);
+        });
+        camB.setOnMouseExited(e->{
+            if(!camB.getStyle().equals(activeStyle)) camB.setStyle(standardStyle);
+        });
+        camB.setOnMouseClicked(e->{
+            if(!e.isControlDown()) vBoxCam.getChildren().forEach(n -> n.setStyle(standardStyle));
+            camB.setStyle(activeStyle);
+            activeB = camB;
+            if(!e.isControlDown()) camera = cameraMap.get(activeB);
+        });
+
+        return camB;
     }
 }
