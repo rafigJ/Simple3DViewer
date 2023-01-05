@@ -112,7 +112,7 @@
                             <Image url="@../../../icons/save.png" />
                         </image>
                     </ImageView>
-                    <ImageView fitHeight="51.0" fitWidth="43.0" onMouseClicked="#onDeleteModel" pickOnBounds="true" preserveRatio="true">
+                    <ImageView fitHeight="51.0" fitWidth="43.0" onMouseClicked="#onDelete" pickOnBounds="true" preserveRatio="true">
                         <image>
                             <Image url="@../../../icons/delete.png" />
                         </image>

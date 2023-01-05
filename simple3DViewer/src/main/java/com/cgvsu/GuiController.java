@@ -140,8 +140,9 @@ public class GuiController {
         Tooltip.install(n.getChildrenUnmodifiable().get(0), t3);
         Tooltip.install(n.getChildrenUnmodifiable().get(2), t4);
     }
+
     // только цифры и запятые.
-    private void initializeTextFields(){
+    private void initializeTextFields() {
         Pattern p = Pattern.compile("(\\d+\\.?\\d*)?([ ,]+)?(\\d+\\.?\\d*)?([ ,]+)?(\\d+\\.?\\d*)?");
         directionText.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!p.matcher(newValue).matches()) directionText.setText(oldValue);
@@ -181,7 +182,7 @@ public class GuiController {
     }
 
     @FXML
-    private void onDeleteModel() {
+    private void onDelete() {
         if (!multiList.isEmpty()) {
             for (Button b : multiList) {
                 modelMap.remove(b);
@@ -190,12 +191,25 @@ public class GuiController {
             multiList.removeAll(multiList);
         } else {
             var r = new HashSet<Button>();
+            cameraMap.keySet().forEach(b -> {
+                if (b.isFocused()) r.add(b);
+            });
             modelMap.keySet().forEach(b -> {
                 if (b.isFocused()) r.add(b);
             });
             r.forEach(b -> {
-                modelMap.remove(b);
-                vBox.getChildren().remove(b);
+                if (vBox.getChildren().contains(b)) {
+                    modelMap.remove(b);
+                    vBox.getChildren().remove(b);
+                } else {
+                    cameraMap.remove(b);
+                    vBoxCam.getChildren().remove(b);
+                    camera = new Camera(
+                            new Vector3(0, 0, 300),
+                            new Vector3(0, 0, 0),
+                            1.0F, 1, 0.01F, 100);
+
+                }
             });
         }
     }
@@ -213,25 +227,21 @@ public class GuiController {
         objB.setStyle(standardStyle);
         // поработать
         objB.setOnMouseEntered(e -> {
-            if (objB.getStyle().equals(activeStyle)) objB.setStyle(activeStyle);
-            else if (!objB.equals(activeB)) objB.setStyle(enterStyle);
+            if (!objB.getStyle().equals(activeStyle)) objB.setStyle(enterStyle);
         });
         objB.setOnMouseExited(e -> {
-            if (!objB.equals(activeB) && !e.isControlDown() && multiList.isEmpty()) objB.setStyle(standardStyle);
+            if (!objB.getStyle().equals(activeStyle)) objB.setStyle(standardStyle);
         });
-        objB.setOnMouseClicked(mouseEvent -> {
-            if (mouseEvent.isControlDown()) {
-                objB.setStyle(activeStyle);
+        objB.setOnMouseClicked(e -> {
+            if (!e.isControlDown()) vBox.getChildren().forEach(n -> n.setStyle(standardStyle));
+            objB.setStyle(activeStyle);
+            if (e.isControlDown()) {
+                if (!objB.equals(activeB)) multiList.add(activeB);
                 if (!multiList.contains(objB)) multiList.add(objB);
             } else {
-                if (activeB != null) {
-                    activeB.setStyle(standardStyle);
-                    activeB = null;
-                }
                 if (!multiList.isEmpty()) multiList.removeAll(multiList);
-                activeB = objB;
-                activeB.setStyle(activeStyle);
             }
+            activeB = objB;
         });
         return objB;
     }
@@ -335,6 +345,70 @@ public class GuiController {
         menu.setOnMouseClicked(pane1.getOnMouseClicked());
     }
 
+
+    // Загрузка текстуры для каждой модели по отдельности. Пока что меняю статическое поле в render
+    public void onOpenTexture(MouseEvent mouseEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg"));
+        fileChooser.setTitle("Load Texture");
+
+        File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());
+        if (file == null) {
+            return;
+        }
+        try {
+            BufferedImage img = read(file);
+            RenderEngine.setImg(img);   // надо добавить такой метод
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void addCamera(MouseEvent mouseEvent) {
+        String s1[] = positionText.getText().split("[, ]");
+        String s2[] = directionText.getText().split("[, ]");
+        if (s1.length == 3 && s2.length == 3) {
+            Vector3 v1, v2;
+            v1 = new Vector3(Float.parseFloat(s1[0]), Float.parseFloat(s1[1]), Float.parseFloat(s1[2]));
+            v2 = new Vector3(Float.parseFloat(s2[0]), Float.parseFloat(s2[1]), Float.parseFloat(s2[2]));
+            Camera c = new Camera(v1, v2,
+                    1.0F, 1, 0.01F, 100);
+            Button n = newCameraButton(Integer.toString(cameraMap.size()));
+            if (cameraMap.size() < 6) {
+                cameraMap.put(n, c);
+                vBoxCam.getChildren().add(n);
+            }
+        }
+    }
+
+    private Button newCameraButton(String name) {
+        String standardStyle = "-fx-background-color: white;";
+        String enterStyle = "-fx-background-color: white; -fx-border-color: red;";
+        String activeStyle = "-fx-background-color: white; -fx-border-width: 3px; -fx-border-style: solid; -fx-border-color: #32a1ce; -fx-border-height: 3px;";
+        Button camB = new Button(name);
+        camB.setFocusTraversable(true);
+        camB.setMnemonicParsing(false);
+        camB.setPrefHeight(40.0);
+        camB.setPrefWidth(209.0);
+        camB.setFont(new Font(15));
+        camB.setStyle(standardStyle);
+        camB.setOnMouseEntered(e -> {
+            if (!camB.getStyle().equals(activeStyle)) camB.setStyle(enterStyle);
+        });
+        camB.setOnMouseExited(e -> {
+            if (!camB.getStyle().equals(activeStyle)) camB.setStyle(standardStyle);
+        });
+        camB.setOnMouseClicked(e -> {
+            if (!e.isControlDown()) vBoxCam.getChildren().forEach(n -> n.setStyle(standardStyle));
+            camB.setStyle(activeStyle);
+            activeB = camB;
+            if (!e.isControlDown()) camera = cameraMap.get(activeB);
+        });
+
+        return camB;
+    }
+
     @FXML
     public void handleCameraForward(ActionEvent actionEvent) {
         camera.movePosition(new Vector3(0, 0, -TRANSLATION));
@@ -368,69 +442,5 @@ public class GuiController {
     public void canvasClick(MouseEvent mouseEvent) {
         titledPane.setExpanded(false);
         canvas.requestFocus();
-    }
-
-    // Загрузка текстуры для каждой модели по отдельности. Пока что меняю статическое поле в render
-    public void onOpenTexture(MouseEvent mouseEvent) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg"));
-        fileChooser.setTitle("Load Texture");
-
-        File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());
-        if (file == null) {
-            return;
-        }
-        try {
-            BufferedImage img = read(file);
-            RenderEngine.setImg(img);   // надо добавить такой метод
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-    public void addCamera(MouseEvent mouseEvent) {
-        String s1[] = positionText.getText().split("[, ]");
-        String s2[] = directionText.getText().split("[, ]");
-        if(s1.length == 3 && s2.length == 3){
-            Vector3 v1, v2;
-            v1 = new Vector3(Float.parseFloat(s1[0]), Float.parseFloat(s1[1]), Float.parseFloat(s1[2]));
-            v2 = new Vector3(Float.parseFloat(s2[0]), Float.parseFloat(s2[1]), Float.parseFloat(s2[2]));
-            Camera c = new Camera(v1, v2,
-                    1.0F, 1, 0.01F, 100);
-            Button n = newCameraButton(Integer.toString(cameraMap.size()));
-            if(cameraMap.size() < 6){
-                cameraMap.put(n, c);
-                vBoxCam.getChildren().add(n);
-            }
-        }
-    }
-
-    private Button newCameraButton(String name) {
-        String standardStyle = "-fx-background-color: white;";
-        String enterStyle = "-fx-background-color: white; -fx-border-color: red;";
-        String activeStyle = "-fx-background-color: white; -fx-border-width: 3px; -fx-border-style: solid; -fx-border-color: #32a1ce; -fx-border-height: 3px;";
-        Button camB = new Button(name);
-        camB.setFocusTraversable(true);
-        camB.setMnemonicParsing(false);
-        camB.setPrefHeight(40.0);
-        camB.setPrefWidth(209.0);
-        camB.setFont(new Font(15));
-        camB.setStyle(standardStyle);
-        camB.setOnMouseEntered(e -> {
-            if (!camB.getStyle().equals(activeStyle)) camB.setStyle(enterStyle);
-        });
-        camB.setOnMouseExited(e->{
-            if(!camB.getStyle().equals(activeStyle)) camB.setStyle(standardStyle);
-        });
-        camB.setOnMouseClicked(e->{
-            if(!e.isControlDown()) vBoxCam.getChildren().forEach(n -> n.setStyle(standardStyle));
-            camB.setStyle(activeStyle);
-            activeB = camB;
-            if(!e.isControlDown()) camera = cameraMap.get(activeB);
-        });
-
-        return camB;
     }
 }
