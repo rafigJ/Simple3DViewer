@@ -58,6 +58,7 @@ public class RenderEngine {
             ArrayList<Vector2> resultPoints = new ArrayList<>();
             ArrayList<Vector2> VT = new ArrayList<>();
             ArrayList<Float> N = new ArrayList<>();
+
             for (int vertexInPolygonInd = 0; vertexInPolygonInd < 3; ++vertexInPolygonInd) {
                 Vector3 vertex = mesh.getVertices().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
                 Vector2 VTVertex = mesh.getTextureVertices().get(mesh.getPolygons().get(polygonInd).getTextureVertexIndices().get(vertexInPolygonInd));
@@ -69,10 +70,11 @@ public class RenderEngine {
                 VT.add(VTVertex);
                 N.add(shade(norm, camera));
             }
+            Triangle triangle = new Triangle(resultPoints);
             MinMaxValue m = new MinMaxValue(resultPoints);
             for (float y = m.getMinY(); y <= m.getMaxY(); y++) {
                 for (float x = m.getMinX(); x <= m.getMaxX(); x++) {
-                    getColor(x, y, resultPoints, pointsZ, width, graphicsContext, zBuffer, VT, N, shadow, fill);
+                    getColor(x, y, triangle, pointsZ, width, graphicsContext, zBuffer, VT, N, shadow, fill);
                 }
             }
         }
@@ -143,7 +145,7 @@ public class RenderEngine {
     private static void getColor(
             float x,
             float y,
-            ArrayList<Vector2> resultPoints,
+            Triangle triangle,
             ArrayList<Float> pointsZ,
             int width,
             GraphicsContext graphicsContext,
@@ -153,7 +155,7 @@ public class RenderEngine {
             boolean shadow,
             boolean fill) {
 
-        Triangle triangle = new Triangle(resultPoints);
+
         Barycentric barycentric = new Barycentric(triangle, x, y);
         Characteristics c = new Characteristics(pointsZ, VT, N, barycentric, shadow);
 
