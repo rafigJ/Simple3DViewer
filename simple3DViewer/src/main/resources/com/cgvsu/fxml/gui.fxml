@@ -120,11 +120,19 @@
                             <Cursor fx:constant="HAND" />
                         </cursor>
                     </ImageView>
+               <ImageView fitHeight="50.0" fitWidth="43.0" onMouseClicked="#pin" pickOnBounds="true" preserveRatio="true" rotate="-90.0">
+                  <image>
+                     <Image url="@../../../icons/pin.png" />
+                  </image>
+                  <cursor>
+                     <Cursor fx:constant="HAND" />
+                  </cursor>
+               </ImageView>
                 </children>
             </VBox>
             <VBox alignment="CENTER" prefHeight="44.0" prefWidth="44.0" style="-fx-background-color: #2f2f2f;" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <children>
-                    <ImageView fx:id="menu" accessibleHelp="Закрыть меню" accessibleText="Закрыть меню" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                    <ImageView fx:id="menu" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                         <image>
                             <Image url="@../../../icons/data.png" />
                         </image>
@@ -170,7 +178,7 @@
             </MenuItem>
         </Menu>
     </MenuBar>
-    <Pane fx:id="speedPane" layoutX="1036.0" layoutY="558.0" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" prefHeight="191.0" prefWidth="309.0" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0">
+    <Pane fx:id="speedPane" layoutX="1036.0" layoutY="558.0" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" prefHeight="191.0" prefWidth="309.0" style="-fx-border-color: #08304b;" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0">
         <children>
             <Slider fx:id="speedSlider" layoutX="236.0" layoutY="38.0" orientation="VERTICAL" />
             <Label fx:id="speedLabel" layoutX="220.0" layoutY="13.0" text="Speed: 0" />
@@ -180,10 +188,10 @@
             <CheckBox fx:id="fillCheck" layoutX="14.0" layoutY="91.0" mnemonicParsing="false" text="Fill" />
         </children>
     </Pane>
-    <AnchorPane fx:id="pane1" layoutX="43.0" layoutY="31.0" prefHeight="763.0" prefWidth="1316.0" style="-fx-background-color: black;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="43.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+    <AnchorPane fx:id="pane1" layoutX="43.0" layoutY="31.0" prefHeight="763.0" prefWidth="1316.0" style="-fx-background-color: black;" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="43.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
     <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="763.0" prefWidth="44.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
         <children>
-            <VBox alignment="TOP_CENTER" layoutY="50.0" prefHeight="366.0" prefWidth="44.0" spacing="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="50.0">
+            <VBox alignment="TOP_CENTER" layoutY="50.0" prefHeight="366.0" prefWidth="44.0" spacing="10.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="50.0">
                 <children>
                     <ImageView fitHeight="42.0" fitWidth="42.0" onMouseClicked="#onOpenModel" pickOnBounds="true" preserveRatio="true">
                         <image>
@@ -203,9 +211,14 @@
                             <Image url="@../../../icons/delete.png" />
                         </image>
                     </ImageView>
+               <ImageView fitHeight="50.0" fitWidth="43.0" pickOnBounds="true" preserveRatio="true" rotate="-90.0">
+                  <image>
+                     <Image url="@../../../icons/pin.png" />
+                  </image>
+               </ImageView>
                 </children>
             </VBox>
-            <VBox alignment="CENTER" prefHeight="44.0" prefWidth="44.0" style="-fx-background-color: #2f2f2f;" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <VBox alignment="CENTER" prefHeight="44.0" prefWidth="44.0" style="-fx-background-color: #4f4f4f;" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <children>
                     <ImageView fx:id="menu1" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                         <image>
@@ -239,7 +252,7 @@
                <TextField fx:id="directionText" prefHeight="26.0" prefWidth="85.0" promptText="Вектор направления" />
             </children>
          </VBox>
-         <VBox fx:id="vBoxCam" alignment="CENTER" layoutY="360.0" prefHeight="184.0" prefWidth="209.0" spacing="10.0" />
+         <VBox fx:id="vBoxCam" alignment="CENTER" layoutY="360.0" prefHeight="184.0" prefWidth="209.0" spacing="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
         </children>
     </AnchorPane>
     <rotationAxis>

@@ -1,50 +1,41 @@
 package com.cgvsu;
 
+import com.cgvsu.Writer.Scene;
 import com.cgvsu.math.Vector3;
-import com.cgvsu.model.ModelOnScene;
-import com.cgvsu.model.ModelUtils;
 import com.cgvsu.render_engine.RenderEngine;
 import javafx.animation.*;
 
 import javafx.fxml.FXML;
-import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.stage.Stage;
+
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
 import java.awt.image.BufferedImage;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.io.IOException;
 import java.io.File;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import com.cgvsu.model.Model;
-import com.cgvsu.objreader.ObjReader;
 import com.cgvsu.render_engine.Camera;
 
 import static javax.imageio.ImageIO.read;
 
 public class GuiController {
-
+    private float TRANSLATION = 0.5f;
     public Pane speedPane;
     public javafx.scene.image.ImageView menu, menu1;
-    public HashMap<Button, ModelOnScene> modelMap;
-    public LinkedList<Button> multiList;
     public VBox vBox, vBoxCam;
-    private HashMap<Button, Camera> cameraMap;
     public TextField positionText, directionText;
+    private List<Button> cameraButtonList, modelButtonList;
+    private List<Button> multiList;
     private Button activeB;
-    private float TRANSLATION;
     @FXML
     private Slider speedSlider;
     @FXML
@@ -53,60 +44,42 @@ public class GuiController {
     AnchorPane anchorPane, pane1, pane2;
     @FXML
     private Spinner<Double> sX, sY, sZ, rX, rY, rZ, tX, tY, tZ;
-
     @FXML
     private Canvas canvas;
-
     @FXML
     private CheckBox textureCheck, shadowCheck, meshCheck, fillCheck;
-
-    @FXML
-    private TitledPane titledPane;
-    private Vector3 vS = new Vector3(1, 1,1);
-    private Vector3 vR = new Vector3(0,0,0);
-    private Vector3 vT = new Vector3(0,0,0);
-    private Model mesh = null;
-    private ModelOnScene modelOnScene = null;
-
-    private Camera camera = new Camera(
-            new Vector3(0, 0, 300),
-            new Vector3(0, 0, 0),
-            1.0F, 1, 0.01F, 100);
+    private boolean pinMenu;
+    private Scene scene;
+    private final String standardStyle = "-fx-background-color: white;";
+    private final String enterStyle = "-fx-background-color: white; -fx-border-color: red;";
+    private final String activeStyle = "-fx-background-color: white; -fx-border-width: 3px; -fx-border-style: solid; -fx-border-color: #32a1ce; -fx-border-height: 3px;";
+    private String paneStyle;
 
     @FXML
     private void initialize() {
+        paneStyle = pane2.getStyle();
+        cameraButtonList = new ArrayList<>(6);
+        modelButtonList = new ArrayList<>(6);
+        multiList = new LinkedList<>();
         initializeSpinners();
         initializeAnimMenu();
         initializeTextFields();
         tooltip();
-        cameraMap = new HashMap<>(6);
-        modelMap = new HashMap<>(6);
-        multiList = new LinkedList<>();
+        scene = new Scene();
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
         Timeline timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
         Button n = newCameraButton("Standard");
-        cameraMap.put(n, camera);
+        putCamera(n, scene.getCamera());
         vBoxCam.getChildren().add(n);
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
-            double width = canvas.getWidth();
-            double height = canvas.getHeight();
             boolean[] params = {textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected()};
             speedSlider.setMax(10F);
             speedSlider.setMin(0.5F);
             TRANSLATION = (float) speedSlider.getValue();
             speedLabel.setText("Speed: " + TRANSLATION);
-            canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
-            camera.setAspectRatio((float) (width / height));
-            for (ModelOnScene mesh : modelMap.values()) {
-//                if (mesh != null) {
-//                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
-//                }
-
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
-
-            }
+            scene.update(canvas, params);
         });
 
         timeline.getKeyFrames().add(frame);
@@ -156,71 +129,59 @@ public class GuiController {
 
     @FXML
     private void onOpenModel() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
-        fileChooser.setTitle("Load Model");
+        String name = scene.addModel(canvas);
+        if (name == null) return;
+        Button modelButton = newObjButton(name);
+        // исправить или не исправлять добавление одинаковых объектов
+        vBox.getChildren().add(modelButton);
+        modelButtonList.add(modelButton);
+    }
 
-        File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());
-        if (file == null || modelMap.size() >= 6) {
-            return;
-        }
-        String name = file.getName();
-        Path fileName = Path.of(file.getAbsolutePath());
-        try {
-            String fileContent = Files.readString(fileName);
-            mesh = ObjReader.read(fileContent, false);
-            ModelUtils.recalculateNormals(mesh);
-            mesh.triangulate();
-            modelOnScene = new ModelOnScene(mesh, vS, vR, vT);
-            Button modelButton = newObjButton(name);
+    private void putCamera(Button b, Camera c) {
+        scene.putOnCamera(c);
+        cameraButtonList.add(b);
+    }
 
-            // исправить или не исправлять добавление одинаковых объектов
-            vBox.getChildren().add(modelButton);
-            modelMap.put(modelButton, modelOnScene);
+    private void removeModel(int index) {
+        scene.getModelList().remove(index);
+        modelButtonList.remove(index);
+        vBox.getChildren().remove(index);
+    }
 
-            // todo: обработка ошибок
-        } catch (IOException ignored) {
-
-        }
+    private void removeCamera(int index) {
+        scene.getCameraList().remove(index);
+        cameraButtonList.remove(index);
+        vBoxCam.getChildren().remove(index);
     }
 
     @FXML
     private void onDelete() {
         if (!multiList.isEmpty()) {
+            List<Integer> indexes = new ArrayList<>(6);
             for (Button b : multiList) {
-                modelMap.remove(b);
-                vBox.getChildren().remove(b);
+                indexes.add(modelButtonList.indexOf(b));
             }
-            multiList.removeAll(multiList);
+            Collections.sort(indexes);
+            for (int i = indexes.size() - 1; i >= 0; i--) {
+                removeModel(indexes.get(i));
+            }
+            multiList.clear();
         } else {
-            var r = new HashSet<Button>();
-            cameraMap.keySet().forEach(b -> {
-                if (b.isFocused()) r.add(b);
-            });
-            modelMap.keySet().forEach(b -> {
-                if (b.isFocused()) r.add(b);
-            });
-            r.forEach(b -> {
-                if (vBox.getChildren().contains(b)) {
-                    modelMap.remove(b);
-                    vBox.getChildren().remove(b);
-                } else {
-                    cameraMap.remove(b);
-                    vBoxCam.getChildren().remove(b);
-                    camera = new Camera(
-                            new Vector3(0, 0, 300),
-                            new Vector3(0, 0, 0),
-                            1.0F, 1, 0.01F, 100);
-
-                }
-            });
+            int c = -1;
+            int m = -1;
+            for (Button b : cameraButtonList) {
+                if (b.isFocused()) c = cameraButtonList.indexOf(b);
+            }
+            for (Button b : modelButtonList) {
+                if (b.isFocused()) m = modelButtonList.indexOf(b);
+            }
+            if (c != -1) removeCamera(c);
+            if (m != -1) removeModel(m);
         }
+        activeB = null;
     }
 
     private Button newObjButton(String name) {
-        String standardStyle = "-fx-background-color: white;";
-        String enterStyle = "-fx-background-color: white; -fx-border-color: red;";
-        String activeStyle = "-fx-background-color: white; -fx-border-width: 3px; -fx-border-style: solid; -fx-border-color: #32a1ce; -fx-border-height: 3px;";
         Button objB = new Button(name);
         objB.setFocusTraversable(true);
         objB.setMnemonicParsing(false);
@@ -236,26 +197,26 @@ public class GuiController {
             if (!objB.getStyle().equals(activeStyle)) objB.setStyle(standardStyle);
         });
         objB.setOnMouseClicked(e -> {
+            vBoxCam.getChildren().forEach(n -> n.setStyle(standardStyle));
             if (!e.isControlDown()) vBox.getChildren().forEach(n -> n.setStyle(standardStyle));
             objB.setStyle(activeStyle);
             if (e.isControlDown()) {
-                if (!objB.equals(activeB)) multiList.add(activeB);
+                if (!objB.equals(activeB) && activeB != null && !multiList.contains(activeB)) multiList.add(activeB);
                 if (!multiList.contains(objB)) multiList.add(objB);
             } else {
-                if (!multiList.isEmpty()) multiList.removeAll(multiList);
+                if (!multiList.isEmpty()) multiList.clear();
             }
             activeB = objB;
         });
         return objB;
     }
 
-
     @FXML
     public void rST() {
         float scX = sX.getValue().floatValue();
         float scY = sY.getValue().floatValue();
         float scZ = sZ.getValue().floatValue();
-        Vector3 sV = new Vector3(scX, scY, scZ);
+        Vector3 vS = new Vector3(scX, scY, scZ);
 
         float roX = rX.getValue().floatValue();
         float roY = rY.getValue().floatValue();
@@ -266,16 +227,13 @@ public class GuiController {
         float trY = tY.getValue().floatValue();
         float trZ = tZ.getValue().floatValue();
         Vector3 vT = new Vector3(trX, trY, trZ);
-
-        if(modelMap != null && activeB != null){
-            modelMap.get(activeB).setVectors(vS, vR, vT);
+        scene.setVectors(vS, vR, vT);
+        if (modelButtonList != null && activeB != null && !vBoxCam.getChildren().contains(activeB)) {
+            scene.setVectorsOnModels(modelButtonList.indexOf(activeB));
         }
-        if(multiList!= null && multiList.isEmpty()){
-            multiList.forEach(n->{
-                modelMap.get(n).setVectors(vS, vR, vT);
-            });
+        if (multiList != null && !multiList.isEmpty()) {
+            multiList.forEach(n -> scene.setVectorsOnModels(modelButtonList.indexOf(n)));
         }
-        titledPane.setExpanded(false);
         canvas.requestFocus();
     }
 
@@ -310,7 +268,7 @@ public class GuiController {
 
     private void initializeAnimMenu() {
         pane1.setVisible(false);
-
+        pinMenu = false;
         FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), pane1);
         fadeTransition.setFromValue(1);
         fadeTransition.setToValue(0);
@@ -341,9 +299,7 @@ public class GuiController {
             fadeTransition1.setToValue(0);
             fadeTransition1.play();
 
-            fadeTransition1.setOnFinished(event1 -> {
-                pane1.setVisible(false);
-            });
+            fadeTransition1.setOnFinished(event1 -> pane1.setVisible(false));
 
             TranslateTransition translateTransition1 = new TranslateTransition(Duration.seconds(0.5), pane2);
             translateTransition1.setByX(-600);
@@ -356,14 +312,13 @@ public class GuiController {
         menu.setOnMouseClicked(pane1.getOnMouseClicked());
     }
 
-
     // Загрузка текстуры для каждой модели по отдельности. Пока что меняю статическое поле в render
-    public void onOpenTexture(MouseEvent mouseEvent) {
+    public void onOpenTexture() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg"));
         fileChooser.setTitle("Load Texture");
 
-        File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());
+        File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
         if (file == null) {
             return;
         }
@@ -375,28 +330,31 @@ public class GuiController {
         }
     }
 
-
-    public void addCamera(MouseEvent mouseEvent) {
-        String s1[] = positionText.getText().split("[, ]");
-        String s2[] = directionText.getText().split("[, ]");
-        if (s1.length == 3 && s2.length == 3) {
+    public void addCamera() {
+        StringTokenizer tokenizerS1 = new StringTokenizer(positionText.getText(), " ,", false);
+        StringTokenizer tokenizerS2 = new StringTokenizer(directionText.getText(), " ,", false);
+        var s1 = new ArrayList<String>();
+        var s2 = new ArrayList<String>();
+        while (tokenizerS1.hasMoreElements()) {
+            s1.add(tokenizerS1.nextToken());
+        }
+        while (tokenizerS2.hasMoreElements()) {
+            s2.add(tokenizerS2.nextToken());
+        }
+        if (s1.size() == 3 && s2.size() == 3) {
             Vector3 v1, v2;
-            v1 = new Vector3(Float.parseFloat(s1[0]), Float.parseFloat(s1[1]), Float.parseFloat(s1[2]));
-            v2 = new Vector3(Float.parseFloat(s2[0]), Float.parseFloat(s2[1]), Float.parseFloat(s2[2]));
-            Camera c = new Camera(v1, v2,
-                    1.0F, 1, 0.01F, 100);
-            Button n = newCameraButton(Integer.toString(cameraMap.size()));
-            if (cameraMap.size() < 6) {
-                cameraMap.put(n, c);
+            v1 = new Vector3(Float.parseFloat(s1.get(0)), Float.parseFloat(s1.get(1)), Float.parseFloat(s1.get(2)));
+            v2 = new Vector3(Float.parseFloat(s2.get(0)), Float.parseFloat(s2.get(1)), Float.parseFloat(s2.get(2)));
+            Camera c = new Camera(v1, v2, 1.0F, 1, 0.01F, 100);
+            Button n = newCameraButton(Integer.toString(cameraButtonList.size()));
+            if (cameraButtonList.size() < 6) {
+                putCamera(n, c);
                 vBoxCam.getChildren().add(n);
             }
         }
     }
 
     private Button newCameraButton(String name) {
-        String standardStyle = "-fx-background-color: white;";
-        String enterStyle = "-fx-background-color: white; -fx-border-color: red;";
-        String activeStyle = "-fx-background-color: white; -fx-border-width: 3px; -fx-border-style: solid; -fx-border-color: #32a1ce; -fx-border-height: 3px;";
         Button camB = new Button(name);
         camB.setFocusTraversable(true);
         camB.setMnemonicParsing(false);
@@ -411,47 +369,74 @@ public class GuiController {
             if (!camB.getStyle().equals(activeStyle)) camB.setStyle(standardStyle);
         });
         camB.setOnMouseClicked(e -> {
+            vBox.getChildren().forEach(n -> n.setStyle(standardStyle));
             if (!e.isControlDown()) vBoxCam.getChildren().forEach(n -> n.setStyle(standardStyle));
             camB.setStyle(activeStyle);
             activeB = camB;
-            if (!e.isControlDown()) camera = cameraMap.get(activeB);
+            if (!e.isControlDown()) {
+                scene.setCamera(cameraButtonList.indexOf(activeB));
+            }
         });
-
         return camB;
     }
 
     @FXML
-    public void handleCameraForward(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3(0, 0, -TRANSLATION));
+    public void handleCameraForward() {
+        scene.getCamera().movePosition(new Vector3(0, 0, -TRANSLATION));
     }
 
     @FXML
-    public void handleCameraBackward(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3(0, 0, TRANSLATION));
+    public void handleCameraBackward() {
+        scene.getCamera().movePosition(new Vector3(0, 0, TRANSLATION));
     }
 
     @FXML
-    public void handleCameraLeft(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3(TRANSLATION, 0, 0));
+    public void handleCameraLeft() {
+        scene.getCamera().movePosition(new Vector3(TRANSLATION, 0, 0));
     }
 
     @FXML
-    public void handleCameraRight(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3(-TRANSLATION, 0, 0));
+    public void handleCameraRight() {
+        scene.getCamera().movePosition(new Vector3(-TRANSLATION, 0, 0));
     }
 
     @FXML
-    public void handleCameraUp(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3(0, TRANSLATION, 0));
+    public void handleCameraUp() {
+        scene.getCamera().movePosition(new Vector3(0, TRANSLATION, 0));
     }
 
     @FXML
-    public void handleCameraDown(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3(0, -TRANSLATION, 0));
+    public void handleCameraDown() {
+        scene.getCamera().movePosition(new Vector3(0, -TRANSLATION, 0));
     }
 
-    public void canvasClick(MouseEvent mouseEvent) {
-        titledPane.setExpanded(false);
+    public void canvasClick() {
+        if (activeB != null) activeB.setStyle(standardStyle);
+        activeB = null;
         canvas.requestFocus();
+    }
+
+    public void pin() {
+        if (pinMenu) {
+            pane1.setVisible(true);
+            pane2.setStyle(paneStyle);
+            FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane1);
+            fadeTransition1.setFromValue(0);
+            fadeTransition1.setToValue(0.35);
+            fadeTransition1.play();
+            pinMenu = false;
+            menu1.setDisable(false);
+            menu.setDisable(false);
+        } else {
+            pane2.setStyle(paneStyle + "-fx-border-color: #545454 #545454 #545454 #FFFFFF;");
+            FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane1);
+            fadeTransition1.setFromValue(0.35);
+            fadeTransition1.setToValue(0);
+            fadeTransition1.play();
+            fadeTransition1.setOnFinished(event1 -> pane1.setVisible(false));
+            menu1.setDisable(true);
+            menu.setDisable(true);
+            pinMenu = true;
+        }
     }
 }
