@@ -17,8 +17,11 @@ import static javax.imageio.ImageIO.read;
 
 public class RenderEngine {
 
+    private static BufferedImage img;
 
-    static BufferedImage img;
+    public static void setImg(BufferedImage img) {
+        RenderEngine.img = img;
+    }
 
     static {
         try {
@@ -41,7 +44,7 @@ public class RenderEngine {
             Matrix4 projectionViewModelMatrix,
             Camera camera,
             GraphicsContext graphicsContext,
-            Model mesh,
+            ModelOnScene mesh,
             int width,
             int height,
             float[] zBuffer,
@@ -55,6 +58,7 @@ public class RenderEngine {
             ArrayList<Vector2> resultPoints = new ArrayList<>();
             ArrayList<Vector2> VT = new ArrayList<>();
             ArrayList<Float> N = new ArrayList<>();
+
             for (int vertexInPolygonInd = 0; vertexInPolygonInd < 3; ++vertexInPolygonInd) {
                 Vector3 vertex = mesh.getVertices().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
                 Vector2 VTVertex = mesh.getTextureVertices().get(mesh.getPolygons().get(polygonInd).getTextureVertexIndices().get(vertexInPolygonInd));
@@ -66,10 +70,13 @@ public class RenderEngine {
                 VT.add(VTVertex);
                 N.add(shade(norm, camera));
             }
+
+            Triangle triangle = new Triangle(resultPoints);
             MinMaxValue m = new MinMaxValue(resultPoints);
             for (float y = m.getMinY(); y <= m.getMaxY(); y++) {
                 for (float x = m.getMinX(); x <= m.getMaxX(); x++) {
-                    getColor(x, y, resultPoints, pointsZ, width, graphicsContext, zBuffer, VT, N, shadow, fill);
+                    getColor(x, y, triangle, pointsZ, width, graphicsContext, zBuffer, VT, N, shadow, fill);
+
                 }
             }
         }
@@ -79,7 +86,7 @@ public class RenderEngine {
     private static void mesh(
             Matrix4 projectionViewModelMatrix,
             GraphicsContext graphicsContext,
-            Model mesh,
+            ModelOnScene mesh,
             int width,
             int height) {
 
@@ -113,14 +120,14 @@ public class RenderEngine {
     public static void render(
             final GraphicsContext graphicsContext,
             final Camera camera,
-            final Model mesh,
+            final ModelOnScene mesh,
             final int width,
             final int height,
             final boolean[] params) {
 
         float[] zBuffer = new float[width * height];
         Arrays.fill(zBuffer, Float.NEGATIVE_INFINITY);
-        Matrix4 modelMatrix = rotateScaleTranslate();
+        Matrix4 modelMatrix = mesh.getModelMatrix();
         Matrix4 viewMatrix = camera.getViewMatrix();
         Matrix4 projectionMatrix = camera.getProjectionMatrix();
         Matrix4 projectionViewModelMatrix = new Matrix4(projectionMatrix.getData());
@@ -129,7 +136,7 @@ public class RenderEngine {
 
         if (params[0]) {
             texture(projectionViewModelMatrix, camera, graphicsContext, mesh, width, height, zBuffer, params[1], false);
-        }else if (params[3]){
+        } else if (params[3]) {
             texture(projectionViewModelMatrix, camera, graphicsContext, mesh, width, height, zBuffer, params[1], true);
         }
         if (params[2]) {
@@ -140,7 +147,7 @@ public class RenderEngine {
     private static void getColor(
             float x,
             float y,
-            ArrayList<Vector2> resultPoints,
+            Triangle triangle,
             ArrayList<Float> pointsZ,
             int width,
             GraphicsContext graphicsContext,
@@ -150,10 +157,9 @@ public class RenderEngine {
             boolean shadow,
             boolean fill) {
 
-        Triangle triangle = new Triangle(resultPoints);
-        Barycentric barycentric = new Barycentric(triangle, x, y);
-        Characteristics c = new Characteristics(pointsZ,VT,N,barycentric,shadow);
 
+        Barycentric barycentric = new Barycentric(triangle, x, y);
+        Characteristics c = new Characteristics(pointsZ, VT, N, barycentric, shadow);
         if (barycentric.isInside()) {
             int zIndex = (int) (y * width + x);
             if (zBuffer[zIndex] < c.getDepth()) {
@@ -178,5 +184,5 @@ public class RenderEngine {
         int g = (int) (((color >> 8) & 0xff) * shade);
         int b = (int) (((color) & 0xff) * shade);
         return new Color(r, g, b).getRGB();
-    }
+    }-*
 }

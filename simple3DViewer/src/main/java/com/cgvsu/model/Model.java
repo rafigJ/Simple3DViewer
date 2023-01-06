@@ -10,7 +10,7 @@ import java.util.List;
 public class Model {
     private List<Vector3> vertices;
     private List<Vector2> textureVertices;
-    private List<Vector3> normals;
+    public List<Vector3> normals;
     private List<Polygon> polygons;
 
     public Model(final List<Vector3> vertices, final List<Vector2> textureVertices, final List<Vector3> normals, final List<Polygon> polygons) {
@@ -124,5 +124,5 @@ public class Model {
         }
         polygons = triangulatedPolygons;
     }
-}
 
+}
