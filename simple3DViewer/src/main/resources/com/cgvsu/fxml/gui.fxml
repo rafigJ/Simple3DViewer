@@ -125,6 +125,14 @@
                      <Cursor fx:constant="HAND" />
                   </cursor>
                </ImageView>
+               <ImageView fitHeight="50.0" fitWidth="43.0" onMouseClicked="#onMultiView" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                     <Image url="@../../../icons/multiview.png" />
+                  </image>
+                  <cursor>
+                     <Cursor fx:constant="HAND" />
+                  </cursor>
+               </ImageView>
                 </children>
             </VBox>
             <VBox alignment="CENTER" prefHeight="44.0" prefWidth="44.0" style="-fx-background-color: #2f2f2f;" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -134,7 +142,7 @@
                             <Image url="@../../../icons/data.png" />
                         </image>
                         <cursor>
-                            <Cursor fx:constant="HAND" />
+                            <Cursor fx:constant="DEFAULT" />
                         </cursor>
                     </ImageView>
                 </children>
@@ -175,7 +183,7 @@
             </MenuItem>
         </Menu>
     </MenuBar>
-    <Pane fx:id="speedPane" layoutX="1036.0" layoutY="558.0" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" prefHeight="191.0" prefWidth="309.0" style="-fx-border-color: #08304b;" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0">
+    <Pane layoutX="1036.0" layoutY="558.0" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" prefHeight="191.0" prefWidth="309.0" style="-fx-border-color: #08304b;" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0">
         <children>
             <Slider fx:id="speedSlider" layoutX="236.0" layoutY="38.0" orientation="VERTICAL" />
             <Label fx:id="speedLabel" layoutX="220.0" layoutY="13.0" text="Speed: 0" />
@@ -185,7 +193,7 @@
             <CheckBox fx:id="fillCheck" layoutX="14.0" layoutY="91.0" mnemonicParsing="false" text="Fill" />
         </children>
     </Pane>
-    <AnchorPane fx:id="pane1" layoutX="43.0" layoutY="31.0" prefHeight="763.0" prefWidth="1316.0" style="-fx-background-color: black;" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="43.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+    <AnchorPane fx:id="pane" layoutX="43.0" layoutY="31.0" prefHeight="763.0" prefWidth="1316.0" style="-fx-background-color: black;" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="43.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
     <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="763.0" prefWidth="44.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
         <children>
             <VBox alignment="TOP_CENTER" layoutY="50.0" prefHeight="366.0" prefWidth="44.0" spacing="10.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="50.0">
@@ -213,6 +221,14 @@
                      <Image url="@../../../icons/pin.png" />
                   </image>
                </ImageView>
+               <ImageView fitHeight="50.0" fitWidth="43.0" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                     <Image url="@../../../icons/multiview.png" />
+                  </image>
+                  <cursor>
+                     <Cursor fx:constant="DEFAULT" />
+                  </cursor>
+               </ImageView>
                 </children>
             </VBox>
             <VBox alignment="CENTER" prefHeight="44.0" prefWidth="44.0" style="-fx-background-color: #4f4f4f;" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -229,7 +245,7 @@
             </VBox>
         </children>
     </AnchorPane>
-    <AnchorPane fx:id="pane2" layoutX="54.0" layoutY="44.0" prefHeight="719.0" prefWidth="209.0" style="-fx-background-color: #f2f3f4;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="44.0" AnchorPane.topAnchor="44.0">
+    <AnchorPane fx:id="paneList" layoutX="54.0" layoutY="44.0" prefHeight="719.0" prefWidth="209.0" style="-fx-background-color: #f2f3f4;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="44.0" AnchorPane.topAnchor="44.0">
         <children>
             <VBox fx:id="vBox" alignment="TOP_CENTER" layoutY="11.0" prefHeight="287.0" prefWidth="209.0" spacing="10.0" AnchorPane.bottomAnchor="432.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             </VBox>

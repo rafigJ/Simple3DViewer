@@ -15,9 +15,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Scene {
-
+    private List<Integer> activeIndex;
     private final ArrayList<ModelOnScene> modelList;
     private final ArrayList<Camera> cameraList;
     private Vector3 vS = new Vector3(1, 1, 1);
@@ -27,11 +29,12 @@ public class Scene {
     private Camera camera;
 
     public Scene() {
-        camera =  new Camera(new Vector3(0, 0, 300),
+        camera =  new Camera(new Vector3(0, 0, 15),
                              new Vector3(0, 0, 0),
                 1.0F, 1, 0.01F, 100);
         cameraList = new ArrayList<>(6);
         modelList = new ArrayList<>(6);
+        activeIndex = new ArrayList<>(6);
     }
 
     public void update(Canvas canvas, boolean[] params){
@@ -39,9 +42,28 @@ public class Scene {
         double height = canvas.getHeight();
         canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
         camera.setAspectRatio((float) (width / height));
-        for (ModelOnScene mesh : modelList) {
-            RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
+        Collections.sort(activeIndex);
+        if(activeIndex.isEmpty()){
+            for (ModelOnScene model : modelList) {
+                RenderEngine.render(canvas.getGraphicsContext2D(), camera, model, (int) width, (int) height, params);
+            }
         }
+        else {
+            for (int i : activeIndex) {
+                RenderEngine.render(canvas.getGraphicsContext2D(), camera, modelList.get(i), (int) width, (int) height, params);
+            }
+        }
+    }
+
+    public List<Integer> getActiveIndex() {
+        return activeIndex;
+    }
+
+    public void addActiveIndex(int index){
+        if(activeIndex.size() < 7) activeIndex.add(index);
+    }
+    public void clearActiveIndex(){
+        activeIndex.clear();
     }
 
     public Camera getCamera() {
@@ -52,11 +74,11 @@ public class Scene {
         this.camera = cameraList.get(index);
     }
 
-    public ArrayList<ModelOnScene> getModelList() {
+    public List<ModelOnScene> getModelList() {
         return modelList;
     }
 
-    public ArrayList<Camera> getCameraList() {
+    public List<Camera> getCameraList() {
         return cameraList;
     }
 

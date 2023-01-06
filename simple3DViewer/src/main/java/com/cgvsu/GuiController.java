@@ -9,7 +9,6 @@ import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
@@ -29,7 +28,6 @@ import static javax.imageio.ImageIO.read;
 public class GuiController {
     public TextField cameraName;
     private float TRANSLATION = 0.5f;
-    public Pane speedPane;
     public javafx.scene.image.ImageView expandedMenu, compressedMenu;
     public VBox vBox, vBoxCam;
     public TextField positionText, directionText;
@@ -41,7 +39,7 @@ public class GuiController {
     @FXML
     private Label speedLabel;
     @FXML
-    AnchorPane anchorPane, pane1, pane2;
+    AnchorPane anchorPane, pane, paneList;
     @FXML
     private Spinner<Double> sX, sY, sZ, rX, rY, rZ, tX, tY, tZ;
     @FXML
@@ -57,7 +55,7 @@ public class GuiController {
 
     @FXML
     private void initialize() {
-        paneStyle = pane2.getStyle();
+        paneStyle = paneList.getStyle();
         cameraButtonList = new ArrayList<>(6);
         modelButtonList = new ArrayList<>(6);
         multiList = new LinkedList<>();
@@ -72,11 +70,11 @@ public class GuiController {
         timeline.setCycleCount(Animation.INDEFINITE);
         Button n = newCameraButton("Standard");
         putCamera(n, scene.getCamera());
-        vBoxCam.getChildren().add(n);
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
             boolean[] params = {textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected()};
-            speedSlider.setMax(10F);
-            speedSlider.setMin(0.5F);
+            speedSlider.setMax(10f);
+            speedSlider.setMin(0.5f);
+            speedSlider.setValue(3f);
             TRANSLATION = (float) speedSlider.getValue();
             speedLabel.setText("Speed: " + TRANSLATION);
             scene.update(canvas, params);
@@ -144,11 +142,13 @@ public class GuiController {
         if(cameraButtonList.size() > 7) return;
         scene.getCameraList().add(c);
         cameraButtonList.add(b);
+        vBoxCam.getChildren().add(b);
     }
 
     private void removeModel(int index) {
         scene.getModelList().remove(index);
         modelButtonList.remove(index);
+        scene.getActiveIndex().remove((Integer) index);
         vBox.getChildren().remove(index);
     }
 
@@ -209,6 +209,8 @@ public class GuiController {
                 if (!multiList.contains(objB)) multiList.add(objB);
             } else {
                 if (!multiList.isEmpty()) multiList.clear();
+                scene.clearActiveIndex();
+                scene.addActiveIndex(modelButtonList.indexOf(objB));
             }
             activeB = objB;
         });
@@ -231,6 +233,7 @@ public class GuiController {
         float trZ = tZ.getValue().floatValue();
         Vector3 vT = new Vector3(trX, trY, trZ);
         scene.setVectors(vS, vR, vT);
+        if(modelButtonList != null && modelButtonList.size() == 1) scene.setVectorsOnModels(0);
         if (modelButtonList != null && activeB != null && !vBoxCam.getChildren().contains(activeB)) {
             scene.setVectorsOnModels(modelButtonList.indexOf(activeB));
         }
@@ -241,17 +244,17 @@ public class GuiController {
     }
 
     private void initializeSpinners() {
-        SpinnerValueFactory<Double> scaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 1, 0.5);
-        SpinnerValueFactory<Double> scaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 1, 0.5);
-        SpinnerValueFactory<Double> scaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 1, 0.5);
+        SpinnerValueFactory<Double> scaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 1, 0.25);
+        SpinnerValueFactory<Double> scaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 1, 0.25);
+        SpinnerValueFactory<Double> scaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 100, 1, 0.25);
 
-        SpinnerValueFactory<Double> roaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(-360, 360, 0, 0.5);
-        SpinnerValueFactory<Double> roaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(-360, 360, 0, 0.5);
-        SpinnerValueFactory<Double> roaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(-360, 360, 0, 0.5);
+        SpinnerValueFactory<Double> roaX = new SpinnerValueFactory.DoubleSpinnerValueFactory(-360, 360, 0, 0.25);
+        SpinnerValueFactory<Double> roaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(-360, 360, 0, 0.25);
+        SpinnerValueFactory<Double> roaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(-360, 360, 0, 0.25);
 
-        SpinnerValueFactory<Double> traX = new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.5);
-        SpinnerValueFactory<Double> traY = new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.5);
-        SpinnerValueFactory<Double> traZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.5);
+        SpinnerValueFactory<Double> traX = new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.25);
+        SpinnerValueFactory<Double> traY = new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.25);
+        SpinnerValueFactory<Double> traZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.25);
 
         scaX.valueProperty().addListener(e -> rotateScaleTranslation());
         scaY.valueProperty().addListener(e -> rotateScaleTranslation());
@@ -282,25 +285,25 @@ public class GuiController {
     }
 
     private void initializeAnimMenu() {
-        pane1.setVisible(false);
+        pane.setVisible(false);
         pinMenu = false;
-        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), pane1);
+        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), pane);
         fadeTransition.setFromValue(1);
         fadeTransition.setToValue(0);
         fadeTransition.play();
 
-        TranslateTransition translateTransition = new TranslateTransition(Duration.seconds(0.5), pane2);
+        TranslateTransition translateTransition = new TranslateTransition(Duration.seconds(0.5), paneList);
         translateTransition.setByX(-600);
         translateTransition.play();
 
         compressedMenu.setOnMouseClicked(event -> {
-            pane1.setVisible(true);
-            FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane1);
+            pane.setVisible(true);
+            FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane);
             fadeTransition1.setFromValue(0);
             fadeTransition1.setToValue(0.35);
             fadeTransition1.play();
 
-            TranslateTransition translateTransition1 = new TranslateTransition(Duration.seconds(0.5), pane2);
+            TranslateTransition translateTransition1 = new TranslateTransition(Duration.seconds(0.5), paneList);
             translateTransition1.setByX(+600);
             translateTransition1.setToX(0);
             translateTransition1.play();
@@ -308,15 +311,15 @@ public class GuiController {
             expandedMenu.getParent().getParent().setVisible(true);
         });
 
-        pane1.setOnMouseClicked(event -> {
-            FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane1);
+        pane.setOnMouseClicked(event -> {
+            FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane);
             fadeTransition1.setFromValue(0.35);
             fadeTransition1.setToValue(0);
             fadeTransition1.play();
 
-            fadeTransition1.setOnFinished(event1 -> pane1.setVisible(false));
+            fadeTransition1.setOnFinished(event1 -> pane.setVisible(false));
 
-            TranslateTransition translateTransition1 = new TranslateTransition(Duration.seconds(0.5), pane2);
+            TranslateTransition translateTransition1 = new TranslateTransition(Duration.seconds(0.5), paneList);
             translateTransition1.setByX(-600);
             translateTransition1.setToX(-600);
             translateTransition1.play();
@@ -324,7 +327,7 @@ public class GuiController {
             expandedMenu.getParent().getParent().setVisible(false);
             canvas.requestFocus();
         });
-        expandedMenu.setOnMouseClicked(pane1.getOnMouseClicked());
+        expandedMenu.setOnMouseClicked(pane.getOnMouseClicked());
     }
 
     // Загрузка текстуры для каждой модели по отдельности. Пока что меняю статическое поле в render
@@ -363,10 +366,7 @@ public class GuiController {
             Camera c = new Camera(v1, v2, 1.0F, 1, 0.01F, 100);
             Button n = cameraName.getText().trim().isEmpty() ? newCameraButton(Integer.toString(cameraButtonList.size())) :
                     newCameraButton(cameraName.getText());
-            if (cameraButtonList.size() < 6) {
-                putCamera(n, c);
-                vBoxCam.getChildren().add(n);
-            }
+            putCamera(n, c);
         }
     }
 
@@ -434,9 +434,10 @@ public class GuiController {
 
     public void pin() {
         if (pinMenu) {
-            pane1.setVisible(true);
-            pane2.setStyle(paneStyle);
-            FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane1);
+            pane.setVisible(true);
+            pane.setDisable(false);
+            paneList.setStyle(paneStyle);
+            FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane);
             fadeTransition1.setFromValue(0);
             fadeTransition1.setToValue(0.35);
             fadeTransition1.play();
@@ -444,15 +445,22 @@ public class GuiController {
             compressedMenu.setDisable(false);
             expandedMenu.setDisable(false);
         } else {
-            pane2.setStyle(paneStyle + "-fx-border-color: #545454 #545454 #545454 #FFFFFF;");
-            FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane1);
+            pane.setDisable(true);
+            paneList.setStyle(paneStyle + "-fx-border-color: #545454 #545454 #545454 #FFFFFF;");
+            FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane);
             fadeTransition1.setFromValue(0.35);
             fadeTransition1.setToValue(0);
             fadeTransition1.play();
-            fadeTransition1.setOnFinished(event1 -> pane1.setVisible(false));
+            fadeTransition1.setOnFinished(event1 -> pane.setVisible(false));
             compressedMenu.setDisable(true);
             expandedMenu.setDisable(true);
             pinMenu = true;
+        }
+    }
+
+    public void onMultiView() {
+        for (Button b : multiList) {
+            scene.addActiveIndex(modelButtonList.indexOf(b));
         }
     }
 }
