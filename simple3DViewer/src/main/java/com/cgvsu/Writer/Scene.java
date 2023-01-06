@@ -24,12 +24,12 @@ public class Scene {
     private Vector3 vR = new Vector3(0, 0, 0);
     private Vector3 vT = new Vector3(0, 0, 0);
 
-    private Camera camera = new Camera(
-            new Vector3(0, 0, 300),
-            new Vector3(0, 0, 0),
-            1.0F, 1, 0.01F, 100);
+    private Camera camera;
 
     public Scene() {
+        camera =  new Camera(new Vector3(0, 0, 300),
+                             new Vector3(0, 0, 0),
+                1.0F, 1, 0.01F, 100);
         cameraList = new ArrayList<>(6);
         modelList = new ArrayList<>(6);
     }
@@ -42,11 +42,6 @@ public class Scene {
         for (ModelOnScene mesh : modelList) {
             RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
         }
-    }
-
-    public void putOnCamera(Camera camera) {
-        if (cameraList.size() < 7) cameraList.add(camera);
-        else System.out.println("ERROR IN PUT ON CAMERA (SIZE)");
     }
 
     public Camera getCamera() {
@@ -81,7 +76,7 @@ public class Scene {
         fileChooser.setTitle("Load Model");
 
         File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
-        if (file == null || modelList.size() >= 6) {
+        if (file == null || modelList.size() > 6) {
             return null;
         }
         String name = file.getName();
@@ -92,6 +87,7 @@ public class Scene {
             ModelUtils.recalculateNormals(mesh);
             mesh.triangulate();
             ModelOnScene modelOnScene = new ModelOnScene(mesh, vS, vR, vT);
+
             modelList.add(modelOnScene);
             return name;
             // todo: обработка ошибок

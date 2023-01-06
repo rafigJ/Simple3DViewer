@@ -28,9 +28,10 @@ import com.cgvsu.render_engine.Camera;
 import static javax.imageio.ImageIO.read;
 
 public class GuiController {
+    public TextField cameraName;
     private float TRANSLATION = 0.5f;
     public Pane speedPane;
-    public javafx.scene.image.ImageView menu, menu1;
+    public javafx.scene.image.ImageView expandedMenu, compressedMenu;
     public VBox vBox, vBoxCam;
     public TextField positionText, directionText;
     private List<Button> cameraButtonList, modelButtonList;
@@ -102,18 +103,21 @@ public class GuiController {
         Tooltip t3 = new Tooltip("Добавить объект (.obj)");
         Tooltip t4 = new Tooltip("Удалить объект из списка");
         Tooltip t5 = new Tooltip("Скачать преобразованный obj файл"); // Пока не используется
+        Tooltip t6 = new Tooltip("Закрепить / Открепить меню");
         t1.setFont(f);
         t2.setFont(f);
         t3.setFont(f);
         t4.setFont(f);
         t5.setFont(f);
-        Tooltip.install(menu1, t1);
-        Tooltip.install(menu, t2);
-        Parent n = (Parent) menu1.getParent().getParent().getChildrenUnmodifiable().get(0);
+        t6.setFont(f);
+        Tooltip.install(compressedMenu, t1);
+        Tooltip.install(expandedMenu, t2);
+        Parent n = (Parent) compressedMenu.getParent().getParent().getChildrenUnmodifiable().get(0);
         Tooltip.install(n.getChildrenUnmodifiable().get(0), t3);
-        n = (Parent) menu.getParent().getParent().getChildrenUnmodifiable().get(0);
+        n = (Parent) expandedMenu.getParent().getParent().getChildrenUnmodifiable().get(0);
         Tooltip.install(n.getChildrenUnmodifiable().get(0), t3);
         Tooltip.install(n.getChildrenUnmodifiable().get(2), t4);
+        Tooltip.install(n.getChildrenUnmodifiable().get(3), t6);
     }
 
     // только цифры и запятые.
@@ -138,7 +142,8 @@ public class GuiController {
     }
 
     private void putCamera(Button b, Camera c) {
-        scene.putOnCamera(c);
+        if(cameraButtonList.size() > 7) return;
+        scene.getCameraList().add(c);
         cameraButtonList.add(b);
     }
 
@@ -211,8 +216,7 @@ public class GuiController {
         return objB;
     }
 
-    @FXML
-    public void rST() {
+    private void rotateScaleTranslation() {
         float scX = sX.getValue().floatValue();
         float scY = sY.getValue().floatValue();
         float scZ = sZ.getValue().floatValue();
@@ -250,6 +254,18 @@ public class GuiController {
         SpinnerValueFactory<Double> traY = new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.5);
         SpinnerValueFactory<Double> traZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.5);
 
+        scaX.valueProperty().addListener(e -> rotateScaleTranslation());
+        scaY.valueProperty().addListener(e -> rotateScaleTranslation());
+        scaZ.valueProperty().addListener(e -> rotateScaleTranslation());
+
+        roaX.valueProperty().addListener(e -> rotateScaleTranslation());
+        roaY.valueProperty().addListener(e -> rotateScaleTranslation());
+        roaZ.valueProperty().addListener(e -> rotateScaleTranslation());
+
+        traX.valueProperty().addListener(e -> rotateScaleTranslation());
+        traY.valueProperty().addListener(e -> rotateScaleTranslation());
+        traZ.valueProperty().addListener(e -> rotateScaleTranslation());
+
         sX.setValueFactory(scaX);
         sY.setValueFactory(scaY);
         sZ.setValueFactory(scaZ);
@@ -261,7 +277,7 @@ public class GuiController {
         tX.setValueFactory(traX);
         tY.setValueFactory(traY);
         tZ.setValueFactory(traZ);
-        // видимость всех-всех узлов на pane
+
         meshCheck.getParent().getChildrenUnmodifiable().forEach(n -> n.setVisible(false));
         meshCheck.setSelected(true);
     }
@@ -278,7 +294,7 @@ public class GuiController {
         translateTransition.setByX(-600);
         translateTransition.play();
 
-        menu1.setOnMouseClicked(event -> {
+        compressedMenu.setOnMouseClicked(event -> {
             pane1.setVisible(true);
             FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane1);
             fadeTransition1.setFromValue(0);
@@ -289,8 +305,8 @@ public class GuiController {
             translateTransition1.setByX(+600);
             translateTransition1.setToX(0);
             translateTransition1.play();
-            menu1.getParent().getParent().setVisible(false);
-            menu.getParent().getParent().setVisible(true);
+            compressedMenu.getParent().getParent().setVisible(false);
+            expandedMenu.getParent().getParent().setVisible(true);
         });
 
         pane1.setOnMouseClicked(event -> {
@@ -305,11 +321,11 @@ public class GuiController {
             translateTransition1.setByX(-600);
             translateTransition1.setToX(-600);
             translateTransition1.play();
-            menu1.getParent().getParent().setVisible(true);
-            menu.getParent().getParent().setVisible(false);
+            compressedMenu.getParent().getParent().setVisible(true);
+            expandedMenu.getParent().getParent().setVisible(false);
             canvas.requestFocus();
         });
-        menu.setOnMouseClicked(pane1.getOnMouseClicked());
+        expandedMenu.setOnMouseClicked(pane1.getOnMouseClicked());
     }
 
     // Загрузка текстуры для каждой модели по отдельности. Пока что меняю статическое поле в render
@@ -346,7 +362,8 @@ public class GuiController {
             v1 = new Vector3(Float.parseFloat(s1.get(0)), Float.parseFloat(s1.get(1)), Float.parseFloat(s1.get(2)));
             v2 = new Vector3(Float.parseFloat(s2.get(0)), Float.parseFloat(s2.get(1)), Float.parseFloat(s2.get(2)));
             Camera c = new Camera(v1, v2, 1.0F, 1, 0.01F, 100);
-            Button n = newCameraButton(Integer.toString(cameraButtonList.size()));
+            Button n = cameraName.getText().trim().isEmpty() ? newCameraButton(Integer.toString(cameraButtonList.size())) :
+                    newCameraButton(cameraName.getText());
             if (cameraButtonList.size() < 6) {
                 putCamera(n, c);
                 vBoxCam.getChildren().add(n);
@@ -425,8 +442,8 @@ public class GuiController {
             fadeTransition1.setToValue(0.35);
             fadeTransition1.play();
             pinMenu = false;
-            menu1.setDisable(false);
-            menu.setDisable(false);
+            compressedMenu.setDisable(false);
+            expandedMenu.setDisable(false);
         } else {
             pane2.setStyle(paneStyle + "-fx-border-color: #545454 #545454 #545454 #FFFFFF;");
             FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane1);
@@ -434,8 +451,8 @@ public class GuiController {
             fadeTransition1.setToValue(0);
             fadeTransition1.play();
             fadeTransition1.setOnFinished(event1 -> pane1.setVisible(false));
-            menu1.setDisable(true);
-            menu.setDisable(true);
+            compressedMenu.setDisable(true);
+            expandedMenu.setDisable(true);
             pinMenu = true;
         }
     }
