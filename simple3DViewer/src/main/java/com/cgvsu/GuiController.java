@@ -1,6 +1,5 @@
 package com.cgvsu;
 
-import com.cgvsu.Writer.Scene;
 import com.cgvsu.math.Vector3;
 import com.cgvsu.render_engine.RenderEngine;
 import javafx.animation.*;

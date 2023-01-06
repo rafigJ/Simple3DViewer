@@ -1,4 +1,4 @@
-package com.cgvsu.Writer;
+package com.cgvsu;
 
 import com.cgvsu.math.Vector3;
 import com.cgvsu.model.Model;
