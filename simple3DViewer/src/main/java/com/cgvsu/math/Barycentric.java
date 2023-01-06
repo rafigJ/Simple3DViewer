@@ -1,6 +1,6 @@
 package com.cgvsu.math;
 
-import com.cgvsu.render_engine.Triangle;
+import com.cgvsu.tools.Triangle;
 
 public class Barycentric {
     private final float l1;

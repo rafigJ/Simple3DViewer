@@ -62,11 +62,12 @@ public class GuiController {
 
     @FXML
     private TitledPane titledPane;
-    private Vector3 vS = new Vector3(1, 1,1);
-    private Vector3 vR = new Vector3(0,0,0);
-    private Vector3 vT = new Vector3(0,0,0);
+    private Vector3 vS = new Vector3(1, 1, 1);
+    private Vector3 vR = new Vector3(0, 0, 0);
+    private Vector3 vT = new Vector3(0, 0, 0);
     private Model mesh = null;
     private ModelOnScene modelOnScene = null;
+    private BufferedImage img = null;
 
     private Camera camera = new Camera(
             new Vector3(0, 0, 300),
@@ -103,7 +104,6 @@ public class GuiController {
 //                if (mesh != null) {
 //                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
 //                }
-
                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
 
             }
@@ -267,11 +267,11 @@ public class GuiController {
         float trZ = tZ.getValue().floatValue();
         Vector3 vT = new Vector3(trX, trY, trZ);
 
-        if(modelMap != null && activeB != null){
+        if (modelMap != null && activeB != null) {
             modelMap.get(activeB).setVectors(vS, vR, vT);
         }
-        if(multiList!= null && multiList.isEmpty()){
-            multiList.forEach(n->{
+        if (multiList != null && multiList.isEmpty()) {
+            multiList.forEach(n -> {
                 modelMap.get(n).setVectors(vS, vR, vT);
             });
         }
@@ -360,16 +360,15 @@ public class GuiController {
     // Загрузка текстуры для каждой модели по отдельности. Пока что меняю статическое поле в render
     public void onOpenTexture(MouseEvent mouseEvent) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg","Model (*.png)", "*.png"));
         fileChooser.setTitle("Load Texture");
 
-        File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());
+        File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
         if (file == null) {
             return;
         }
         try {
-            BufferedImage img = read(file);
-            RenderEngine.setImg(img);   // надо добавить такой метод
+            img = read(file);
         } catch (IOException e) {
             e.printStackTrace();
         }

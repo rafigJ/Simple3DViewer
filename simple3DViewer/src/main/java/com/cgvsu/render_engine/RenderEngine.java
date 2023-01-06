@@ -3,6 +3,8 @@ package com.cgvsu.render_engine;
 import com.cgvsu.math.*;
 import com.cgvsu.model.Model;
 import com.cgvsu.model.ModelOnScene;
+import com.cgvsu.tools.Characteristics;
+import com.cgvsu.tools.Triangle;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.awt.*;
@@ -37,7 +39,7 @@ public class RenderEngine {
 
         Vector3 v = Vector3.sub(camera.getTarget(), camera.getPosition());
         float cosine = Vector3.dotProduct(Vector3.normalization(norm), Vector3.normalization(v));
-        return Math.abs(cosine);
+        return (float) Math.max(0.7,Math.abs(cosine));
     }
 
     private static void texture(
@@ -70,13 +72,11 @@ public class RenderEngine {
                 VT.add(VTVertex);
                 N.add(shade(norm, camera));
             }
-
             Triangle triangle = new Triangle(resultPoints);
             MinMaxValue m = new MinMaxValue(resultPoints);
             for (float y = m.getMinY(); y <= m.getMaxY(); y++) {
                 for (float x = m.getMinX(); x <= m.getMaxX(); x++) {
                     getColor(x, y, triangle, pointsZ, width, graphicsContext, zBuffer, VT, N, shadow, fill);
-
                 }
             }
         }
@@ -160,6 +160,7 @@ public class RenderEngine {
 
         Barycentric barycentric = new Barycentric(triangle, x, y);
         Characteristics c = new Characteristics(pointsZ, VT, N, barycentric, shadow);
+
         if (barycentric.isInside()) {
             int zIndex = (int) (y * width + x);
             if (zBuffer[zIndex] < c.getDepth()) {
@@ -184,5 +185,7 @@ public class RenderEngine {
         int g = (int) (((color >> 8) & 0xff) * shade);
         int b = (int) (((color) & 0xff) * shade);
         return new Color(r, g, b).getRGB();
-    }-*
+    }
+
+
 }
