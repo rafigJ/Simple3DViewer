@@ -33,4 +33,5 @@ public class Characteristics {
     public float getVY() {
         return VY;
     }
+
 }

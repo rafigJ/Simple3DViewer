@@ -70,11 +70,13 @@ public class RenderEngine {
                 VT.add(VTVertex);
                 N.add(shade(norm, camera));
             }
+
             Triangle triangle = new Triangle(resultPoints);
             MinMaxValue m = new MinMaxValue(resultPoints);
             for (float y = m.getMinY(); y <= m.getMaxY(); y++) {
                 for (float x = m.getMinX(); x <= m.getMaxX(); x++) {
                     getColor(x, y, triangle, pointsZ, width, graphicsContext, zBuffer, VT, N, shadow, fill);
+
                 }
             }
         }
@@ -158,7 +160,6 @@ public class RenderEngine {
 
         Barycentric barycentric = new Barycentric(triangle, x, y);
         Characteristics c = new Characteristics(pointsZ, VT, N, barycentric, shadow);
-
         if (barycentric.isInside()) {
             int zIndex = (int) (y * width + x);
             if (zBuffer[zIndex] < c.getDepth()) {
@@ -183,7 +184,5 @@ public class RenderEngine {
         int g = (int) (((color >> 8) & 0xff) * shade);
         int b = (int) (((color) & 0xff) * shade);
         return new Color(r, g, b).getRGB();
-    }
-
-
+    }-*
 }

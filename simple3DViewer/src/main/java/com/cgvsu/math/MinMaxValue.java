@@ -30,4 +30,5 @@ public class MinMaxValue {
     public float getMaxY() {
         return maxY;
     }
+
 }

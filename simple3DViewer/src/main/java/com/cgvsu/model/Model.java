@@ -124,4 +124,5 @@ public class Model {
         }
         polygons = triangulatedPolygons;
     }
+
 }
