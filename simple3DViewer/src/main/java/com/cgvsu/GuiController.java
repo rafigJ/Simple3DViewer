@@ -147,6 +147,15 @@ public class GuiController extends Pane {
     }
 
     @FXML
+    private void saveObj() {
+        if(activeB == null) {
+            System.out.println("ERROR SELECT MODEL");
+            return;
+        }
+        scene.saveModel(canvas, modelButtonList.indexOf(activeB));
+    }
+
+    @FXML
     private void onOpenModel() {
         String name = scene.addModel(canvas);
         if (name == null) return;
@@ -154,14 +163,6 @@ public class GuiController extends Pane {
         // исправить или не исправлять добавление одинаковых объектов
         vBox.getChildren().add(modelButton);
         modelButtonList.add(modelButton);
-    }
-    @FXML
-    private void saveObj() {
-        if(activeB == null) {
-            System.out.println("ERROR SELECT MODEL");
-            return;
-        }
-        scene.saveModel(canvas, modelButtonList.indexOf(activeB));
     }
 
     private void putCamera(Button b, Camera c) {
@@ -451,6 +452,40 @@ public class GuiController extends Pane {
         return camB;
     }
 
+    @FXML
+    public void handleCameraForward() {
+        scene.getCamera().movePosition(new Vector3(0, 0, -TRANSLATION));
+    }
+
+    @FXML
+    public void handleCameraBackward() {
+        scene.getCamera().movePosition(new Vector3(0, 0, TRANSLATION));
+    }
+
+    @FXML
+    public void handleCameraLeft() {
+        scene.getCamera().movePosition(new Vector3(TRANSLATION, 0, 0));
+        scene.getCamera().moveTarget(new Vector3(TRANSLATION, 0, 0));
+    }
+
+    @FXML
+    public void handleCameraRight() {
+        scene.getCamera().movePosition(new Vector3(-TRANSLATION, 0, 0));
+        scene.getCamera().moveTarget(new Vector3(-TRANSLATION, 0, 0));
+    }
+
+    @FXML
+    public void handleCameraUp() {
+        scene.getCamera().movePosition(new Vector3(0, TRANSLATION, 0));
+        scene.getCamera().moveTarget(new Vector3(0, TRANSLATION, 0));
+    }
+
+    @FXML
+    public void handleCameraDown() {
+        scene.getCamera().movePosition(new Vector3(0, -TRANSLATION, 0));
+        scene.getCamera().moveTarget(new Vector3(0, -TRANSLATION, 0));
+    }
+
     public void canvasClick() {
         if (activeB != null) activeB.setStyle(standardStyle);
         canvas.requestFocus();
@@ -544,40 +579,6 @@ public class GuiController extends Pane {
         for (Button b : multiList) {
             scene.addActiveIndex(modelButtonList.indexOf(b));
         }
-    }
-
-    @FXML
-    public void handleCameraForward() {
-        scene.getCamera().movePosition(new Vector3(0, 0, -TRANSLATION));
-    }
-
-    @FXML
-    public void handleCameraBackward() {
-        scene.getCamera().movePosition(new Vector3(0, 0, TRANSLATION));
-    }
-
-    @FXML
-    public void handleCameraLeft() {
-        scene.getCamera().movePosition(new Vector3(TRANSLATION, 0, 0));
-        scene.getCamera().moveTarget(new Vector3(TRANSLATION, 0, 0));
-    }
-
-    @FXML
-    public void handleCameraRight() {
-        scene.getCamera().movePosition(new Vector3(-TRANSLATION, 0, 0));
-        scene.getCamera().moveTarget(new Vector3(-TRANSLATION, 0, 0));
-    }
-
-    @FXML
-    public void handleCameraUp() {
-        scene.getCamera().movePosition(new Vector3(0, TRANSLATION, 0));
-        scene.getCamera().moveTarget(new Vector3(0, TRANSLATION, 0));
-    }
-
-    @FXML
-    public void handleCameraDown() {
-        scene.getCamera().movePosition(new Vector3(0, -TRANSLATION, 0));
-        scene.getCamera().moveTarget(new Vector3(0, -TRANSLATION, 0));
     }
 
 }
