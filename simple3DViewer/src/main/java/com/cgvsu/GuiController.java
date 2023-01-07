@@ -5,12 +5,15 @@ import com.cgvsu.model.ModelOnScene;
 import com.cgvsu.render_engine.Camera;
 import com.cgvsu.render_engine.RenderEngine;
 import javafx.animation.*;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
@@ -24,7 +27,7 @@ import java.util.regex.Pattern;
 
 import static javax.imageio.ImageIO.read;
 
-public class GuiController {
+public class GuiController extends Pane {
     public TextField cameraName;
     private float TRANSLATION = 0.5f;
     public javafx.scene.image.ImageView expandedMenu, compressedMenu;
@@ -53,6 +56,18 @@ public class GuiController {
     private final String activeStyle = "-fx-background-color: white; -fx-border-width: 3px; -fx-border-style: solid; -fx-border-color: #32a1ce; -fx-border-height: 3px;";
     private String paneStyle;
 
+    //камера
+    private double mousePosX;
+    private double mousePosY;
+    private double oldMousePosX;
+    private double oldMousePosY;
+    private double centerX = getWidth() / 2;
+    private double centerY = getHeight() / 2;
+    private double initialAngle;
+    private double initialAnglePane;
+    private double angle;
+
+
     @FXML
     private void initialize() {
         paneStyle = paneList.getStyle();
@@ -62,12 +77,12 @@ public class GuiController {
         updateSpinners(-1);
         initializeAnimMenu();
         initializeTextFields();
+        tooltip();
         speedSlider.setMax(10f);
         speedSlider.setMin(0.5f);
         speedSlider.setValue(3f);
         meshCheck.getParent().getChildrenUnmodifiable().forEach(n -> n.setVisible(false));
         meshCheck.setSelected(true);
-        tooltip();
         scene = new Scene();
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
@@ -439,6 +454,64 @@ public class GuiController {
     public void canvasClick() {
         if (activeB != null) activeB.setStyle(standardStyle);
         canvas.requestFocus();
+
+        canvas.setOnMousePressed(event -> {
+            oldMousePosX = event.getSceneX();
+            oldMousePosY = event.getSceneY();
+        });
+        canvas.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                double x = event.getSceneX();
+                double y = event.getSceneY();
+                double angleX;
+                double angleY;
+                double dx = x - oldMousePosX;
+                double dy = y - oldMousePosY;
+
+
+
+                if (dx > 0) {
+                    scene.getCamera().movePosition(new Vector3(TRANSLATION, 0, 0));
+                    angleY = TRANSLATION;
+                } else if (dx < 0) {
+                    scene.getCamera().movePosition(new Vector3(-TRANSLATION, 0, 0));
+                    angleY = -TRANSLATION;
+                } else {
+                    angleY = 0;
+                }
+
+                if(dy > 0) {
+                    scene.getCamera().movePosition(new Vector3(0, TRANSLATION, 0));
+                    angleX = -TRANSLATION;
+                } else if (dy < 0) {
+                    scene.getCamera().movePosition(new Vector3(0, -TRANSLATION, 0));
+                    angleX = TRANSLATION;
+                } else {
+                    angleX = 0;
+                }
+            };
+        });
+
+        canvas.setOnScrollStarted(event -> {
+            oldMousePosX = event.getSceneX();
+            oldMousePosY = event.getSceneY();
+        });
+
+        canvas.setOnScroll(event -> {
+            double x = event.getDeltaX();
+            double y = event.getDeltaY();
+
+
+            double dx = x - oldMousePosX;
+            double dy = y - oldMousePosY;
+
+            if(y < 0) {
+                scene.getCamera().setPosition(Vector3.sum(scene.getCamera().getPosition(), new Vector3(0,0, TRANSLATION)));
+            } else {
+                scene.getCamera().setPosition(Vector3.sum(scene.getCamera().getPosition(), new Vector3(0,0, -TRANSLATION)));
+            }
+        });
     }
 
     public void pin() {
@@ -486,21 +559,25 @@ public class GuiController {
     @FXML
     public void handleCameraLeft() {
         scene.getCamera().movePosition(new Vector3(TRANSLATION, 0, 0));
+        scene.getCamera().moveTarget(new Vector3(TRANSLATION, 0, 0));
     }
 
     @FXML
     public void handleCameraRight() {
         scene.getCamera().movePosition(new Vector3(-TRANSLATION, 0, 0));
+        scene.getCamera().moveTarget(new Vector3(-TRANSLATION, 0, 0));
     }
 
     @FXML
     public void handleCameraUp() {
         scene.getCamera().movePosition(new Vector3(0, TRANSLATION, 0));
+        scene.getCamera().moveTarget(new Vector3(0, TRANSLATION, 0));
     }
 
     @FXML
     public void handleCameraDown() {
         scene.getCamera().movePosition(new Vector3(0, -TRANSLATION, 0));
+        scene.getCamera().moveTarget(new Vector3(0, -TRANSLATION, 0));
     }
 
 }
