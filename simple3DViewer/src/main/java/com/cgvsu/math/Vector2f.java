@@ -9,6 +9,13 @@ public class Vector2f {
 
     public float x, y;
 
+    public String getX() {
+        return String.valueOf(x);
+    }
+
+    public String getY() {
+        return String.valueOf(y);
+    }
 }
 
 

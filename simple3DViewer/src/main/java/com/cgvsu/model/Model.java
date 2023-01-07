@@ -1,7 +1,9 @@
 package com.cgvsu.model;
 
 import com.cgvsu.math.Vector2;
+import com.cgvsu.math.Vector2f;
 import com.cgvsu.math.Vector3;
+import com.cgvsu.math.Vector3f;
 import com.cgvsu.objreader.ReaderExceptions;
 
 import java.util.ArrayList;

@@ -1,5 +1,6 @@
 package com.cgvsu;
 
+import com.cgvsu.Writer.ObjWriter;
 import com.cgvsu.math.Vector3;
 import com.cgvsu.model.Model;
 import com.cgvsu.model.ModelOnScene;
@@ -19,12 +20,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class Scene {
-    private List<Integer> activeIndex;
+    private final List<Integer> activeIndex;
     private final ArrayList<ModelOnScene> modelList;
     private final ArrayList<Camera> cameraList;
-    private Vector3 vS = new Vector3(1, 1, 1);
-    private Vector3 vR = new Vector3(0, 0, 0);
-    private Vector3 vT = new Vector3(0, 0, 0);
 
     private Camera camera;
 
@@ -82,13 +80,7 @@ public class Scene {
         return cameraList;
     }
 
-    public void setVectors(Vector3 vS, Vector3 vR, Vector3 vT) {
-        this.vS = vS;
-        this.vR = vR;
-        this.vT = vT;
-    }
-
-    public void setVectorsOnModels(int index) {
+    public void setVectorsOnModel(Vector3 vS, Vector3 vR, Vector3 vT, int index) {
         modelList.get(index).setVectors(vS, vR, vT);
     }
 
@@ -108,6 +100,10 @@ public class Scene {
             Model mesh = ObjReader.read(fileContent, false);
             ModelUtils.recalculateNormals(mesh);
             mesh.triangulate();
+            Vector3 vS = new Vector3(1,1,1);
+            Vector3 vR = new Vector3(0,0,0);
+            Vector3 vT = new Vector3(0,0,0);
+
             ModelOnScene modelOnScene = new ModelOnScene(mesh, vS, vR, vT);
 
             modelList.add(modelOnScene);
@@ -119,4 +115,15 @@ public class Scene {
         return null;
     }
 
+    public void saveModel(Canvas canvas, int index){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
+        File file = fileChooser.showSaveDialog(canvas.getScene().getWindow());
+        try {
+            ObjWriter.write(file.getName(), modelList.get(index));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
