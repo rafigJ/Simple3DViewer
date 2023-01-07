@@ -1,109 +1,91 @@
 package com.cgvsu.Writer;
 
+
 import com.cgvsu.math.Vector2;
 import com.cgvsu.math.Vector3;
 import com.cgvsu.model.Model;
 import com.cgvsu.model.Polygon;
+import com.cgvsu.utils.FileManager;
 
-
-import java.io.*;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ObjWriter {
 
-    public static void createObjFile(String absoluteFilePath) throws IOException {
-        String fileSeparator = System.getProperty("file.separator");
-        absoluteFilePath += fileSeparator + "file.obj";
-        File file = new File(absoluteFilePath);
+    public static void write(final String name, final Model model) throws IOException {
+        final List<String> vertices = verticesToString(model.getVertices());
+        final List<String> textureVertices = textureVerticesToString(model.getTextureVertices());
+        final List<String> normals = normalsToString(model.getNormals());
+        final List<String> poly = polygonsToString(model.getPolygons());
+
+        FileManager.createFileWithText(name, vertices, textureVertices, normals, poly);
     }
 
-    public static void writeToFile(Model model, File file) throws IOException {
-        String str = "";
+    public static List<String> verticesToString(final List<Vector3> array) {
+        List<String> l = new ArrayList<>();
 
-        str += writeVertexes(model.getVertices());
-        str += writeTextureVertexes(model.getTextureVertices());
-        str += writeNormals(model.getNormals());
-        str += writePolygons(model.getPolygons());
-
-        toFile(str, file.getAbsolutePath());
-    }
-
-    protected static void toFile(String line, String fileName) throws FileNotFoundException {
-        PrintWriter printWriter = new PrintWriter(fileName);
-        printWriter.print(line);
-        printWriter.close();
-    }
-
-    protected static String writeVertexes(final List<Vector3> v){
-        String str = "";
-        for (int i = 0; i < v.size(); i++){
-            final String vx = String.format("%.4f", v.get(i).getX()).replace(',', '.');
-            final String vy = String.format("%.4f", v.get(i).getY()).replace(',', '.');
-            final String vz = String.format("%.4f", v.get(i).getZ()).replace(',', '.');
-            str = str + "v  " + vx + " " + vy + " " + vz + "\n";
+        for (int vertexInd = 0; vertexInd < array.size(); vertexInd++) {
+            l.add("v " + array.get(vertexInd).getX() + " " + array.get(vertexInd).getY() + " " + array.get(vertexInd).getZ());
         }
-        str = str + "# " + v.size() + " vertices";
-        str+="\n";
-        str+="\n";
-        return str;
+
+        return l;
     }
 
-    protected static String writeTextureVertexes(final List<Vector2> vt){
-        String str = "";
-        for (int i = 0; i < vt.size(); i++){
-            final String vtx = String.format("%.4f", vt.get(i).getX()).replace(',', '.');
-            final String vty = String.format("%.4f", vt.get(i).getY()).replace(',', '.');
-            str = str + "vt " + vtx + " " + vty + " " + "0.0000" + "\n";
+    public static List<String> textureVerticesToString(final List<Vector2> array) {
+        List<String> l = new ArrayList<>();
+
+        for (int textureVertices = 0; textureVertices < array.size(); textureVertices++) {
+            l.add("vt " + array.get(textureVertices).getX() + " " + array.get(textureVertices).getY());
         }
-        str = str + "# " + vt.size() + " texture cords";
-        str+="\n";
-        str+="\n";
-        return str;
+
+        return l;
     }
 
-    protected static String writeNormals(final List<Vector3> vn){
-        String str = "";
-        for (int i = 0; i < vn.size(); i++){
-            final String vx = String.format("%.4f", vn.get(i).getX()).replace(',', '.');
-            final String vy = String.format("%.4f", vn.get(i).getY()).replace(',', '.');
-            final String vz = String.format("%.4f", vn.get(i).getZ()).replace(',', '.');
-            str = str + "vn  " + vx + " " + vy + " " + vz + "\n";
+    public static List<String> normalsToString(final List<Vector3> array) {
+        List<String> l = new ArrayList<>();
+
+        for (Vector3 vector3 : array) {
+            l.add("vn " + vector3.getX() + " " + vector3.getY() + " " + vector3.getZ());
         }
-        str = str + "# " + vn.size() + " normals";
-        str+="\n";
-        str+="\n";
-        return str;
+
+        return l;
     }
 
-    protected static String writePolygons(final List<Polygon> p){
-        String str = "";
-        for (int i = 0; i < p.size(); i++){
-            str = str + "f ";
-            final Polygon pol = p.get(i);
-            for (int j = 0; j < pol.getVertexIndices().size(); j++){
-                if (!pol.getTextureVertexIndices().isEmpty() && pol.getNormalIndices().isEmpty()){
-                    str = str  + (pol.getVertexIndices().get(j) + 1) + "/"
-                           + (pol.getTextureVertexIndices().get(j) + 1) + " ";
+    public static List<String> polygonsToString(final List<Polygon> polygons) {
+        List<String> l = new ArrayList<>();
+        String s;
+        Polygon polygon;
+        List<Integer> vertex;
+        List<Integer> textureVertex;
+        List<Integer> normal;
+
+        for (int poly = 0; poly < polygons.size(); poly++) {
+            s = "f";
+            polygon = polygons.get(poly);
+            vertex = polygon.getVertexIndices();
+            textureVertex = polygon.getTextureVertexIndices();
+            normal = polygon.getNormalIndices();
+
+            for (int v = 0; v < vertex.size(); v++) {
+                s += " ";
+                s += vertex.get(v) + 1;
+
+                if (textureVertex.size() != 0) {
+                    s += "/";
+                    s += textureVertex.get(v) + 1;
                 }
-                if (pol.getTextureVertexIndices().isEmpty() && pol.getNormalIndices().isEmpty()){
-                    str = str  + (pol.getVertexIndices().get(j) + 1) +  " ";
-                }
-                if (!pol.getTextureVertexIndices().isEmpty() && !pol.getNormalIndices().isEmpty()){
-                    str = str  + (pol.getVertexIndices().get(j) + 1) + "/"
-                            + (pol.getTextureVertexIndices().get(j) + 1) + "/"
-                            + (pol.getNormalIndices().get(j) + 1) + " ";
-                }
-                if (pol.getTextureVertexIndices().isEmpty() && !pol.getNormalIndices().isEmpty()){
-                    str = str  + (pol.getVertexIndices().get(j) + 1) + "//"
-                            + (pol.getNormalIndices().get(j) + 1) + " ";
+
+                if (normal.size() != 0) {
+                    s += "/";
+                    s += normal.get(v) + 1;
                 }
             }
-            str = str  + "\n";
+
+            l.add(s);
         }
-        str = str + "# " + p.size() + " polygons";
-        str+="\n";
-        str+="\n";
-        return str;
+
+        return l;
     }
 
 }
