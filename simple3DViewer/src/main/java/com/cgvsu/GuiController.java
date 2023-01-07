@@ -2,6 +2,7 @@ package com.cgvsu;
 
 import com.cgvsu.math.Vector3;
 import com.cgvsu.render_engine.RenderEngine;
+import com.cgvsu.tools.TextureSettings;
 import javafx.animation.*;
 
 import javafx.beans.property.DoubleProperty;
@@ -48,6 +49,8 @@ public class GuiController {
     @FXML
     private CheckBox textureCheck, shadowCheck, meshCheck, fillCheck;
 
+
+  
     private boolean pinMenu;
     private Scene scene;
     private final String standardStyle = "-fx-background-color: white;";
@@ -336,20 +339,21 @@ public class GuiController {
     // Загрузка текстуры для каждой модели по отдельности. Пока что меняю статическое поле в render
     public void onOpenTexture() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg", "Model (*.png)", "*.png"));
         fileChooser.setTitle("Load Texture");
 
         File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
         if (file == null) {
             return;
+
         }
         try {
-            BufferedImage img = read(file);
-            RenderEngine.setImg(img);   // надо добавить такой метод
+            img = read(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     public void addCamera() {
         StringTokenizer tokenizerS1 = new StringTokenizer(positionText.getText(), " ,", false);
