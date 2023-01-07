@@ -1,9 +1,8 @@
 package com.cgvsu.model;
-import com.cgvsu.math.Matrix4;
-import com.cgvsu.math.Vector2;
-import com.cgvsu.math.Vector3;
+import com.cgvsu.math.*;
 import com.cgvsu.render_engine.GraphicConveyor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ModelOnScene extends Model {

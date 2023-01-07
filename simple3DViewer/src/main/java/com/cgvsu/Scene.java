@@ -22,38 +22,35 @@ import java.util.Collections;
 import java.util.List;
 
 public class Scene {
-    private List<Integer> activeIndex;
-    private final ArrayList<ModelOnScene> modelList;
-    private final ArrayList<Camera> cameraList;
-    private Vector3 vS = new Vector3(1, 1, 1);
-    private Vector3 vR = new Vector3(0, 0, 0);
-    private Vector3 vT = new Vector3(0, 0, 0);
-
+    private final List<Integer> activeIndex;
+    private final List<ModelOnScene> modelList;
+    private final List<Camera> cameraList;
+    private final List<BufferedImage> textureList;
     private Camera camera;
 
     public Scene() {
-        camera =  new Camera(new Vector3(0, 0, 15),
-                             new Vector3(0, 0, 0),
+        camera = new Camera(new Vector3(0, 0, 15),
+                new Vector3(0, 0, 0),
                 1.0F, 1, 0.01F, 100);
         cameraList = new ArrayList<>(6);
         modelList = new ArrayList<>(6);
         activeIndex = new ArrayList<>(6);
+        textureList = new ArrayList<>(6);
     }
 
-    public void update(Canvas canvas, TextureSettings settings, BufferedImage img){
+    public void update(Canvas canvas, TextureSettings settings, BufferedImage img) {
         double width = canvas.getWidth();
         double height = canvas.getHeight();
         canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
         camera.setAspectRatio((float) (width / height));
         Collections.sort(activeIndex);
-        if(activeIndex.isEmpty()){
+        if (activeIndex.isEmpty()) {
             for (ModelOnScene model : modelList) {
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, model, (int) width, (int) height,img, settings);
+                RenderEngine.render(canvas.getGraphicsContext2D(), camera, model, (int) width, (int) height, img, settings);
             }
-        }
-        else {
+        } else {
             for (int i : activeIndex) {
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, modelList.get(i), (int) width, (int) height,img, settings);
+                RenderEngine.render(canvas.getGraphicsContext2D(), camera, modelList.get(i), (int) width, (int) height, img, settings);
             }
         }
     }
@@ -62,10 +59,11 @@ public class Scene {
         return activeIndex;
     }
 
-    public void addActiveIndex(int index){
-        if(activeIndex.size() < 7) activeIndex.add(index);
+    public void addActiveIndex(int index) {
+        if (activeIndex.size() < 7) activeIndex.add(index);
     }
-    public void clearActiveIndex(){
+
+    public void clearActiveIndex() {
         activeIndex.clear();
     }
 
@@ -85,13 +83,11 @@ public class Scene {
         return cameraList;
     }
 
-    public void setVectors(Vector3 vS, Vector3 vR, Vector3 vT) {
-        this.vS = vS;
-        this.vR = vR;
-        this.vT = vT;
+    public List<BufferedImage> getTextureList() {
+        return textureList;
     }
 
-    public void setVectorsOnModels(int index) {
+    public void setVectorsOnModel(Vector3 vS, Vector3 vR, Vector3 vT, int index) {
         modelList.get(index).setVectors(vS, vR, vT);
     }
 
@@ -109,8 +105,13 @@ public class Scene {
         try {
             String fileContent = Files.readString(fileName);
             Model mesh = ObjReader.read(fileContent, false);
+            ModelUtils.recalculateNormals(mesh);
+            mesh.triangulate();
+            Vector3 vS = new Vector3(1, 1, 1);
+            Vector3 vR = new Vector3(0, 0, 0);
+            Vector3 vT = new Vector3(0, 0, 0);
             ModelOnScene modelOnScene = new ModelOnScene(mesh, vS, vR, vT);
-
+            textureList.add(null);
             modelList.add(modelOnScene);
             return name;
             // todo: обработка ошибок
@@ -120,7 +121,7 @@ public class Scene {
         return null;
     }
 
-    public void saveModel(Canvas canvas, int index){
+    public void saveModel(Canvas canvas, int index) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
