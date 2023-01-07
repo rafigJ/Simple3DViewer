@@ -23,7 +23,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="763.0" prefWidth="1359.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cgvsu.GuiController">
+<AnchorPane fx:id="anchorPane" prefHeight="763.0" prefWidth="1359.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cgvsu.GuiController">
 
     <Canvas fx:id="canvas" focusTraversable="true" height="489.0" layoutX="75.0" layoutY="182.0" onMouseClicked="#canvasClick" width="1019.0" AnchorPane.topAnchor="182.0" />
     <TitledPane expanded="false" focusTraversable="false" layoutX="1198.0" pickOnBounds="false" prefHeight="426.0" prefWidth="209.0" AnchorPane.rightAnchor="1.0">

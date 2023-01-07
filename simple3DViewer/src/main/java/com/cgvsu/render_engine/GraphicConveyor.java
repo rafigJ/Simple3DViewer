@@ -2,6 +2,7 @@ package com.cgvsu.render_engine;
 import com.cgvsu.math.*;
 
 public class GraphicConveyor {
+    private static Vector4 q = null;
 
     public static Matrix4 translateRotateScale(Vector3 vS, Vector3 vR, Vector3 vT) {
         return Matrix4.multiply(Matrix4.multiply(translate(vT), rotate(vR)), scale(vS));
@@ -48,6 +49,7 @@ public class GraphicConveyor {
     public static Vector3 multiplyMatrix4ByVector3(final Matrix4 matrix, final Vector3 vertex) {
         Vector4 v4 = new Vector4(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F);
         v4 = matrix.multiply(v4);
+        q = v4;
         return new Vector3(v4.getX() / v4.getM(), v4.getY() / v4.getM(), v4.getZ() / v4.getM());
     }
 
@@ -70,8 +72,8 @@ public class GraphicConveyor {
         final float cosX = (float) Math.cos(vR.getX());
         final float sinY = (float) Math.sin(vR.getY());
         final float cosY = (float) Math.cos(vR.getY());
-        final float sinZ = (float) Math.sin(vR.getX());
-        final float cosZ = (float) Math.cos(vR.getX());
+        final float sinZ = (float) Math.sin(vR.getZ());
+        final float cosZ = (float) Math.cos(vR.getZ());
 
         float[][] matrix = new float[][] {
                 {cosY * cosZ, sinX * sinY * cosZ - cosX * sinZ, cosX * sinY * cosZ + sinX * sinZ, 0},
@@ -91,5 +93,19 @@ public class GraphicConveyor {
                 {0, 0, 0, 1}
         };
         return new Matrix4(matrix);
+    }
+
+    public static Matrix4 qMatrix() {
+        float[][] matrix = new float[][] {
+                {1 - 2 * q.getY() * q.getY() - 2 * q.getZ() * q.getZ(), 2 * q.getX() * q.getY() - 2 * q.getZ() * q.getM(), 2 * q.getX() * q.getZ() + 2 * q.getY() * q.getM()},
+                {2 * q.getX() * q.getY() + 2 * q.getZ() * q.getM(), 1 - 2 * q.getX() * q.getX() - 2 * q.getZ() * q.getZ(), 2 * q.getY() * q.getZ() - 2 * q.getX() * q.getM()},
+                {2 * q.getX() * q.getZ(), 2 * q.getY() * q.getZ() + 2 * q.getX() * q.getM(), 1  - 2 * q.getX() * q.getX() - 2 * q.getY() * q.getY()},
+                {0,0,0,1}
+        };
+        return new Matrix4(matrix);
+    }
+
+    public Vector4 getQ() {
+        return q;
     }
 }

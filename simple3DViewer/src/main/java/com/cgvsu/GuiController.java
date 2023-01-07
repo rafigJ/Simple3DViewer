@@ -4,6 +4,8 @@ import com.cgvsu.math.Vector3;
 import com.cgvsu.render_engine.RenderEngine;
 import javafx.animation.*;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
@@ -11,7 +13,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
@@ -46,6 +47,7 @@ public class GuiController {
     private Canvas canvas;
     @FXML
     private CheckBox textureCheck, shadowCheck, meshCheck, fillCheck;
+
     private boolean pinMenu;
     private Scene scene;
     private final String standardStyle = "-fx-background-color: white;";
@@ -63,7 +65,7 @@ public class GuiController {
         initializeAnimMenu();
         initializeTextFields();
         tooltip();
-        scene = new Scene();
+        scene = new Scene();  
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
         Timeline timeline = new Timeline();
@@ -284,6 +286,7 @@ public class GuiController {
         meshCheck.setSelected(true);
     }
 
+
     private void initializeAnimMenu() {
         pane.setVisible(false);
         pinMenu = false;
@@ -427,6 +430,29 @@ public class GuiController {
     }
 
     public void canvasClick() {
+    //        mousePosX = (float) mouseEvent.getSceneX();
+//        mousePosY = (float) mouseEvent.getSceneY();
+//        System.out.print(camera.getTarget().getX() + " " + camera.getTarget().getY() + " " + camera.getTarget;
+//
+//        canvas.setOnMouseDragged(event -> {
+//            camera.movePosition(new Vector3(TRANSLATION, TRANSLATION, 0));
+//        });
+
+//            anchorX = mouseEvent.getSceneX();
+//            anchorY = mouseEvent.getSceneY();
+//            anchorAngleX = angleX.get();
+//            anchorAngleY = angleY.get();
+//
+//        canvas.setOnMouseDragged(event -> {
+//            angleX.set(anchorAngleX - (anchorY - event.getSceneY()));
+//            angleY.set(anchorAngleY + anchorX - event.getSceneX());
+//            camera.setTarget(new Vector3((float) (100 * Math.sin(anchorAngleX)), (float) (100*Math.cos(anchorAngleX)), 0));
+//        });
+
+        canvas.setOnMouseDragged(event -> {
+
+        });
+
         if (activeB != null) activeB.setStyle(standardStyle);
         activeB = null;
         canvas.requestFocus();
