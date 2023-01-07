@@ -83,7 +83,7 @@ public class Vector4 {
 
     public void divide(final float n) throws Exception {
         if(n - 0 < eps) {
-            throw new Exception("На 0 делить нельзя");
+            throw new Exception("Divide by 0");
         }
 
         this.x = this.x / n;
@@ -94,7 +94,7 @@ public class Vector4 {
 
     public static Vector4 divide(final Vector4 v1, final float n) throws Exception {
         if(n - 0 < eps) {
-            throw new Exception("На 0 делить нельзя");
+            throw new Exception("Divide by 0");
         }
         final float x = v1.getX() / n;
         final float y = v1.getY() / n;

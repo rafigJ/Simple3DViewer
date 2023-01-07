@@ -6,6 +6,8 @@ import com.cgvsu.model.ModelUtils;
 import com.cgvsu.render_engine.RenderEngine;
 import javafx.animation.*;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.scene.Parent;
@@ -16,6 +18,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
@@ -62,9 +65,24 @@ public class GuiController {
 
     @FXML
     private TitledPane titledPane;
+
     private Vector3 vS = new Vector3(1, 1,1);
     private Vector3 vR = new Vector3(0,0,0);
     private Vector3 vT = new Vector3(0,0,0);
+
+    // камера
+    private Rotate rotateX = new Rotate(0, Rotate.X_AXIS);
+    private Rotate rotateY = new Rotate(0, Rotate.Y_AXIS);
+    private Rotate rotateZ = new Rotate(0, Rotate.Z_AXIS);
+    float mousePosX;
+    float mousePosY;
+
+    private double anchorX, anchorY;
+    private double anchorAngleX = 0;
+    private double anchorAngleY = 0;
+    private final DoubleProperty angleX = new SimpleDoubleProperty(0);
+    private final DoubleProperty angleY = new SimpleDoubleProperty(0);
+
     private Model mesh = null;
     private ModelOnScene modelOnScene = null;
 
@@ -79,6 +97,7 @@ public class GuiController {
         initializeAnimMenu();
         initializeTextFields();
         tooltip();
+        //handleMouseEvents();
         cameraMap = new HashMap<>(6);
         modelMap = new HashMap<>(6);
         multiList = new LinkedList<>();
@@ -100,10 +119,6 @@ public class GuiController {
             canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
             camera.setAspectRatio((float) (width / height));
             for (ModelOnScene mesh : modelMap.values()) {
-//                if (mesh != null) {
-//                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
-//                }
-
                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
 
             }
@@ -255,7 +270,7 @@ public class GuiController {
         float scX = sX.getValue().floatValue();
         float scY = sY.getValue().floatValue();
         float scZ = sZ.getValue().floatValue();
-        Vector3 sV = new Vector3(scX, scY, scZ);
+        Vector3 vS = new Vector3(scX, scY, scZ);
 
         float roX = rX.getValue().floatValue();
         float roY = rY.getValue().floatValue();
@@ -288,9 +303,9 @@ public class GuiController {
         SpinnerValueFactory<Double> roaY = new SpinnerValueFactory.DoubleSpinnerValueFactory(-360, 360, 0, 0.5);
         SpinnerValueFactory<Double> roaZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(-360, 360, 0, 0.5);
 
-        SpinnerValueFactory<Double> traX = new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.5);
-        SpinnerValueFactory<Double> traY = new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.5);
-        SpinnerValueFactory<Double> traZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.5);
+        SpinnerValueFactory<Double> traX = new SpinnerValueFactory.DoubleSpinnerValueFactory(-1000, 1000, 0, 0.5);
+        SpinnerValueFactory<Double> traY = new SpinnerValueFactory.DoubleSpinnerValueFactory(-1000, 1000, 0, 0.5);
+        SpinnerValueFactory<Double> traZ = new SpinnerValueFactory.DoubleSpinnerValueFactory(-1000, 1000, 0, 0.5);
 
         sX.setValueFactory(scaX);
         sY.setValueFactory(scaY);
@@ -307,6 +322,7 @@ public class GuiController {
         meshCheck.getParent().getChildrenUnmodifiable().forEach(n -> n.setVisible(false));
         meshCheck.setSelected(true);
     }
+
 
     private void initializeAnimMenu() {
         pane1.setVisible(false);
@@ -433,24 +449,51 @@ public class GuiController {
     @FXML
     public void handleCameraLeft(ActionEvent actionEvent) {
         camera.movePosition(new Vector3(TRANSLATION, 0, 0));
+        camera.moveTarget(new Vector3(TRANSLATION, 0, 0));
     }
 
     @FXML
     public void handleCameraRight(ActionEvent actionEvent) {
         camera.movePosition(new Vector3(-TRANSLATION, 0, 0));
+        camera.moveTarget(new Vector3(-TRANSLATION, 0, 0));
     }
 
     @FXML
     public void handleCameraUp(ActionEvent actionEvent) {
         camera.movePosition(new Vector3(0, TRANSLATION, 0));
+        camera.moveTarget(new Vector3(0, TRANSLATION, 0));
     }
 
     @FXML
     public void handleCameraDown(ActionEvent actionEvent) {
         camera.movePosition(new Vector3(0, -TRANSLATION, 0));
+        camera.moveTarget(new Vector3(0, -TRANSLATION, 0));
     }
 
     public void canvasClick(MouseEvent mouseEvent) {
+//        mousePosX = (float) mouseEvent.getSceneX();
+//        mousePosY = (float) mouseEvent.getSceneY();
+//        System.out.print(camera.getTarget().getX() + " " + camera.getTarget().getY() + " " + camera.getTarget;
+//
+//        canvas.setOnMouseDragged(event -> {
+//            camera.movePosition(new Vector3(TRANSLATION, TRANSLATION, 0));
+//        });
+
+//            anchorX = mouseEvent.getSceneX();
+//            anchorY = mouseEvent.getSceneY();
+//            anchorAngleX = angleX.get();
+//            anchorAngleY = angleY.get();
+//
+//        canvas.setOnMouseDragged(event -> {
+//            angleX.set(anchorAngleX - (anchorY - event.getSceneY()));
+//            angleY.set(anchorAngleY + anchorX - event.getSceneX());
+//            camera.setTarget(new Vector3((float) (100 * Math.sin(anchorAngleX)), (float) (100*Math.cos(anchorAngleX)), 0));
+//        });
+
+        canvas.setOnMouseDragged(event -> {
+
+        });
+
         titledPane.setExpanded(false);
         canvas.requestFocus();
     }

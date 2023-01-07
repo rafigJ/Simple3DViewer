@@ -45,7 +45,7 @@ public class Camera {
     }
 
     public void moveTarget(final Vector3 translation) {
-        this.target.sum(target);
+        this.target.sum(translation);
     }
 
     Matrix4 getViewMatrix() {
