@@ -67,7 +67,6 @@ public class GuiController extends Pane {
     private double initialAnglePane;
     private double angle;
 
-
     @FXML
     private void initialize() {
         paneStyle = paneList.getStyle();
@@ -486,8 +485,28 @@ public class GuiController extends Pane {
     }
 
     public void canvasClick() {
+
         if (activeB != null) activeB.setStyle(standardStyle);
         canvas.requestFocus();
+
+        //        mousePosX = (float) mouseEvent.getSceneX();
+//        mousePosY = (float) mouseEvent.getSceneY();
+//        System.out.print(camera.getTarget().getX() + " " + camera.getTarget().getY() + " " + camera.getTarget;
+//
+//        canvas.setOnMouseDragged(event -> {
+//            camera.movePosition(new Vector3(TRANSLATION, TRANSLATION, 0));
+//        });
+
+//            anchorX = mouseEvent.getSceneX();
+//            anchorY = mouseEvent.getSceneY();
+//            anchorAngleX = angleX.get();
+//            anchorAngleY = angleY.get();
+//
+//        canvas.setOnMouseDragged(event -> {
+//            angleX.set(anchorAngleX - (anchorY - event.getSceneY()));
+//            angleY.set(anchorAngleY + anchorX - event.getSceneX());
+//            camera.setTarget(new Vector3((float) (100 * Math.sin(anchorAngleX)), (float) (100*Math.cos(anchorAngleX)), 0));
+//        });
 
         canvas.setOnMousePressed(event -> {
             oldMousePosX = event.getSceneX();

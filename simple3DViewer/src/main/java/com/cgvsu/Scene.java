@@ -110,7 +110,6 @@ public class Scene {
             Vector3 vS = new Vector3(1, 1, 1);
             Vector3 vR = new Vector3(0, 0, 0);
             Vector3 vT = new Vector3(0, 0, 0);
-
             ModelOnScene modelOnScene = new ModelOnScene(mesh, vS, vR, vT);
             textureList.add(null);
             modelList.add(modelOnScene);

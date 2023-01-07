@@ -56,7 +56,7 @@ public class RenderEngine {
                 shadows.add(shade(normal, camera));
             }
             Triangle triangle = new Triangle(resultPoints);
-            MinMaxValue m = new MinMaxValue(resultPoints);
+            MinMaxValue m = new MinMaxValue(resultPoints, width, height);
             for (int y = m.getMinY(); y <= m.getMaxY(); y++) {
                 for (int x = m.getMinX(); x <= m.getMaxX(); x++) {
                     textureMapping(x, y, triangle, zCoordinates, graphicsContext, zBuffer, textureCoordinates, shadows, shadow, fill, img);
@@ -75,7 +75,6 @@ public class RenderEngine {
         final int nPolygons = mesh.getPolygons().size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
             final int nVerticesInPolygon = mesh.getPolygons().get(polygonInd).getVertexIndices().size();
-            final int nTVerticesInPolygon = mesh.getPolygons().get(polygonInd).getTextureVertexIndices().size();
             ArrayList<Vector2> resultPoints = new ArrayList<>();
             for (int vertexInPolygonInd = 0; vertexInPolygonInd < nVerticesInPolygon; ++vertexInPolygonInd) {
                 Vector3 vertex = mesh.getVertices().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
@@ -83,7 +82,7 @@ public class RenderEngine {
                 Vector2 resultPoint = vertexToPoint(multiplyMatrix4ByVector3(projectionViewModelMatrix, vertexVecMath), width, height);
                 resultPoints.add(resultPoint);
             }
-            for (int vertexInPolygonInd = 1; vertexInPolygonInd < nTVerticesInPolygon - 1; vertexInPolygonInd++) {
+            for (int vertexInPolygonInd = 1; vertexInPolygonInd < nVerticesInPolygon; vertexInPolygonInd++) {
                 graphicsContext.strokeLine(
                         resultPoints.get(vertexInPolygonInd - 1).getX(),
                         resultPoints.get(vertexInPolygonInd - 1).getY(),
@@ -149,7 +148,7 @@ public class RenderEngine {
         Barycentric barycentric = new Barycentric(triangle, x, y);
         Characteristics c = new Characteristics(zCoordinates, textureVertexes, shadows, barycentric, shadow);
 
-        if (barycentric.isInside()) {
+        if (barycentric.isInside() ) {
             if (zBuffer[x][y] < c.getDepth()) {
                 zBuffer[x][y] = c.getDepth();
                 int color = fill ? setDefaultColor(c.getShade()) : setTexture(c.getShade(), c.getVX(), c.getVY(), img);
