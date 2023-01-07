@@ -8,11 +8,11 @@ public class MinMaxValue {
     private final int minY;
     private final int maxY;
 
-    public MinMaxValue(ArrayList<Vector2> resultPoints) {
-        this.minX = (int) Math.ceil(Math.min(resultPoints.get(0).getX(), Math.min(resultPoints.get(1).getX(), resultPoints.get(2).getX())));
-        this.maxX = (int) (Math.floor(Math.max(resultPoints.get(0).getX(), Math.max(resultPoints.get(1).getX(), resultPoints.get(2).getX()))));
-        this.minY = (int) (Math.ceil(Math.min(resultPoints.get(0).getY(), Math.min(resultPoints.get(1).getY(), resultPoints.get(2).getY()))));
-        this.maxY = (int) (Math.floor(Math.max(resultPoints.get(0).getY(), Math.max(resultPoints.get(1).getY(), resultPoints.get(2).getY()))));
+    public MinMaxValue(ArrayList<Vector2> resultPoints, int width, int height) {
+        this.minX = (int) Math.max(0,Math.min(resultPoints.get(0).getX(), Math.min(resultPoints.get(1).getX(), resultPoints.get(2).getX())));
+        this.maxX = (int) Math.min(width - 1,Math.max(resultPoints.get(0).getX(), Math.max(resultPoints.get(1).getX(), resultPoints.get(2).getX())));
+        this.minY = (int) Math.max(0,Math.min(resultPoints.get(0).getY(), Math.min(resultPoints.get(1).getY(), resultPoints.get(2).getY())));
+        this.maxY = (int) Math.min(height - 1,Math.max(resultPoints.get(0).getY(), Math.max(resultPoints.get(1).getY(), resultPoints.get(2).getY())));
     }
 
     public int getMinX() {

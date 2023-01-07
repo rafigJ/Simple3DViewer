@@ -70,6 +70,7 @@ public class GuiController extends Pane {
     private final String enterStyle = "-fx-background-color: white; -fx-border-color: red;";
     private final String activeStyle = "-fx-background-color: white; -fx-border-width: 3px; -fx-border-style: solid; -fx-border-color: #32a1ce; -fx-border-height: 3px;";
     private String paneStyle;
+    private BufferedImage img;
 
     @FXML
     private void initialize() {
@@ -95,7 +96,7 @@ public class GuiController extends Pane {
             boolean[] params = {textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected()};
             TRANSLATION = (float) speedSlider.getValue();
             speedLabel.setText("Speed: " + TRANSLATION);
-            scene.update(canvas, params);
+            scene.update(canvas, settings, img);
         });
 
         timeline.getKeyFrames().add(frame);
@@ -166,7 +167,7 @@ public class GuiController extends Pane {
     }
 
     private void putCamera(Button b, Camera c) {
-        if(cameraButtonList.size() > 7) return;
+        if (cameraButtonList.size() > 7) return;
         scene.getCameraList().add(c);
         cameraButtonList.add(b);
         vBoxCam.getChildren().add(b);
@@ -260,7 +261,7 @@ public class GuiController extends Pane {
         float trZ = tZ.getValue().floatValue();
         Vector3 vT = new Vector3(trX, trY, trZ);
         scene.setVectors(vS, vR, vT);
-        if(modelButtonList != null && modelButtonList.size() == 1) scene.setVectorsOnModels(0);
+        if (modelButtonList != null && modelButtonList.size() == 1) scene.setVectorsOnModels(0);
         if (modelButtonList != null && activeB != null && !vBoxCam.getChildren().contains(activeB)) {
             scene.setVectorsOnModels(modelButtonList.indexOf(activeB));
         }
@@ -460,7 +461,7 @@ public class GuiController extends Pane {
     }
 
     public void canvasClick() {
-    //        mousePosX = (float) mouseEvent.getSceneX();
+        //        mousePosX = (float) mouseEvent.getSceneX();
 //        mousePosY = (float) mouseEvent.getSceneY();
 //        System.out.print(camera.getTarget().getX() + " " + camera.getTarget().getY() + " " + camera.getTarget;
 //
