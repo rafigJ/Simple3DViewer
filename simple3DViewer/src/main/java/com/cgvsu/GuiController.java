@@ -1,17 +1,20 @@
 package com.cgvsu;
 
+import com.cgvsu.math.Matrix4;
 import com.cgvsu.math.Vector3;
+import com.cgvsu.render_engine.GraphicConveyor;
 import com.cgvsu.render_engine.RenderEngine;
 import com.cgvsu.tools.TextureSettings;
 import javafx.animation.*;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
@@ -27,7 +30,7 @@ import com.cgvsu.render_engine.Camera;
 
 import static javax.imageio.ImageIO.read;
 
-public class GuiController {
+public class GuiController extends Pane {
     public TextField cameraName;
     private float TRANSLATION = 0.5f;
     public javafx.scene.image.ImageView expandedMenu, compressedMenu;
@@ -49,6 +52,17 @@ public class GuiController {
     @FXML
     private CheckBox textureCheck, shadowCheck, meshCheck, fillCheck;
 
+    //камера
+    private double mousePosX;
+    private double mousePosY;
+    private double oldMousePosX;
+    private double oldMousePosY;
+    private double centerX = getWidth() / 2;
+    private double centerY = getHeight() / 2;
+    private double initialAngle;
+    private double initialAnglePane;
+    private double angle;
+
 
     private boolean pinMenu;
     private Scene scene;
@@ -68,7 +82,10 @@ public class GuiController {
         initializeAnimMenu();
         initializeTextFields();
         tooltip();
-        scene = new Scene();
+        speedSlider.setMax(10f);
+        speedSlider.setMin(0.5f);
+        speedSlider.setValue(3f);
+        scene = new Scene();  
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
         Timeline timeline = new Timeline();
@@ -76,10 +93,7 @@ public class GuiController {
         Button n = newCameraButton("Standard");
         putCamera(n, scene.getCamera());
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
-            TextureSettings settings = new TextureSettings(textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected());
-            speedSlider.setMax(10f);
-            speedSlider.setMin(0.5f);
-            speedSlider.setValue(3f);
+            boolean[] params = {textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected()};
             TRANSLATION = (float) speedSlider.getValue();
             speedLabel.setText("Speed: " + TRANSLATION);
             scene.update(canvas, settings, img);
@@ -134,6 +148,15 @@ public class GuiController {
     }
 
     @FXML
+    private void saveObj() {
+        if (activeB == null) {
+            System.out.println("ERROR SELECT MODEL");
+            return;
+        }
+        scene.saveModel(canvas, modelButtonList.indexOf(activeB));
+    }
+
+        @FXML
     private void onOpenModel() {
         String name = scene.addModel(canvas);
         if (name == null) return;
@@ -416,21 +439,25 @@ public class GuiController {
     @FXML
     public void handleCameraLeft() {
         scene.getCamera().movePosition(new Vector3(TRANSLATION, 0, 0));
+        scene.getCamera().moveTarget(new Vector3(TRANSLATION, 0, 0));
     }
 
     @FXML
     public void handleCameraRight() {
         scene.getCamera().movePosition(new Vector3(-TRANSLATION, 0, 0));
+        scene.getCamera().moveTarget(new Vector3(-TRANSLATION, 0, 0));
     }
 
     @FXML
     public void handleCameraUp() {
         scene.getCamera().movePosition(new Vector3(0, TRANSLATION, 0));
+        scene.getCamera().moveTarget(new Vector3(0, TRANSLATION, 0));
     }
 
     @FXML
     public void handleCameraDown() {
         scene.getCamera().movePosition(new Vector3(0, -TRANSLATION, 0));
+        scene.getCamera().moveTarget(new Vector3(0, -TRANSLATION, 0));
     }
 
     public void canvasClick() {
@@ -453,8 +480,94 @@ public class GuiController {
 //            camera.setTarget(new Vector3((float) (100 * Math.sin(anchorAngleX)), (float) (100*Math.cos(anchorAngleX)), 0));
 //        });
 
-        canvas.setOnMouseDragged(event -> {
+        canvas.setOnMousePressed(event -> {
+            oldMousePosX = event.getSceneX();
+            oldMousePosY = event.getSceneY();
+        });
 
+        canvas.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                double x = event.getSceneX();
+                double y = event.getSceneY();
+                double angleX;
+                double angleY;
+//
+//                Vector3 z = Vector3.sub(scene.getCamera().getTarget(), scene.getCamera().getPosition());
+//                Vector3 oldCamera = GraphicConveyor.multiplyMatrix4ByVector3(scene.getCamera().getViewMatrix(),
+//                        new Vector3(z.getX(), z.getY(), z.getZ()));
+//                oldCamera.normalization();
+
+                double dx = x - oldMousePosX;
+                double dy = y - oldMousePosY;
+
+//                angleX = Math.sin(dx) * TRANSLATION;
+//                angleY = Math.cos(dy) * TRANSLATION ;
+
+//                angleX = Math.sin(TRANSLATION / 360.0f * 3.14f) * 10;
+//                angleY = Math.cos(TRANSLATION / 360.0f * 3.14f) * 10;
+
+                if (dx > 0) {
+                    scene.getCamera().movePosition(new Vector3(TRANSLATION, 0, 0));
+                    angleY = TRANSLATION;
+                } else if (dx < 0) {
+                    scene.getCamera().movePosition(new Vector3(-TRANSLATION, 0, 0));
+                    angleY = -TRANSLATION;
+                } else {
+                    angleY = 0;
+                }
+
+                if(dy > 0) {
+                    scene.getCamera().movePosition(new Vector3(0, TRANSLATION, 0));
+                    angleX = -TRANSLATION;
+                } else if (dy < 0) {
+                    scene.getCamera().movePosition(new Vector3(0, -TRANSLATION, 0));
+                    angleX = TRANSLATION;
+                } else {
+                    angleX = 0;
+                }
+
+//                Vector3 cameraTargetVis =  GraphicConveyor.multiplyMatrix4ByVector3(GraphicConveyor.rotate(new Vector3((float) -angleX, (float) 0,
+//                        (float) -angleY)), oldCamera);
+//                Vector3 cameraTargetWorld = GraphicConveyor.multiplyMatrix4ByVector3(Matrix4.transpose(scene.getCamera().getViewMatrix()), cameraTargetVis);
+//
+//
+//                scene.getCamera().movePosition(cameraTargetWorld);
+            };
+        });
+
+        canvas.setOnScrollStarted(event -> {
+            oldMousePosX = event.getSceneX();
+            oldMousePosY = event.getSceneY();
+        });
+
+        canvas.setOnScroll(event -> {
+            double x = event.getDeltaX();
+            double y = event.getDeltaY();
+
+
+            double dx = x - oldMousePosX;
+            double dy = y - oldMousePosY;
+
+//            if (dx > 0) {
+//                scene.getCamera().setPosition(Vector3.sum(scene.getCamera().getPosition(), new Vector3(0,-TRANSLATION,0)));
+//            } else if (dx < 0) {
+//                scene.getCamera().setPosition(Vector3.sum(scene.getCamera().getPosition(), new Vector3(0,TRANSLATION, 0)));
+//            }
+//
+//            if(dy > 0) {
+//                scene.getCamera().setPosition(Vector3.sum(scene.getCamera().getPosition(), new Vector3(0,0, -TRANSLATION)));
+//            } else if (dy < 0) {
+//                scene.getCamera().setPosition(Vector3.sum(scene.getCamera().getPosition(), new Vector3(0,0, TRANSLATION)));
+//            }
+
+            if(y < 0) {
+                scene.getCamera().setPosition(Vector3.sum(scene.getCamera().getPosition(), new Vector3(0,0, TRANSLATION)));
+//                scene.getCamera().movePosition(new Vector3(0,0, TRANSLATION));
+            } else {
+                scene.getCamera().setPosition(Vector3.sum(scene.getCamera().getPosition(), new Vector3(0,0, -TRANSLATION)));
+//                scene.getCamera().movePosition(new Vector3(0,0, -TRANSLATION));
+            }
         });
 
         if (activeB != null) activeB.setStyle(standardStyle);

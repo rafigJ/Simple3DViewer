@@ -1,5 +1,6 @@
 package com.cgvsu;
 
+import com.cgvsu.Writer.ObjWriter;
 import com.cgvsu.math.Vector3;
 import com.cgvsu.model.Model;
 import com.cgvsu.model.ModelOnScene;
@@ -119,4 +120,15 @@ public class Scene {
         return null;
     }
 
+    public void saveModel(Canvas canvas, int index){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
+        File file = fileChooser.showSaveDialog(canvas.getScene().getWindow());
+        try {
+            ObjWriter.write(file.getName(), modelList.get(index));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
