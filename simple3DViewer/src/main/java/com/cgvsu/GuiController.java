@@ -93,7 +93,7 @@ public class GuiController extends Pane {
         Button n = newCameraButton("Standard");
         putCamera(n, scene.getCamera());
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
-            boolean[] params = {textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected()};
+            TextureSettings settings = new TextureSettings(textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected());
             TRANSLATION = (float) speedSlider.getValue();
             speedLabel.setText("Speed: " + TRANSLATION);
             scene.update(canvas, settings, img);
