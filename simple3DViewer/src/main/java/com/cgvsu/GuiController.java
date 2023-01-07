@@ -3,7 +3,7 @@ package com.cgvsu;
 import com.cgvsu.math.Vector3;
 import com.cgvsu.model.ModelOnScene;
 import com.cgvsu.render_engine.Camera;
-import com.cgvsu.render_engine.RenderEngine;
+import com.cgvsu.tools.TextureSettings;
 import javafx.animation.*;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -91,10 +91,10 @@ public class GuiController extends Pane {
         Button n = newCameraButton("Standard");
         putCamera(n, scene.getCamera());
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
-            boolean[] params = {textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected()};
+            TextureSettings settings = new TextureSettings(textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected());
             TRANSLATION = (float) speedSlider.getValue();
             speedLabel.setText("Speed: " + TRANSLATION);
-            scene.update(canvas, params);
+            scene.update(canvas, settings, null);
         });
 
         timeline.getKeyFrames().add(frame);
@@ -398,7 +398,6 @@ public class GuiController extends Pane {
             BufferedImage img = read(file);
             scene.getTextureList().add(modelButtonList.indexOf(activeB), img);
             System.out.println(scene.getTextureList().size());
-            RenderEngine.setImg(img);   // надо добавить такой метод
         } catch (IOException e) {
             e.printStackTrace();
         }

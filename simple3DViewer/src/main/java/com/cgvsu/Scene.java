@@ -8,6 +8,7 @@ import com.cgvsu.model.ModelUtils;
 import com.cgvsu.objreader.ObjReader;
 import com.cgvsu.render_engine.Camera;
 import com.cgvsu.render_engine.RenderEngine;
+import com.cgvsu.tools.TextureSettings;
 import javafx.scene.canvas.Canvas;
 import javafx.stage.FileChooser;
 
@@ -28,8 +29,8 @@ public class Scene {
     private Camera camera;
 
     public Scene() {
-        camera =  new Camera(new Vector3(0, 0, 15),
-                             new Vector3(0, 0, 0),
+        camera = new Camera(new Vector3(0, 0, 15),
+                new Vector3(0, 0, 0),
                 1.0F, 1, 0.01F, 100);
         cameraList = new ArrayList<>(6);
         modelList = new ArrayList<>(6);
@@ -37,20 +38,19 @@ public class Scene {
         textureList = new ArrayList<>(6);
     }
 
-    public void update(Canvas canvas, boolean[] params){
+    public void update(Canvas canvas, TextureSettings settings, BufferedImage img) {
         double width = canvas.getWidth();
         double height = canvas.getHeight();
         canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
         camera.setAspectRatio((float) (width / height));
         Collections.sort(activeIndex);
-        if(activeIndex.isEmpty()){
+        if (activeIndex.isEmpty()) {
             for (ModelOnScene model : modelList) {
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, model, (int) width, (int) height, params);
+                RenderEngine.render(canvas.getGraphicsContext2D(), camera, model, (int) width, (int) height, img, settings);
             }
-        }
-        else {
+        } else {
             for (int i : activeIndex) {
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, modelList.get(i), (int) width, (int) height, params);
+                RenderEngine.render(canvas.getGraphicsContext2D(), camera, modelList.get(i), (int) width, (int) height, img, settings);
             }
         }
     }
@@ -59,11 +59,11 @@ public class Scene {
         return activeIndex;
     }
 
-    public void addActiveIndex(int index){
-        if(activeIndex.size() < 7) activeIndex.add(index);
+    public void addActiveIndex(int index) {
+        if (activeIndex.size() < 7) activeIndex.add(index);
     }
 
-    public void clearActiveIndex(){
+    public void clearActiveIndex() {
         activeIndex.clear();
     }
 
@@ -83,7 +83,9 @@ public class Scene {
         return cameraList;
     }
 
-    public List<BufferedImage> getTextureList() {return textureList;}
+    public List<BufferedImage> getTextureList() {
+        return textureList;
+    }
 
     public void setVectorsOnModel(Vector3 vS, Vector3 vR, Vector3 vT, int index) {
         modelList.get(index).setVectors(vS, vR, vT);
@@ -105,9 +107,9 @@ public class Scene {
             Model mesh = ObjReader.read(fileContent, false);
             ModelUtils.recalculateNormals(mesh);
             mesh.triangulate();
-            Vector3 vS = new Vector3(1,1,1);
-            Vector3 vR = new Vector3(0,0,0);
-            Vector3 vT = new Vector3(0,0,0);
+            Vector3 vS = new Vector3(1, 1, 1);
+            Vector3 vR = new Vector3(0, 0, 0);
+            Vector3 vT = new Vector3(0, 0, 0);
 
             ModelOnScene modelOnScene = new ModelOnScene(mesh, vS, vR, vT);
             textureList.add(null);
@@ -120,7 +122,7 @@ public class Scene {
         return null;
     }
 
-    public void saveModel(Canvas canvas, int index){
+    public void saveModel(Canvas canvas, int index) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
