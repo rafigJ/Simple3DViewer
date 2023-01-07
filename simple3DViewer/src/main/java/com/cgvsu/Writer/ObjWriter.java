@@ -5,7 +5,7 @@ import com.cgvsu.math.Vector2;
 import com.cgvsu.math.Vector3;
 import com.cgvsu.model.Model;
 import com.cgvsu.model.Polygon;
-import com.cgvsu.utils.FileManager;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
