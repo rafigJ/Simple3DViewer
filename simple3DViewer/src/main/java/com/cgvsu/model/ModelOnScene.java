@@ -6,7 +6,7 @@ import com.cgvsu.render_engine.GraphicConveyor;
 
 import java.util.List;
 
-public class ModelOnScene {
+public class ModelOnScene extends Model {
     private Model mesh;
     private Vector3 vS = new Vector3(1, 1,1);
     private Vector3 vR = new Vector3(0,0,0);

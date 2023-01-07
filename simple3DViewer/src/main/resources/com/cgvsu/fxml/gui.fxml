@@ -24,10 +24,10 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="763.0" prefWidth="1359.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cgvsu.GuiController">
+<AnchorPane fx:id="anchorPane" prefHeight="763.0" prefWidth="1359.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cgvsu.GuiController">
 
     <Canvas fx:id="canvas" focusTraversable="true" height="489.0" layoutX="75.0" layoutY="182.0" onMouseClicked="#canvasClick" width="1019.0" AnchorPane.topAnchor="182.0" />
-    <TitledPane fx:id="titledPane" expanded="false" focusTraversable="false" layoutX="1198.0" pickOnBounds="false" prefHeight="426.0" prefWidth="209.0" AnchorPane.rightAnchor="1.0">
+    <TitledPane expanded="false" focusTraversable="false" layoutX="1198.0" pickOnBounds="false" prefHeight="426.0" prefWidth="209.0" AnchorPane.rightAnchor="1.0">
         <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="410.0" prefWidth="259.0">
                 <children>
@@ -86,9 +86,6 @@
                     <Spinner fx:id="tZ" editable="true" layoutX="34.0" layoutY="330.0">
                     </Spinner>
 
-                    <Button layoutX="63.0" layoutY="361.0" onAction="#rST" text="Изменить">
-
-                    </Button>
                 </children>
             </AnchorPane>
         </content>
@@ -121,16 +118,32 @@
                             <Cursor fx:constant="HAND" />
                         </cursor>
                     </ImageView>
+               <ImageView fitHeight="50.0" fitWidth="43.0" onMouseClicked="#pin" pickOnBounds="true" preserveRatio="true" rotate="-90.0">
+                  <image>
+                     <Image url="@../../../icons/pin.png" />
+                  </image>
+                  <cursor>
+                     <Cursor fx:constant="HAND" />
+                  </cursor>
+               </ImageView>
+               <ImageView fitHeight="50.0" fitWidth="43.0" onMouseClicked="#onMultiView" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                     <Image url="@../../../icons/multiview.png" />
+                  </image>
+                  <cursor>
+                     <Cursor fx:constant="HAND" />
+                  </cursor>
+               </ImageView>
                 </children>
             </VBox>
             <VBox alignment="CENTER" prefHeight="44.0" prefWidth="44.0" style="-fx-background-color: #2f2f2f;" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <children>
-                    <ImageView fx:id="menu" accessibleHelp="Закрыть меню" accessibleText="Закрыть меню" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                    <ImageView fx:id="expandedMenu" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                         <image>
                             <Image url="@../../../icons/data.png" />
                         </image>
                         <cursor>
-                            <Cursor fx:constant="HAND" />
+                            <Cursor fx:constant="DEFAULT" />
                         </cursor>
                     </ImageView>
                 </children>
@@ -171,7 +184,7 @@
             </MenuItem>
         </Menu>
     </MenuBar>
-    <Pane fx:id="speedPane" layoutX="1036.0" layoutY="558.0" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" prefHeight="191.0" prefWidth="309.0" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0">
+    <Pane layoutX="1036.0" layoutY="558.0" onMouseEntered="#mouseEntered" onMouseExited="#mouseExited" prefHeight="191.0" prefWidth="309.0" style="-fx-border-color: #08304b;" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0">
         <children>
             <Slider fx:id="speedSlider" layoutX="236.0" layoutY="38.0" orientation="VERTICAL" />
             <Label fx:id="speedLabel" layoutX="220.0" layoutY="13.0" text="Speed: 0" />
@@ -181,10 +194,10 @@
             <CheckBox fx:id="fillCheck" layoutX="14.0" layoutY="91.0" mnemonicParsing="false" text="Fill" />
         </children>
     </Pane>
-    <AnchorPane fx:id="pane1" layoutX="43.0" layoutY="31.0" prefHeight="763.0" prefWidth="1316.0" style="-fx-background-color: black;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="43.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+    <AnchorPane fx:id="pane" layoutX="43.0" layoutY="31.0" prefHeight="763.0" prefWidth="1316.0" style="-fx-background-color: black;" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="43.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
     <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="763.0" prefWidth="44.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
         <children>
-            <VBox alignment="TOP_CENTER" layoutY="50.0" prefHeight="366.0" prefWidth="44.0" spacing="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="50.0">
+            <VBox alignment="TOP_CENTER" layoutY="50.0" prefHeight="366.0" prefWidth="44.0" spacing="10.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="50.0">
                 <children>
                     <ImageView fitHeight="42.0" fitWidth="42.0" onMouseClicked="#onOpenModel" pickOnBounds="true" preserveRatio="true">
                         <image>
@@ -204,11 +217,24 @@
                             <Image url="@../../../icons/delete.png" />
                         </image>
                     </ImageView>
+               <ImageView fitHeight="50.0" fitWidth="43.0" pickOnBounds="true" preserveRatio="true" rotate="-90.0">
+                  <image>
+                     <Image url="@../../../icons/pin.png" />
+                  </image>
+               </ImageView>
+               <ImageView fitHeight="50.0" fitWidth="43.0" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                     <Image url="@../../../icons/multiview.png" />
+                  </image>
+                  <cursor>
+                     <Cursor fx:constant="DEFAULT" />
+                  </cursor>
+               </ImageView>
                 </children>
             </VBox>
-            <VBox alignment="CENTER" prefHeight="44.0" prefWidth="44.0" style="-fx-background-color: #2f2f2f;" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <VBox alignment="CENTER" prefHeight="44.0" prefWidth="44.0" style="-fx-background-color: #4f4f4f;" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <children>
-                    <ImageView fx:id="menu1" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                    <ImageView fx:id="compressedMenu" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                         <image>
                             <Image url="@../../../icons/data.png" />
                         </image>
@@ -220,27 +246,31 @@
             </VBox>
         </children>
     </AnchorPane>
-    <AnchorPane fx:id="pane2" layoutX="54.0" layoutY="44.0" prefHeight="719.0" prefWidth="209.0" style="-fx-background-color: #f2f3f4;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="44.0" AnchorPane.topAnchor="44.0">
+    <AnchorPane fx:id="paneList" layoutX="54.0" layoutY="44.0" prefHeight="719.0" prefWidth="209.0" style="-fx-background-color: #f2f3f4;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="44.0" AnchorPane.topAnchor="44.0">
         <children>
             <VBox fx:id="vBox" alignment="TOP_CENTER" layoutY="11.0" prefHeight="287.0" prefWidth="209.0" spacing="10.0" AnchorPane.bottomAnchor="432.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             </VBox>
-         <VBox alignment="TOP_CENTER" layoutY="544.0" prefHeight="118.0" prefWidth="209.0" spacing="10.0" AnchorPane.bottomAnchor="57.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+         <VBox alignment="TOP_CENTER" layoutY="544.0" prefHeight="156.0" prefWidth="209.0" spacing="10.0" AnchorPane.bottomAnchor="19.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
             <children>
                <HBox alignment="CENTER" prefHeight="35.0" prefWidth="209.0" spacing="3.0">
                   <children>
-                     <Button mnemonicParsing="false" onMousePressed="#addCamera" prefHeight="56.0" prefWidth="209.0" text="add Camera" />
-                     <Button focusTraversable="false" mnemonicParsing="false" onMouseClicked="#onOpenTexture" prefHeight="34.0" prefWidth="209.0" text="Текстура (.jpg)">
+                     <Button mnemonicParsing="false" onMousePressed="#addCamera" prefHeight="56.0" prefWidth="209.0" style="-fx-background-color: white; -fx-border-color: gray;" text=" Добавить Камеру">
                         <font>
-                           <Font size="11.0" />
-                        </font>
-                     </Button>
+                           <Font size="15.0" />
+                        </font></Button>
                   </children>
                </HBox>
-               <TextField fx:id="positionText" prefHeight="26.0" prefWidth="85.0" promptText="Координаты позиции" />
-               <TextField fx:id="directionText" prefHeight="26.0" prefWidth="85.0" promptText="Вектор направления" />
+               <TextField fx:id="positionText" prefHeight="26.0" prefWidth="85.0" promptText="Координаты позиции (x, y, z)" />
+               <TextField fx:id="directionText" prefHeight="26.0" prefWidth="85.0" promptText="Вектор направления (x, y, z)" />
+               <TextField fx:id="cameraName" prefHeight="26.0" prefWidth="85.0" promptText="Название камеры" />
             </children>
          </VBox>
-         <VBox fx:id="vBoxCam" alignment="CENTER" layoutY="360.0" prefHeight="184.0" prefWidth="209.0" spacing="10.0" />
+         <VBox fx:id="vBoxCam" alignment="CENTER" layoutY="360.0" prefHeight="184.0" prefWidth="209.0" spacing="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+         <Button focusTraversable="false" layoutY="287.0" mnemonicParsing="false" onMouseClicked="#onOpenTexture" prefHeight="34.0" prefWidth="209.0" style="-fx-background-color: white; -fx-border-color: gray;" text="Текстура (.jpg)" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <font>
+               <Font size="15.0" />
+            </font>
+         </Button>
         </children>
     </AnchorPane>
     <rotationAxis>
