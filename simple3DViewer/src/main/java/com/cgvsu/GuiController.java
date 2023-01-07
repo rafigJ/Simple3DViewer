@@ -4,6 +4,7 @@ import com.cgvsu.math.Vector3;
 import com.cgvsu.model.ModelOnScene;
 import com.cgvsu.model.ModelUtils;
 import com.cgvsu.render_engine.RenderEngine;
+import com.cgvsu.tools.TextureSettings;
 import javafx.animation.*;
 
 import javafx.fxml.FXML;
@@ -93,7 +94,7 @@ public class GuiController {
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
             double width = canvas.getWidth();
             double height = canvas.getHeight();
-            boolean[] params = {textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected()};
+            TextureSettings settings = new TextureSettings(textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected());
             speedSlider.setMax(10F);
             speedSlider.setMin(0.5F);
             TRANSLATION = (float) speedSlider.getValue();
@@ -101,11 +102,9 @@ public class GuiController {
             canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
             camera.setAspectRatio((float) (width / height));
             for (ModelOnScene mesh : modelMap.values()) {
-//                if (mesh != null) {
-//                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
-//                }
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, params);
-
+                if (mesh != null) {
+                    RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, img, settings);
+                }
             }
         });
 
@@ -360,12 +359,13 @@ public class GuiController {
     // Загрузка текстуры для каждой модели по отдельности. Пока что меняю статическое поле в render
     public void onOpenTexture(MouseEvent mouseEvent) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg","Model (*.png)", "*.png"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg", "Model (*.png)", "*.png"));
         fileChooser.setTitle("Load Texture");
 
         File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
         if (file == null) {
             return;
+
         }
         try {
             img = read(file);
@@ -376,8 +376,8 @@ public class GuiController {
 
 
     public void addCamera(MouseEvent mouseEvent) {
-        String s1[] = positionText.getText().split("[, ]");
-        String s2[] = directionText.getText().split("[, ]");
+        String[] s1 = positionText.getText().split("[, ]");
+        String[] s2 = directionText.getText().split("[, ]");
         if (s1.length == 3 && s2.length == 3) {
             Vector3 v1, v2;
             v1 = new Vector3(Float.parseFloat(s1[0]), Float.parseFloat(s1[1]), Float.parseFloat(s1[2]));

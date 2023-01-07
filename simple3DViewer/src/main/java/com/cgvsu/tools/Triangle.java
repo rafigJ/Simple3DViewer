@@ -16,23 +16,23 @@ public class Triangle {
         return X1;
     }
 
-    public  float getY1() {
+    public float getY1() {
         return Y1;
     }
 
-    public  float getX2() {
+    public float getX2() {
         return X2;
     }
 
-    public  float getY2() {
+    public float getY2() {
         return Y2;
     }
 
-    public  float getX3() {
+    public float getX3() {
         return X3;
     }
 
-    public  float getY3() {
+    public float getY3() {
         return Y3;
     }
 

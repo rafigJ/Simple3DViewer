@@ -11,11 +11,12 @@ public class Characteristics {
     private final float VX;
     private final float VY;
 
-    public Characteristics(ArrayList<Float> pointsZ, ArrayList<Vector2> VT, ArrayList<Float> N, Barycentric barycentric, boolean shadow) {
-        this.depth = barycentric.getL1() * pointsZ.get(0) + barycentric.getL2() * pointsZ.get(1) + barycentric.getL3() * pointsZ.get(2);
-        this.shade = shadow ? barycentric.getL1() * N.get(0) + barycentric.getL2() * N.get(1) + barycentric.getL3() * N.get(2) : 1;
-        this.VX = barycentric.getL1() * VT.get(0).getX() + barycentric.getL2() * VT.get(1).getX() + barycentric.getL3() * VT.get(2).getX();
-        this.VY = 1 - (barycentric.getL1() * VT.get(0).getY() + barycentric.getL2() * VT.get(1).getY() + barycentric.getL3() * VT.get(2).getY());
+
+    public Characteristics(ArrayList<Float> zCoordinates, ArrayList<Vector2> textureVertexes, ArrayList<Float> shadows, Barycentric barycentric, boolean shadow) {
+        this.depth = barycentric.getL1() * zCoordinates.get(0) + barycentric.getL2() * zCoordinates.get(1) + barycentric.getL3() * zCoordinates.get(2);
+        this.shade = shadow ? barycentric.getL1() * shadows.get(0) + barycentric.getL2() * shadows.get(1) + barycentric.getL3() * shadows.get(2) : 1;
+        this.VX = barycentric.getL1() * textureVertexes.get(0).getX() + barycentric.getL2() * textureVertexes.get(1).getX() + barycentric.getL3() * textureVertexes.get(2).getX();
+        this.VY = 1 - (barycentric.getL1() * textureVertexes.get(0).getY() + barycentric.getL2() * textureVertexes.get(1).getY() + barycentric.getL3() * textureVertexes.get(2).getY());
     }
 
     public float getDepth() {
