@@ -1,90 +1,76 @@
 package com.cgvsu.render_engine;
 
 import com.cgvsu.math.*;
-import com.cgvsu.model.Model;
 import com.cgvsu.model.ModelOnScene;
+import com.cgvsu.tools.Characteristics;
+import com.cgvsu.tools.TextureSettings;
+import com.cgvsu.tools.Triangle;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static com.cgvsu.render_engine.GraphicConveyor.*;
-import static javax.imageio.ImageIO.read;
 
 public class RenderEngine {
 
-    private static BufferedImage img;
-
-    public static void setImg(BufferedImage img) {
-        RenderEngine.img = img;
-    }
-
-    static {
-        try {
-            img = read(new File("123.jpg"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private static float shade(
-            Vector3 norm,
+            Vector3 normal,
             Camera camera) {
 
         Vector3 v = Vector3.sub(camera.getTarget(), camera.getPosition());
-        float cosine = Vector3.dotProduct(Vector3.normalization(norm), Vector3.normalization(v));
-        return Math.abs(cosine);
+        float cosine = Vector3.dotProduct(Vector3.normalization(normal), Vector3.normalization(v));
+        return Float.max(0.8f, Math.abs(cosine));
     }
 
     private static void texture(
-            Matrix4 projectionViewModelMatrix,
-            Camera camera,
-            GraphicsContext graphicsContext,
-            ModelOnScene mesh,
-            int width,
-            int height,
-            float[] zBuffer,
-            boolean shadow,
-            boolean fill) {
+            final Matrix4 projectionViewModelMatrix,
+            final Camera camera,
+            final GraphicsContext graphicsContext,
+            final ModelOnScene mesh,
+            final int width,
+            final int height,
+            final float[][] zBuffer,
+            final boolean shadow,
+            final boolean fill,
+            BufferedImage img) {
 
         final int nPolygons = mesh.getPolygons().size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
 
-            ArrayList<Float> pointsZ = new ArrayList<>();
-            ArrayList<Vector2> resultPoints = new ArrayList<>();
-            ArrayList<Vector2> VT = new ArrayList<>();
-            ArrayList<Float> N = new ArrayList<>();
+            final ArrayList<Float> zCoordinates = new ArrayList<>();
+            final ArrayList<Vector2> resultPoints = new ArrayList<>();
+            final ArrayList<Vector2> textureCoordinates = new ArrayList<>();
+            final ArrayList<Float> shadows = new ArrayList<>();
+
             for (int vertexInPolygonInd = 0; vertexInPolygonInd < 3; ++vertexInPolygonInd) {
                 Vector3 vertex = mesh.getVertices().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
-                Vector2 VTVertex = mesh.getTextureVertices().get(mesh.getPolygons().get(polygonInd).getTextureVertexIndices().get(vertexInPolygonInd));
-                Vector3 vertexVecmath = new Vector3(vertex.getX(), vertex.getY(), vertex.getZ());
-                Vector3 norm = mesh.getNormals().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
-                Vector2 resultPoint = vertexToPoint(multiplyMatrix4ByVector3(projectionViewModelMatrix, vertexVecmath), width, height);
+                Vector2 textureVertex = mesh.getTextureVertices().get(mesh.getPolygons().get(polygonInd).getTextureVertexIndices().get(vertexInPolygonInd));
+                Vector3 vertexVecMath = new Vector3(vertex.getX(), vertex.getY(), vertex.getZ());
+                Vector3 normal = mesh.getNormals().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
+                Vector2 resultPoint = vertexToPoint(multiplyMatrix4ByVector3(projectionViewModelMatrix, vertexVecMath), width, height);
                 resultPoints.add(resultPoint);
-                pointsZ.add(vertex.getZ());
-                VT.add(VTVertex);
-                N.add(shade(norm, camera));
+                zCoordinates.add(vertex.getZ());
+                textureCoordinates.add(textureVertex);
+                shadows.add(shade(normal, camera));
             }
+            Triangle triangle = new Triangle(resultPoints);
             MinMaxValue m = new MinMaxValue(resultPoints);
-            for (float y = m.getMinY(); y <= m.getMaxY(); y++) {
-                for (float x = m.getMinX(); x <= m.getMaxX(); x++) {
-                    getColor(x, y, resultPoints, pointsZ, width, graphicsContext, zBuffer, VT, N, shadow, fill);
+            for (int y = m.getMinY(); y <= m.getMaxY(); y++) {
+                for (int x = m.getMinX(); x <= m.getMaxX(); x++) {
+                    textureMapping(x, y, triangle, zCoordinates, graphicsContext, zBuffer, textureCoordinates, shadows, shadow, fill, img);
                 }
             }
         }
-
     }
 
     private static void mesh(
-            Matrix4 projectionViewModelMatrix,
-            GraphicsContext graphicsContext,
-            ModelOnScene mesh,
-            int width,
-            int height) {
+            final Matrix4 projectionViewModelMatrix,
+            final GraphicsContext graphicsContext,
+            final ModelOnScene mesh,
+            final int width,
+            final int height) {
 
         final int nPolygons = mesh.getPolygons().size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
@@ -119,10 +105,16 @@ public class RenderEngine {
             final ModelOnScene mesh,
             final int width,
             final int height,
-            final boolean[] params) {
+            BufferedImage img,
+            final TextureSettings settings) {
 
-        float[] zBuffer = new float[width * height];
-        Arrays.fill(zBuffer, Float.NEGATIVE_INFINITY);
+        float[][] zBuffer = new float[width][height];
+        for (int i = 0; i < zBuffer.length; i++) {
+            for (int j = 0; j < zBuffer[0].length; j++) {
+                zBuffer[i][j] = Float.NEGATIVE_INFINITY;
+            }
+        }
+
         Matrix4 modelMatrix = mesh.getModelMatrix();
         Matrix4 viewMatrix = camera.getViewMatrix();
         Matrix4 projectionMatrix = camera.getProjectionMatrix();
@@ -130,44 +122,47 @@ public class RenderEngine {
         projectionViewModelMatrix.multiply(viewMatrix);
         projectionViewModelMatrix.multiply(modelMatrix);
 
-        if (params[0]) {
-            texture(projectionViewModelMatrix, camera, graphicsContext, mesh, width, height, zBuffer, params[1], false);
-        } else if (params[3]) {
-            texture(projectionViewModelMatrix, camera, graphicsContext, mesh, width, height, zBuffer, params[1], true);
+        if (settings.texture && img != null) {
+            texture(projectionViewModelMatrix, camera, graphicsContext, mesh, width, height, zBuffer, settings.shadow, false, img);
+        } else if (settings.fill) {
+            texture(projectionViewModelMatrix, camera, graphicsContext, mesh, width, height, zBuffer, settings.shadow, true, img);
         }
-        if (params[2]) {
+        if (settings.mesh) {
             mesh(projectionViewModelMatrix, graphicsContext, mesh, width, height);
         }
     }
 
-    private static void getColor(
-            float x,
-            float y,
-            ArrayList<Vector2> resultPoints,
-            ArrayList<Float> pointsZ,
-            int width,
-            GraphicsContext graphicsContext,
-            float[] zBuffer,
-            ArrayList<Vector2> VT,
-            ArrayList<Float> N,
-            boolean shadow,
-            boolean fill) {
+    private static void textureMapping(
+            final int x,
+            final int y,
+            final Triangle triangle,
+            final ArrayList<Float> zCoordinates,
+            final GraphicsContext graphicsContext,
+            final float[][] zBuffer,
+            final ArrayList<Vector2> textureVertexes,
+            final ArrayList<Float> shadows,
+            final boolean shadow,
+            final boolean fill,
+            final BufferedImage img) {
 
-        Triangle triangle = new Triangle(resultPoints);
+
         Barycentric barycentric = new Barycentric(triangle, x, y);
-        Characteristics c = new Characteristics(pointsZ, VT, N, barycentric, shadow);
+        Characteristics c = new Characteristics(zCoordinates, textureVertexes, shadows, barycentric, shadow);
 
         if (barycentric.isInside()) {
-            int zIndex = (int) (y * width + x);
-            if (zBuffer[zIndex] < c.getDepth()) {
-                zBuffer[zIndex] = c.getDepth();
-                int color = fill ? setDefaultColor(c.getShade()) : setTextureColor(c.getShade(), c.getVX(), c.getVY());
-                graphicsContext.getPixelWriter().setArgb((int) x, (int) (y), (color));
+            if (zBuffer[x][y] < c.getDepth()) {
+                zBuffer[x][y] = c.getDepth();
+                int color = fill ? setDefaultColor(c.getShade()) : setTexture(c.getShade(), c.getVX(), c.getVY(), img);
+                graphicsContext.getPixelWriter().setArgb(x, y, color);
             }
         }
     }
 
-    private static int setTextureColor(float shade, float x, float y) {
+    private static int setTexture(
+            final float shade,
+            final float x,
+            final float y,
+            BufferedImage img) {
         int color = img.getRGB((int) ((x * ((float) img.getWidth()))), (int) (y * (float) (img.getHeight())));
         int r = (int) (((color >> 16) & 0xff) * shade);
         int g = (int) (((color >> 8) & 0xff) * shade);
@@ -175,7 +170,7 @@ public class RenderEngine {
         return new Color(r, g, b).getRGB();
     }
 
-    private static int setDefaultColor(float shade) {
+    private static int setDefaultColor(final float shade) {
         int color = Color.CYAN.getRGB();
         int r = (int) (((color >> 16) & 0xff) * shade);
         int g = (int) (((color >> 8) & 0xff) * shade);

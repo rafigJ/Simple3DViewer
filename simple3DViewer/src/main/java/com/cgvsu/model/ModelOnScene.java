@@ -7,12 +7,14 @@ import java.util.List;
 
 public class ModelOnScene extends Model {
     private Model mesh;
+    private final Model initialMesh;
     private Vector3 vS = new Vector3(1, 1,1);
     private Vector3 vR = new Vector3(0,0,0);
     private Vector3 vT = new Vector3(0,0,0);
 
     public ModelOnScene(final Model mesh, final Vector3 vS, final Vector3 vR, final Vector3 vT) {
         this.mesh = mesh;
+        this.initialMesh = mesh;
         this.vS = vS;
         this.vR = vR;
         this.vT = vT;
@@ -20,6 +22,7 @@ public class ModelOnScene extends Model {
 
     public ModelOnScene() {
         mesh = new Model();
+        this.initialMesh = mesh;
     }
 
     public List<Vector3> getVertices() {
@@ -78,6 +81,10 @@ public class ModelOnScene extends Model {
 
     public Model getMesh() {
         return mesh;
+    }
+
+    public Model getInitialMesh() {
+        return initialMesh;
     }
 
     public void setVS(final Vector3 vS) {

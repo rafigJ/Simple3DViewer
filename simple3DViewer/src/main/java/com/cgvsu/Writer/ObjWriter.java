@@ -16,14 +16,14 @@ public class ObjWriter {
     public static void write(final String name, final Model model) throws IOException {
         final List<String> vertices = verticesToString(model.getVertices());
         final List<String> textureVertices = textureVerticesToString(model.getTextureVertices());
-        final List<String> normals = normalsToString(model.normals);
-        final List<String> poly = polygonsToString((ArrayList<Polygon>) model.getPolygons());
+        final List<String> normals = normalsToString(model.getNormals());
+        final List<String> poly = polygonsToString(model.getPolygons());
 
         FileManager.createFileWithText(name, vertices, textureVertices, normals, poly);
     }
 
-    public static ArrayList<String> verticesToString(final List<Vector3> array) {
-        ArrayList<String> l = new ArrayList<String>();
+    public static List<String> verticesToString(final List<Vector3> array) {
+        List<String> l = new ArrayList<>();
 
         for (int vertexInd = 0; vertexInd < array.size(); vertexInd++) {
             l.add("v " + array.get(vertexInd).getX() + " " + array.get(vertexInd).getY() + " " + array.get(vertexInd).getZ());
@@ -32,8 +32,8 @@ public class ObjWriter {
         return l;
     }
 
-    public static ArrayList<String> textureVerticesToString(final List<Vector2> array) {
-        ArrayList<String> l = new ArrayList<String>();
+    public static List<String> textureVerticesToString(final List<Vector2> array) {
+        List<String> l = new ArrayList<>();
 
         for (int textureVertices = 0; textureVertices < array.size(); textureVertices++) {
             l.add("vt " + array.get(textureVertices).getX() + " " + array.get(textureVertices).getY());
@@ -42,51 +42,50 @@ public class ObjWriter {
         return l;
     }
 
-    public static ArrayList<String> normalsToString(final List<Vector3> array) {
-        ArrayList<String> l = new ArrayList<String>();
+    public static List<String> normalsToString(final List<Vector3> array) {
+        List<String> l = new ArrayList<>();
 
-        for (Vector3 vector3f : array) {
-            l.add("vn " + vector3f.getX() + " " + vector3f.getY() + " " + vector3f.getZ());
+        for (Vector3 vector3 : array) {
+            l.add("vn " + vector3.getX() + " " + vector3.getY() + " " + vector3.getZ());
         }
 
         return l;
     }
 
-    public static ArrayList<String> polygonsToString(final ArrayList<Polygon> polygons) {
-        ArrayList<String> l = new ArrayList<String>();
-        StringBuilder s;
-        Polygon polygon = new Polygon();
-        ArrayList<Integer> vertex = new ArrayList<Integer>();
-        ArrayList<Integer> textureVertex = new ArrayList<Integer>();
-        ArrayList<Integer> normal = new ArrayList<Integer>();
+    public static List<String> polygonsToString(final List<Polygon> polygons) {
+        List<String> l = new ArrayList<>();
+        String s;
+        Polygon polygon;
+        List<Integer> vertex;
+        List<Integer> textureVertex;
+        List<Integer> normal;
 
         for (int poly = 0; poly < polygons.size(); poly++) {
-            s = new StringBuilder("f");
+            s = "f";
             polygon = polygons.get(poly);
-            vertex = (ArrayList<Integer>) polygon.getVertexIndices();
-            textureVertex = (ArrayList<Integer>) polygon.getTextureVertexIndices();
-            normal = (ArrayList<Integer>) polygon.getNormalIndices();
+            vertex = polygon.getVertexIndices();
+            textureVertex = polygon.getTextureVertexIndices();
+            normal = polygon.getNormalIndices();
 
             for (int v = 0; v < vertex.size(); v++) {
-                s.append(" ");
-                s.append(vertex.get(v) + 1);
+                s += " ";
+                s += vertex.get(v) + 1;
 
                 if (textureVertex.size() != 0) {
-                    s.append("/");
-                    s.append(textureVertex.get(v) + 1);
+                    s += "/";
+                    s += textureVertex.get(v) + 1;
                 }
 
                 if (normal.size() != 0) {
-                    s.append("/");
-                    s.append(normal.get(v) + 1);
+                    s += "/";
+                    s += normal.get(v) + 1;
                 }
             }
 
-            l.add(s.toString());
+            l.add(s);
         }
 
         return l;
     }
 
 }
-

@@ -48,7 +48,7 @@ public class Camera {
         this.target.sum(translation);
     }
 
-    Matrix4 getViewMatrix() {
+    public Matrix4 getViewMatrix() {
         return GraphicConveyor.lookAt(position, target);
     }
 
