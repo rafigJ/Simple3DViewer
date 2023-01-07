@@ -28,7 +28,7 @@ public class RenderEngine {
             final Matrix4 projectionViewModelMatrix,
             final Camera camera,
             final GraphicsContext graphicsContext,
-            final ModelOnScene mesh,
+            final ModelOnScene model,
             final int width,
             final int height,
             final float[][] zBuffer,
@@ -36,7 +36,7 @@ public class RenderEngine {
             final boolean fill,
             BufferedImage img) {
 
-        final int nPolygons = mesh.getPolygons().size();
+        final int nPolygons = model.getPolygons().size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
 
             final ArrayList<Float> zCoordinates = new ArrayList<>();
@@ -45,10 +45,10 @@ public class RenderEngine {
             final ArrayList<Float> shadows = new ArrayList<>();
 
             for (int vertexInPolygonInd = 0; vertexInPolygonInd < 3; ++vertexInPolygonInd) {
-                Vector3 vertex = mesh.getVertices().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
-                Vector2 textureVertex = mesh.getTextureVertices().get(mesh.getPolygons().get(polygonInd).getTextureVertexIndices().get(vertexInPolygonInd));
+                Vector3 vertex = model.getVertices().get(model.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
+                Vector2 textureVertex = model.getTextureVertices().get(model.getPolygons().get(polygonInd).getTextureVertexIndices().get(vertexInPolygonInd));
                 Vector3 vertexVecMath = new Vector3(vertex.getX(), vertex.getY(), vertex.getZ());
-                Vector3 normal = mesh.getNormals().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
+                Vector3 normal = model.getNormals().get(model.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
                 Vector2 resultPoint = vertexToPoint(multiplyMatrix4ByVector3(projectionViewModelMatrix, vertexVecMath), width, height);
                 resultPoints.add(resultPoint);
                 zCoordinates.add(vertex.getZ());
@@ -68,16 +68,16 @@ public class RenderEngine {
     private static void mesh(
             final Matrix4 projectionViewModelMatrix,
             final GraphicsContext graphicsContext,
-            final ModelOnScene mesh,
+            final ModelOnScene model,
             final int width,
             final int height) {
 
-        final int nPolygons = mesh.getPolygons().size();
+        final int nPolygons = model.getPolygons().size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
-            final int nVerticesInPolygon = mesh.getPolygons().get(polygonInd).getVertexIndices().size();
+            final int nVerticesInPolygon = model.getPolygons().get(polygonInd).getVertexIndices().size();
             ArrayList<Vector2> resultPoints = new ArrayList<>();
             for (int vertexInPolygonInd = 0; vertexInPolygonInd < nVerticesInPolygon; ++vertexInPolygonInd) {
-                Vector3 vertex = mesh.getVertices().get(mesh.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
+                Vector3 vertex = model.getVertices().get(model.getPolygons().get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
                 Vector3 vertexVecMath = new Vector3(vertex.getX(), vertex.getY(), vertex.getZ());
                 Vector2 resultPoint = vertexToPoint(multiplyMatrix4ByVector3(projectionViewModelMatrix, vertexVecMath), width, height);
                 resultPoints.add(resultPoint);
@@ -101,7 +101,7 @@ public class RenderEngine {
     public static void render(
             final GraphicsContext graphicsContext,
             final Camera camera,
-            final ModelOnScene mesh,
+            final ModelOnScene model,
             final int width,
             final int height,
             BufferedImage img,
@@ -114,7 +114,7 @@ public class RenderEngine {
             }
         }
 
-        Matrix4 modelMatrix = mesh.getModelMatrix();
+        Matrix4 modelMatrix = model.getModelMatrix();
         Matrix4 viewMatrix = camera.getViewMatrix();
         Matrix4 projectionMatrix = camera.getProjectionMatrix();
         Matrix4 projectionViewModelMatrix = new Matrix4(projectionMatrix.getData());
@@ -122,12 +122,12 @@ public class RenderEngine {
         projectionViewModelMatrix.multiply(modelMatrix);
 
         if (settings.texture && img != null) {
-            texture(projectionViewModelMatrix, camera, graphicsContext, mesh, width, height, zBuffer, settings.shadow, false, img);
+            texture(projectionViewModelMatrix, camera, graphicsContext, model, width, height, zBuffer, settings.shadow, false, img);
         } else if (settings.fill) {
-            texture(projectionViewModelMatrix, camera, graphicsContext, mesh, width, height, zBuffer, settings.shadow, true, img);
+            texture(projectionViewModelMatrix, camera, graphicsContext, model, width, height, zBuffer, settings.shadow, true, img);
         }
         if (settings.mesh) {
-            mesh(projectionViewModelMatrix, graphicsContext, mesh, width, height);
+            mesh(projectionViewModelMatrix, graphicsContext, model, width, height);
         }
     }
 

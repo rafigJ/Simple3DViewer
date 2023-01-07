@@ -38,18 +38,21 @@ public class Scene {
         textureList = new ArrayList<>(6);
     }
 
-    public void update(Canvas canvas, TextureSettings settings, BufferedImage img) {
+    public void update(Canvas canvas, TextureSettings settings) {
         double width = canvas.getWidth();
         double height = canvas.getHeight();
+        BufferedImage img;
         canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
         camera.setAspectRatio((float) (width / height));
         Collections.sort(activeIndex);
         if (activeIndex.isEmpty()) {
             for (ModelOnScene model : modelList) {
+                img = textureList.get(modelList.indexOf(model));
                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, model, (int) width, (int) height, img, settings);
             }
         } else {
             for (int i : activeIndex) {
+                img = textureList.get(i);
                 RenderEngine.render(canvas.getGraphicsContext2D(), camera, modelList.get(i), (int) width, (int) height, img, settings);
             }
         }
@@ -127,7 +130,7 @@ public class Scene {
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
         File file = fileChooser.showSaveDialog(canvas.getScene().getWindow());
         try {
-            ObjWriter.write(file.getName(), modelList.get(index));
+            ObjWriter.write(file, modelList.get(index));
         } catch (IOException e) {
             e.printStackTrace();
         }

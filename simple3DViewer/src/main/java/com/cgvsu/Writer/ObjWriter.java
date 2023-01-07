@@ -7,19 +7,20 @@ import com.cgvsu.model.Model;
 import com.cgvsu.model.Polygon;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ObjWriter {
 
-    public static void write(final String name, final Model model) throws IOException {
+    public static void write(final File file, final Model model) throws IOException {
         final List<String> vertices = verticesToString(model.getVertices());
         final List<String> textureVertices = textureVerticesToString(model.getTextureVertices());
         final List<String> normals = normalsToString(model.getNormals());
         final List<String> poly = polygonsToString(model.getPolygons());
 
-        FileManager.createFileWithText(name, vertices, textureVertices, normals, poly);
+        FileManager.createFileWithText(file, vertices, textureVertices, normals, poly);
     }
 
     public static List<String> verticesToString(final List<Vector3> array) {
