@@ -93,7 +93,7 @@ public class GuiController extends Pane {
             TextureSettings settings = new TextureSettings(textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected());
             TRANSLATION = (float) speedSlider.getValue();
             speedLabel.setText("Speed: " + TRANSLATION);
-            scene.update(canvas, settings, null);
+            scene.update(canvas, settings);
         });
 
         timeline.getKeyFrames().add(frame);
@@ -147,7 +147,7 @@ public class GuiController extends Pane {
 
     @FXML
     private void saveObj() {
-        if(activeB == null) {
+        if (activeB == null) {
             System.out.println("ERROR SELECT MODEL");
             return;
         }
@@ -180,7 +180,7 @@ public class GuiController extends Pane {
     }
 
     private void removeCamera(int index) {
-        if(index == 0) return;
+        if (index == 0) return;
         scene.getCameraList().remove(index);
         cameraButtonList.remove(index);
         vBoxCam.getChildren().remove(index);
@@ -224,16 +224,18 @@ public class GuiController extends Pane {
         objB.setStyle(standardStyle);
         // поработать
         objB.setOnMouseEntered(e -> {
-            if (!objB.getStyle().equals(activeStyle) && !objB.getStyle().equals(changeButtonStyle)) objB.setStyle(enterStyle);
+            if (!objB.getStyle().equals(activeStyle) && !objB.getStyle().equals(changeButtonStyle))
+                objB.setStyle(enterStyle);
         });
         objB.setOnMouseExited(e -> {
-            if (!objB.getStyle().equals(activeStyle) && !objB.getStyle().equals(changeButtonStyle)) objB.setStyle(standardStyle);
+            if (!objB.getStyle().equals(activeStyle) && !objB.getStyle().equals(changeButtonStyle))
+                objB.setStyle(standardStyle);
         });
         objB.setOnMouseClicked(e -> {
             vBoxCam.getChildren().forEach(n -> n.setStyle(standardStyle));  // очищаем стили кнопок из раздела Камера
             if (!e.isControlDown()) vBox.getChildren().forEach(n -> n.setStyle(standardStyle));
             objB.setStyle(activeStyle);
-            if(e.getButton() == MouseButton.SECONDARY){
+            if (e.getButton() == MouseButton.SECONDARY) {
                 activeB = objB;
                 activeB.setStyle(changeButtonStyle);
                 updateSpinners(modelButtonList.indexOf(objB));
@@ -271,10 +273,12 @@ public class GuiController extends Pane {
         float trZ = tZ.getValue().floatValue();
         Vector3 vT = new Vector3(trX, trY, trZ);
 
-        if (modelButtonList.size() == 1) scene.setVectorsOnModel(vS, vR, vT, 0); // случай когда в списке лишь одна модель
+        if (modelButtonList.size() == 1)
+            scene.setVectorsOnModel(vS, vR, vT, 0); // случай когда в списке лишь одна модель
         // случай когда выбрана только одна модель
-        if (activeB != null && !vBoxCam.getChildren().contains(activeB)) scene.setVectorsOnModel(vS, vR, vT, modelButtonList.indexOf(activeB));
-        if(!multiList.isEmpty() && activeB == null) updateSpinners(-1);
+        if (activeB != null && !vBoxCam.getChildren().contains(activeB))
+            scene.setVectorsOnModel(vS, vR, vT, modelButtonList.indexOf(activeB));
+        if (!multiList.isEmpty() && activeB == null) updateSpinners(-1);
         canvas.requestFocus();
     }
 
@@ -305,7 +309,7 @@ public class GuiController extends Pane {
         s[8].valueProperty().addListener(e -> rotateScaleTranslation());
     }
 
-    private SpinnerValueFactory<Double>[] getSpinnerValue(int index){
+    private SpinnerValueFactory<Double>[] getSpinnerValue(int index) {
         SpinnerValueFactory<Double>[] res = new SpinnerValueFactory.DoubleSpinnerValueFactory[9];
         double[] arr = {0, 0, 0, 0, 0, 0, 0, 0, 0};
         if (index != -1) {
@@ -396,7 +400,6 @@ public class GuiController extends Pane {
         try {
             BufferedImage img = read(file);
             scene.getTextureList().add(modelButtonList.indexOf(activeB), img);
-            System.out.println(scene.getTextureList().size());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -492,7 +495,7 @@ public class GuiController extends Pane {
         //        mousePosX = (float) mouseEvent.getSceneX();
 //        mousePosY = (float) mouseEvent.getSceneY();
 //        System.out.print(camera.getTarget().getX() + " " + camera.getTarget().getY() + " " + camera.getTarget;
-//
+
 //        canvas.setOnMouseDragged(event -> {
 //            camera.movePosition(new Vector3(TRANSLATION, TRANSLATION, 0));
 //        });
@@ -522,8 +525,6 @@ public class GuiController extends Pane {
                 double dx = x - oldMousePosX;
                 double dy = y - oldMousePosY;
 
-
-
                 if (dx > 0) {
                     scene.getCamera().movePosition(new Vector3(TRANSLATION, 0, 0));
                     angleY = TRANSLATION;
@@ -534,7 +535,7 @@ public class GuiController extends Pane {
                     angleY = 0;
                 }
 
-                if(dy > 0) {
+                if (dy > 0) {
                     scene.getCamera().movePosition(new Vector3(0, TRANSLATION, 0));
                     angleX = -TRANSLATION;
                 } else if (dy < 0) {
@@ -543,7 +544,9 @@ public class GuiController extends Pane {
                 } else {
                     angleX = 0;
                 }
-            };
+            }
+
+            ;
         });
 
         canvas.setOnScrollStarted(event -> {
@@ -559,10 +562,10 @@ public class GuiController extends Pane {
             double dx = x - oldMousePosX;
             double dy = y - oldMousePosY;
 
-            if(y < 0) {
-                scene.getCamera().setPosition(Vector3.sum(scene.getCamera().getPosition(), new Vector3(0,0, TRANSLATION)));
+            if (y < 0) {
+                scene.getCamera().setPosition(Vector3.sum(scene.getCamera().getPosition(), new Vector3(0, 0, TRANSLATION)));
             } else {
-                scene.getCamera().setPosition(Vector3.sum(scene.getCamera().getPosition(), new Vector3(0,0, -TRANSLATION)));
+                scene.getCamera().setPosition(Vector3.sum(scene.getCamera().getPosition(), new Vector3(0, 0, -TRANSLATION)));
             }
         });
     }

@@ -29,12 +29,11 @@ public class FileManager {
         }
     }
 
-    public static void createFileWithText(String filePath, List<String> vertices, List<String> textureVertices, List<String> normals, List<String> poly) throws IOException {
-        if (!isFileExist(filePath)) {
-            File file = new File(filePath);
+    public static void createFileWithText(File file, List<String> vertices, List<String> textureVertices, List<String> normals, List<String> poly) throws IOException {
+        if (!isFileExist(file.getName())) {
             file.createNewFile();
             FileWriter fw = new FileWriter(file);
-            String s = filePath.substring(0, filePath.indexOf("."));
+            String s = file.getName().substring(0, file.getName().indexOf("."));
             fw.write("# object" + s + "\n\n");
             writeToFile(fw, vertices);
             countLine(fw, vertices.size(), " vertices");
