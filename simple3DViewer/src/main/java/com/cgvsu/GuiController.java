@@ -50,13 +50,13 @@ public class GuiController {
     private CheckBox textureCheck, shadowCheck, meshCheck, fillCheck;
 
 
-  
     private boolean pinMenu;
     private Scene scene;
     private final String standardStyle = "-fx-background-color: white;";
     private final String enterStyle = "-fx-background-color: white; -fx-border-color: red;";
     private final String activeStyle = "-fx-background-color: white; -fx-border-width: 3px; -fx-border-style: solid; -fx-border-color: #32a1ce; -fx-border-height: 3px;";
     private String paneStyle;
+    private BufferedImage img;
 
     @FXML
     private void initialize() {
@@ -68,7 +68,7 @@ public class GuiController {
         initializeAnimMenu();
         initializeTextFields();
         tooltip();
-        scene = new Scene();  
+        scene = new Scene();
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
         Timeline timeline = new Timeline();
@@ -76,13 +76,13 @@ public class GuiController {
         Button n = newCameraButton("Standard");
         putCamera(n, scene.getCamera());
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
-            boolean[] params = {textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected()};
+            TextureSettings settings = new TextureSettings(textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected());
             speedSlider.setMax(10f);
             speedSlider.setMin(0.5f);
             speedSlider.setValue(3f);
             TRANSLATION = (float) speedSlider.getValue();
             speedLabel.setText("Speed: " + TRANSLATION);
-            scene.update(canvas, params);
+            scene.update(canvas, settings, img);
         });
 
         timeline.getKeyFrames().add(frame);
@@ -144,7 +144,7 @@ public class GuiController {
     }
 
     private void putCamera(Button b, Camera c) {
-        if(cameraButtonList.size() > 7) return;
+        if (cameraButtonList.size() > 7) return;
         scene.getCameraList().add(c);
         cameraButtonList.add(b);
         vBoxCam.getChildren().add(b);
@@ -238,7 +238,7 @@ public class GuiController {
         float trZ = tZ.getValue().floatValue();
         Vector3 vT = new Vector3(trX, trY, trZ);
         scene.setVectors(vS, vR, vT);
-        if(modelButtonList != null && modelButtonList.size() == 1) scene.setVectorsOnModels(0);
+        if (modelButtonList != null && modelButtonList.size() == 1) scene.setVectorsOnModels(0);
         if (modelButtonList != null && activeB != null && !vBoxCam.getChildren().contains(activeB)) {
             scene.setVectorsOnModels(modelButtonList.indexOf(activeB));
         }
@@ -434,7 +434,7 @@ public class GuiController {
     }
 
     public void canvasClick() {
-    //        mousePosX = (float) mouseEvent.getSceneX();
+        //        mousePosX = (float) mouseEvent.getSceneX();
 //        mousePosY = (float) mouseEvent.getSceneY();
 //        System.out.print(camera.getTarget().getX() + " " + camera.getTarget().getY() + " " + camera.getTarget;
 //

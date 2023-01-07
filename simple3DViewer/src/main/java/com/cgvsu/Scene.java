@@ -7,9 +7,11 @@ import com.cgvsu.model.ModelUtils;
 import com.cgvsu.objreader.ObjReader;
 import com.cgvsu.render_engine.Camera;
 import com.cgvsu.render_engine.RenderEngine;
+import com.cgvsu.tools.TextureSettings;
 import javafx.scene.canvas.Canvas;
 import javafx.stage.FileChooser;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,7 +39,7 @@ public class Scene {
         activeIndex = new ArrayList<>(6);
     }
 
-    public void update(Canvas canvas, boolean[] params){
+    public void update(Canvas canvas, TextureSettings settings, BufferedImage img){
         double width = canvas.getWidth();
         double height = canvas.getHeight();
         canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
@@ -45,12 +47,12 @@ public class Scene {
         Collections.sort(activeIndex);
         if(activeIndex.isEmpty()){
             for (ModelOnScene model : modelList) {
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, model, (int) width, (int) height, params);
+                RenderEngine.render(canvas.getGraphicsContext2D(), camera, model, (int) width, (int) height,img, settings);
             }
         }
         else {
             for (int i : activeIndex) {
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, modelList.get(i), (int) width, (int) height, params);
+                RenderEngine.render(canvas.getGraphicsContext2D(), camera, modelList.get(i), (int) width, (int) height,img, settings);
             }
         }
     }
@@ -106,8 +108,6 @@ public class Scene {
         try {
             String fileContent = Files.readString(fileName);
             Model mesh = ObjReader.read(fileContent, false);
-            ModelUtils.recalculateNormals(mesh);
-            mesh.triangulate();
             ModelOnScene modelOnScene = new ModelOnScene(mesh, vS, vR, vT);
 
             modelList.add(modelOnScene);

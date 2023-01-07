@@ -3,6 +3,7 @@ package com.cgvsu.objreader;
 import com.cgvsu.math.Vector2;
 import com.cgvsu.math.Vector3;
 import com.cgvsu.model.Model;
+import com.cgvsu.model.ModelUtils;
 import com.cgvsu.model.Polygon;
 
 
@@ -58,6 +59,8 @@ public class ObjReader {
 			}
 		}
 		resultModel.checkConsistency();
+		resultModel.triangulate();
+		ModelUtils.recalculateNormals(resultModel);
 		return resultModel;
 	}
 
