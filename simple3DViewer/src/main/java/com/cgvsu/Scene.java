@@ -11,6 +11,7 @@ import com.cgvsu.render_engine.RenderEngine;
 import javafx.scene.canvas.Canvas;
 import javafx.stage.FileChooser;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,9 +22,9 @@ import java.util.List;
 
 public class Scene {
     private final List<Integer> activeIndex;
-    private final ArrayList<ModelOnScene> modelList;
-    private final ArrayList<Camera> cameraList;
-
+    private final List<ModelOnScene> modelList;
+    private final List<Camera> cameraList;
+    private final List<BufferedImage> textureList;
     private Camera camera;
 
     public Scene() {
@@ -33,6 +34,7 @@ public class Scene {
         cameraList = new ArrayList<>(6);
         modelList = new ArrayList<>(6);
         activeIndex = new ArrayList<>(6);
+        textureList = new ArrayList<>(6);
     }
 
     public void update(Canvas canvas, boolean[] params){
@@ -60,6 +62,7 @@ public class Scene {
     public void addActiveIndex(int index){
         if(activeIndex.size() < 7) activeIndex.add(index);
     }
+
     public void clearActiveIndex(){
         activeIndex.clear();
     }
@@ -79,6 +82,8 @@ public class Scene {
     public List<Camera> getCameraList() {
         return cameraList;
     }
+
+    public List<BufferedImage> getTextureList() {return textureList;}
 
     public void setVectorsOnModel(Vector3 vS, Vector3 vR, Vector3 vT, int index) {
         modelList.get(index).setVectors(vS, vR, vT);
@@ -105,7 +110,7 @@ public class Scene {
             Vector3 vT = new Vector3(0,0,0);
 
             ModelOnScene modelOnScene = new ModelOnScene(mesh, vS, vR, vT);
-
+            textureList.add(null);
             modelList.add(modelOnScene);
             return name;
             // todo: обработка ошибок

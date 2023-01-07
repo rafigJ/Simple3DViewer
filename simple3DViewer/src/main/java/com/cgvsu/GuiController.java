@@ -2,15 +2,14 @@ package com.cgvsu;
 
 import com.cgvsu.math.Vector3;
 import com.cgvsu.model.ModelOnScene;
+import com.cgvsu.render_engine.Camera;
 import com.cgvsu.render_engine.RenderEngine;
 import javafx.animation.*;
-
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -18,12 +17,10 @@ import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
-
-import com.cgvsu.render_engine.Camera;
 
 import static javax.imageio.ImageIO.read;
 
@@ -161,6 +158,7 @@ public class GuiController {
 
     private void removeModel(int index) {
         scene.getModelList().remove(index);
+        scene.getTextureList().remove(index);
         modelButtonList.remove(index);
         scene.getActiveIndex().remove((Integer) index);
         vBox.getChildren().remove(index);
@@ -377,11 +375,13 @@ public class GuiController {
         fileChooser.setTitle("Load Texture");
 
         File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
-        if (file == null) {
+        if (file == null || activeB == null || cameraButtonList.contains(activeB)) {
             return;
         }
         try {
             BufferedImage img = read(file);
+            scene.getTextureList().add(modelButtonList.indexOf(activeB), img);
+            System.out.println(scene.getTextureList().size());
             RenderEngine.setImg(img);   // надо добавить такой метод
         } catch (IOException e) {
             e.printStackTrace();
