@@ -115,14 +115,16 @@ public class GuiController extends Pane {
         Tooltip t2 = new Tooltip("Закрыть меню");
         Tooltip t3 = new Tooltip("Добавить объект (.obj)");
         Tooltip t4 = new Tooltip("Удалить объект из списка");
-        Tooltip t5 = new Tooltip("Скачать преобразованный obj файл"); // Пока не используется
+        Tooltip t5 = new Tooltip("Скачать obj файл");
         Tooltip t6 = new Tooltip("Закрепить / Открепить меню");
+        Tooltip t7 = new Tooltip("Отобразить выбранные модели");
         t1.setFont(f);
         t2.setFont(f);
         t3.setFont(f);
         t4.setFont(f);
         t5.setFont(f);
         t6.setFont(f);
+        t7.setFont(f);
         Tooltip.install(compressedMenu, t1);
         Tooltip.install(expandedMenu, t2);
         Parent n = (Parent) compressedMenu.getParent().getParent().getChildrenUnmodifiable().get(0);
@@ -132,11 +134,12 @@ public class GuiController extends Pane {
         Tooltip.install(n.getChildrenUnmodifiable().get(1), t5);
         Tooltip.install(n.getChildrenUnmodifiable().get(2), t4);
         Tooltip.install(n.getChildrenUnmodifiable().get(3), t6);
+        Tooltip.install(n.getChildrenUnmodifiable().get(4), t7);
     }
 
     // только цифры и запятые.
     private void initializeTextFields() {
-        Pattern p = Pattern.compile("(\\d+\\.?\\d*)?([ ,]+)?(\\d+\\.?\\d*)?([ ,]+)?(\\d+\\.?\\d*)?");
+        Pattern p = Pattern.compile("([ -]+)?(\\d+\\.?\\d*)?([ ,]+)?([ -]+)?(\\d+\\.?\\d*)?([ ,]+)?(\\d+\\.?\\d*)?");
         directionText.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!p.matcher(newValue).matches()) directionText.setText(oldValue);
         });
@@ -545,8 +548,6 @@ public class GuiController extends Pane {
                     angleX = 0;
                 }
             }
-
-            ;
         });
 
         canvas.setOnScrollStarted(event -> {
@@ -557,7 +558,6 @@ public class GuiController extends Pane {
         canvas.setOnScroll(event -> {
             double x = event.getDeltaX();
             double y = event.getDeltaY();
-
 
             double dx = x - oldMousePosX;
             double dy = y - oldMousePosY;
