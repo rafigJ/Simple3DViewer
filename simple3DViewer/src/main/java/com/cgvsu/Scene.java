@@ -130,7 +130,7 @@ public class Scene {
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
         File file = fileChooser.showSaveDialog(canvas.getScene().getWindow());
         try {
-            ObjWriter.write(file, modelList.get(index));
+            ObjWriter.write(file, modelList.get(index).getMesh());
         } catch (IOException e) {
             e.printStackTrace();
         }

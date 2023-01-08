@@ -5,13 +5,11 @@ import com.cgvsu.model.ModelOnScene;
 import com.cgvsu.render_engine.Camera;
 import com.cgvsu.tools.RenderSettings;
 import javafx.animation.*;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -56,15 +54,8 @@ public class GuiController extends Pane {
     private String paneStyle;
 
     //камера
-    private double mousePosX;
-    private double mousePosY;
     private double oldMousePosX;
     private double oldMousePosY;
-    private double centerX = getWidth() / 2;
-    private double centerY = getHeight() / 2;
-    private double initialAngle;
-    private double initialAnglePane;
-    private double angle;
 
     @FXML
     private void initialize() {
@@ -178,6 +169,7 @@ public class GuiController extends Pane {
         modelButtonList.remove(index);
         scene.getActiveIndex().remove((Integer) index);
         vBox.getChildren().remove(index);
+        if(modelButtonList.isEmpty()) updateSpinners(-1);
     }
 
     private void removeCamera(int index) {
@@ -492,62 +484,30 @@ public class GuiController extends Pane {
     }
 
     public void canvasClick() {
-
         if (activeB != null) activeB.setStyle(standardStyle);
         canvas.requestFocus();
-
-        //        mousePosX = (float) mouseEvent.getSceneX();
-//        mousePosY = (float) mouseEvent.getSceneY();
-//        System.out.print(camera.getTarget().getX() + " " + camera.getTarget().getY() + " " + camera.getTarget;
-
-//        canvas.setOnMouseDragged(event -> {
-//            camera.movePosition(new Vector3(TRANSLATION, TRANSLATION, 0));
-//        });
-
-//            anchorX = mouseEvent.getSceneX();
-//            anchorY = mouseEvent.getSceneY();
-//            anchorAngleX = angleX.get();
-//            anchorAngleY = angleY.get();
-//
-//        canvas.setOnMouseDragged(event -> {
-//            angleX.set(anchorAngleX - (anchorY - event.getSceneY()));
-//            angleY.set(anchorAngleY + anchorX - event.getSceneX());
-//            camera.setTarget(new Vector3((float) (100 * Math.sin(anchorAngleX)), (float) (100*Math.cos(anchorAngleX)), 0));
-//        });
 
         canvas.setOnMousePressed(event -> {
             oldMousePosX = event.getSceneX();
             oldMousePosY = event.getSceneY();
         });
-        canvas.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                double x = event.getSceneX();
-                double y = event.getSceneY();
-                double angleX;
-                double angleY;
-                double dx = x - oldMousePosX;
-                double dy = y - oldMousePosY;
+        canvas.setOnMouseDragged(event -> {
+            double x = event.getSceneX();
+            double y = event.getSceneY();
 
-                if (dx > 0) {
-                    scene.getCamera().movePosition(new Vector3(TRANSLATION, 0, 0));
-                    angleY = TRANSLATION;
-                } else if (dx < 0) {
-                    scene.getCamera().movePosition(new Vector3(-TRANSLATION, 0, 0));
-                    angleY = -TRANSLATION;
-                } else {
-                    angleY = 0;
-                }
+            double dx = x - oldMousePosX;
+            double dy = y - oldMousePosY;
 
-                if (dy > 0) {
-                    scene.getCamera().movePosition(new Vector3(0, TRANSLATION, 0));
-                    angleX = -TRANSLATION;
-                } else if (dy < 0) {
-                    scene.getCamera().movePosition(new Vector3(0, -TRANSLATION, 0));
-                    angleX = TRANSLATION;
-                } else {
-                    angleX = 0;
-                }
+            if (dx > 0) {
+                scene.getCamera().movePosition(new Vector3(TRANSLATION, 0, 0));
+            } else if (dx < 0) {
+                scene.getCamera().movePosition(new Vector3(-TRANSLATION, 0, 0));
+            }
+
+            if (dy > 0) {
+                scene.getCamera().movePosition(new Vector3(0, TRANSLATION, 0));
+            } else if (dy < 0) {
+                scene.getCamera().movePosition(new Vector3(0, -TRANSLATION, 0));
             }
         });
 
@@ -557,11 +517,7 @@ public class GuiController extends Pane {
         });
 
         canvas.setOnScroll(event -> {
-            double x = event.getDeltaX();
             double y = event.getDeltaY();
-
-            double dx = x - oldMousePosX;
-            double dy = y - oldMousePosY;
 
             if (y < 0) {
                 scene.getCamera().setPosition(Vector3.sum(scene.getCamera().getPosition(), new Vector3(0, 0, TRANSLATION)));
