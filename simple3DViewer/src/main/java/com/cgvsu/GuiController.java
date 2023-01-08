@@ -79,7 +79,7 @@ public class GuiController extends Pane {
         timeline.setCycleCount(Animation.INDEFINITE);
         Button n = newCameraButton("Standard camera");
         putCamera(n, scene.getCamera());
-        KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
+        KeyFrame frame = new KeyFrame(new Duration(15), event -> {
             RenderSettings settings = new RenderSettings(textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected());
             TRANSLATION = (float) speedSlider.getValue();
             speedLabel.setText("Speed: " + TRANSLATION);
