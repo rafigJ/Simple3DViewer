@@ -8,7 +8,7 @@ import com.cgvsu.model.ModelUtils;
 import com.cgvsu.objreader.ObjReader;
 import com.cgvsu.render_engine.Camera;
 import com.cgvsu.render_engine.RenderEngine;
-import com.cgvsu.tools.TextureSettings;
+import com.cgvsu.tools.RenderSettings;
 import javafx.scene.canvas.Canvas;
 import javafx.stage.FileChooser;
 
@@ -38,7 +38,7 @@ public class Scene {
         textureList = new ArrayList<>(6);
     }
 
-    public void update(Canvas canvas, TextureSettings settings) {
+    public void update(Canvas canvas, RenderSettings settings) {
         double width = canvas.getWidth();
         double height = canvas.getHeight();
         BufferedImage img;
