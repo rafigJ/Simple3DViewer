@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
-
 import static javax.imageio.ImageIO.read;
 
 public class GuiController extends Pane {
@@ -70,8 +69,8 @@ public class GuiController extends Pane {
     @FXML
     private void initialize() {
         paneStyle = paneList.getStyle();
-        cameraButtonList = new ArrayList<>(6);
-        modelButtonList = new ArrayList<>(6);
+        cameraButtonList = new ArrayList<>();
+        modelButtonList = new ArrayList<>();
         multiList = new LinkedList<>();
         updateSpinners(-1);
         initializeAnimMenu();
@@ -87,7 +86,7 @@ public class GuiController extends Pane {
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
         Timeline timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
-        Button n = newCameraButton("Standard");
+        Button n = newCameraButton("Standard camera");
         putCamera(n, scene.getCamera());
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
             TextureSettings settings = new TextureSettings(textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected());
@@ -168,7 +167,6 @@ public class GuiController extends Pane {
     }
 
     private void putCamera(Button b, Camera c) {
-        if (cameraButtonList.size() > 7) return;
         scene.getCameraList().add(c);
         cameraButtonList.add(b);
         vBoxCam.getChildren().add(b);
@@ -192,7 +190,7 @@ public class GuiController extends Pane {
     @FXML
     private void onDelete() {
         if (!multiList.isEmpty()) {
-            List<Integer> indexes = new ArrayList<>(6);
+            List<Integer> indexes = new ArrayList<>();
             for (Button b : multiList) {
                 indexes.add(modelButtonList.indexOf(b));
             }
@@ -358,20 +356,22 @@ public class GuiController extends Pane {
 
         compressedMenu.setOnMouseClicked(event -> {
             pane.setVisible(true);
+            pane.setDisable(true);
             FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane);
             fadeTransition1.setFromValue(0);
             fadeTransition1.setToValue(0.35);
             fadeTransition1.play();
-
             TranslateTransition translateTransition1 = new TranslateTransition(Duration.seconds(0.5), paneList);
             translateTransition1.setByX(+600);
             translateTransition1.setToX(0);
             translateTransition1.play();
+            translateTransition1.setOnFinished(e -> pane.setDisable(false));
             compressedMenu.getParent().getParent().setVisible(false);
             expandedMenu.getParent().getParent().setVisible(true);
         });
 
         pane.setOnMouseClicked(event -> {
+            pane.setDisable(true);
             FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane);
             fadeTransition1.setFromValue(0.35);
             fadeTransition1.setToValue(0);
@@ -383,6 +383,7 @@ public class GuiController extends Pane {
             translateTransition1.setByX(-600);
             translateTransition1.setToX(-600);
             translateTransition1.play();
+            translateTransition1.setOnFinished(e -> pane.setDisable(false));
             compressedMenu.getParent().getParent().setVisible(true);
             expandedMenu.getParent().getParent().setVisible(false);
             canvas.requestFocus();
