@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
-
 import static javax.imageio.ImageIO.read;
 
 public class GuiController extends Pane {
@@ -70,8 +69,8 @@ public class GuiController extends Pane {
     @FXML
     private void initialize() {
         paneStyle = paneList.getStyle();
-        cameraButtonList = new ArrayList<>(6);
-        modelButtonList = new ArrayList<>(6);
+        cameraButtonList = new ArrayList<>();
+        modelButtonList = new ArrayList<>();
         multiList = new LinkedList<>();
         updateSpinners(-1);
         initializeAnimMenu();
@@ -87,7 +86,7 @@ public class GuiController extends Pane {
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
         Timeline timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
-        Button n = newCameraButton("Standard");
+        Button n = newCameraButton("Standard camera");
         putCamera(n, scene.getCamera());
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
             TextureSettings settings = new TextureSettings(textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected());
@@ -115,14 +114,16 @@ public class GuiController extends Pane {
         Tooltip t2 = new Tooltip("Закрыть меню");
         Tooltip t3 = new Tooltip("Добавить объект (.obj)");
         Tooltip t4 = new Tooltip("Удалить объект из списка");
-        Tooltip t5 = new Tooltip("Скачать преобразованный obj файл"); // Пока не используется
+        Tooltip t5 = new Tooltip("Скачать obj файл");
         Tooltip t6 = new Tooltip("Закрепить / Открепить меню");
+        Tooltip t7 = new Tooltip("Отобразить выбранные модели");
         t1.setFont(f);
         t2.setFont(f);
         t3.setFont(f);
         t4.setFont(f);
         t5.setFont(f);
         t6.setFont(f);
+        t7.setFont(f);
         Tooltip.install(compressedMenu, t1);
         Tooltip.install(expandedMenu, t2);
         Parent n = (Parent) compressedMenu.getParent().getParent().getChildrenUnmodifiable().get(0);
@@ -132,11 +133,12 @@ public class GuiController extends Pane {
         Tooltip.install(n.getChildrenUnmodifiable().get(1), t5);
         Tooltip.install(n.getChildrenUnmodifiable().get(2), t4);
         Tooltip.install(n.getChildrenUnmodifiable().get(3), t6);
+        Tooltip.install(n.getChildrenUnmodifiable().get(4), t7);
     }
 
     // только цифры и запятые.
     private void initializeTextFields() {
-        Pattern p = Pattern.compile("(\\d+\\.?\\d*)?([ ,]+)?(\\d+\\.?\\d*)?([ ,]+)?(\\d+\\.?\\d*)?");
+        Pattern p = Pattern.compile("([ -]+)?(\\d+\\.?\\d*)?([ ,]+)?([ -]+)?(\\d+\\.?\\d*)?([ ,]+)?(\\d+\\.?\\d*)?");
         directionText.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!p.matcher(newValue).matches()) directionText.setText(oldValue);
         });
@@ -165,7 +167,6 @@ public class GuiController extends Pane {
     }
 
     private void putCamera(Button b, Camera c) {
-        if (cameraButtonList.size() > 7) return;
         scene.getCameraList().add(c);
         cameraButtonList.add(b);
         vBoxCam.getChildren().add(b);
@@ -189,7 +190,7 @@ public class GuiController extends Pane {
     @FXML
     private void onDelete() {
         if (!multiList.isEmpty()) {
-            List<Integer> indexes = new ArrayList<>(6);
+            List<Integer> indexes = new ArrayList<>();
             for (Button b : multiList) {
                 indexes.add(modelButtonList.indexOf(b));
             }
@@ -355,20 +356,22 @@ public class GuiController extends Pane {
 
         compressedMenu.setOnMouseClicked(event -> {
             pane.setVisible(true);
+            pane.setDisable(true);
             FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane);
             fadeTransition1.setFromValue(0);
             fadeTransition1.setToValue(0.35);
             fadeTransition1.play();
-
             TranslateTransition translateTransition1 = new TranslateTransition(Duration.seconds(0.5), paneList);
             translateTransition1.setByX(+600);
             translateTransition1.setToX(0);
             translateTransition1.play();
+            translateTransition1.setOnFinished(e -> pane.setDisable(false));
             compressedMenu.getParent().getParent().setVisible(false);
             expandedMenu.getParent().getParent().setVisible(true);
         });
 
         pane.setOnMouseClicked(event -> {
+            pane.setDisable(true);
             FadeTransition fadeTransition1 = new FadeTransition(Duration.seconds(0.5), pane);
             fadeTransition1.setFromValue(0.35);
             fadeTransition1.setToValue(0);
@@ -380,6 +383,7 @@ public class GuiController extends Pane {
             translateTransition1.setByX(-600);
             translateTransition1.setToX(-600);
             translateTransition1.play();
+            translateTransition1.setOnFinished(e -> pane.setDisable(false));
             compressedMenu.getParent().getParent().setVisible(true);
             expandedMenu.getParent().getParent().setVisible(false);
             canvas.requestFocus();
@@ -545,8 +549,6 @@ public class GuiController extends Pane {
                     angleX = 0;
                 }
             }
-
-            ;
         });
 
         canvas.setOnScrollStarted(event -> {
@@ -557,7 +559,6 @@ public class GuiController extends Pane {
         canvas.setOnScroll(event -> {
             double x = event.getDeltaX();
             double y = event.getDeltaY();
-
 
             double dx = x - oldMousePosX;
             double dy = y - oldMousePosY;

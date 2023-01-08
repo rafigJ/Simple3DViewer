@@ -32,10 +32,10 @@ public class Scene {
         camera = new Camera(new Vector3(0, 0, 15),
                 new Vector3(0, 0, 0),
                 1.0F, 1, 0.01F, 100);
-        cameraList = new ArrayList<>(6);
-        modelList = new ArrayList<>(6);
-        activeIndex = new ArrayList<>(6);
-        textureList = new ArrayList<>(6);
+        cameraList = new ArrayList<>();
+        modelList = new ArrayList<>();
+        activeIndex = new ArrayList<>();
+        textureList = new ArrayList<>();
     }
 
     public void update(Canvas canvas, TextureSettings settings) {
@@ -100,7 +100,7 @@ public class Scene {
         fileChooser.setTitle("Load Model");
 
         File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
-        if (file == null || modelList.size() > 6) {
+        if (file == null) {
             return null;
         }
         String name = file.getName();
