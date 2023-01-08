@@ -5,13 +5,11 @@ import com.cgvsu.model.ModelOnScene;
 import com.cgvsu.render_engine.Camera;
 import com.cgvsu.tools.RenderSettings;
 import javafx.animation.*;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -56,15 +54,8 @@ public class GuiController extends Pane {
     private String paneStyle;
 
     //камера
-    private double mousePosX;
-    private double mousePosY;
     private double oldMousePosX;
     private double oldMousePosY;
-    private double centerX = getWidth() / 2;
-    private double centerY = getHeight() / 2;
-    private double initialAngle;
-    private double initialAnglePane;
-    private double angle;
 
     @FXML
     private void initialize() {
@@ -88,7 +79,7 @@ public class GuiController extends Pane {
         timeline.setCycleCount(Animation.INDEFINITE);
         Button n = newCameraButton("Standard camera");
         putCamera(n, scene.getCamera());
-        KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
+        KeyFrame frame = new KeyFrame(new Duration(15), event -> {
             RenderSettings settings = new RenderSettings(textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected());
             TRANSLATION = (float) speedSlider.getValue();
             speedLabel.setText("Speed: " + TRANSLATION);
@@ -150,7 +141,13 @@ public class GuiController extends Pane {
     @FXML
     private void saveObj() {
         if (activeB == null) {
-            System.out.println("ERROR SELECT MODEL");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Выберите модельку, которую необходимо сохранить", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+        if(cameraButtonList.contains(activeB)){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Камеру нельзя сохранить", ButtonType.OK);
+            alert.showAndWait();
             return;
         }
         scene.saveModel(canvas, modelButtonList.indexOf(activeB));
@@ -178,10 +175,15 @@ public class GuiController extends Pane {
         modelButtonList.remove(index);
         scene.getActiveIndex().remove((Integer) index);
         vBox.getChildren().remove(index);
+        if(modelButtonList.isEmpty()) updateSpinners(-1);
     }
 
     private void removeCamera(int index) {
-        if (index == 0) return;
+        if (index == 0) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Стандартную камеру нельзя удалить", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
         scene.getCameraList().remove(index);
         cameraButtonList.remove(index);
         vBoxCam.getChildren().remove(index);
@@ -210,6 +212,10 @@ public class GuiController extends Pane {
             }
             if (c != -1) removeCamera(c);
             if (m != -1) removeModel(m);
+            else if(c == -1) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Вы не выбрали Модель/Камеру, которую необходимо удалить!", ButtonType.OK);
+                alert.showAndWait();
+            }
         }
         activeB = null;
     }
@@ -259,6 +265,10 @@ public class GuiController extends Pane {
     }
 
     private void rotateScaleTranslation() {
+        if(modelButtonList.isEmpty()){
+            updateSpinners(-1);
+            return;
+        }
         float scX = sX.getValue().floatValue();
         float scY = sY.getValue().floatValue();
         float scZ = sZ.getValue().floatValue();
@@ -396,9 +406,20 @@ public class GuiController extends Pane {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg", "Model (*.png)", "*.png"));
         fileChooser.setTitle("Load Texture");
-
+        if(cameraButtonList.contains(activeB)){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "На камеру нельзя наложить текстуру", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+        if (activeB == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Вы не выбрали Модель на которую необходимо наложить текстуру!", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
         File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
-        if (file == null || activeB == null || cameraButtonList.contains(activeB)) {
+        if(file == null){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Выберите файл", ButtonType.OK);
+            alert.showAndWait();
             return;
         }
         try {
@@ -428,6 +449,10 @@ public class GuiController extends Pane {
             Button n = cameraName.getText().trim().isEmpty() ? newCameraButton(Integer.toString(cameraButtonList.size())) :
                     newCameraButton(cameraName.getText());
             putCamera(n, c);
+        }
+        else {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Введите координаты векторов в следующем формате: x, y, z", ButtonType.OK);
+            alert.showAndWait();
         }
     }
 
@@ -492,62 +517,30 @@ public class GuiController extends Pane {
     }
 
     public void canvasClick() {
-
         if (activeB != null) activeB.setStyle(standardStyle);
         canvas.requestFocus();
-
-        //        mousePosX = (float) mouseEvent.getSceneX();
-//        mousePosY = (float) mouseEvent.getSceneY();
-//        System.out.print(camera.getTarget().getX() + " " + camera.getTarget().getY() + " " + camera.getTarget;
-
-//        canvas.setOnMouseDragged(event -> {
-//            camera.movePosition(new Vector3(TRANSLATION, TRANSLATION, 0));
-//        });
-
-//            anchorX = mouseEvent.getSceneX();
-//            anchorY = mouseEvent.getSceneY();
-//            anchorAngleX = angleX.get();
-//            anchorAngleY = angleY.get();
-//
-//        canvas.setOnMouseDragged(event -> {
-//            angleX.set(anchorAngleX - (anchorY - event.getSceneY()));
-//            angleY.set(anchorAngleY + anchorX - event.getSceneX());
-//            camera.setTarget(new Vector3((float) (100 * Math.sin(anchorAngleX)), (float) (100*Math.cos(anchorAngleX)), 0));
-//        });
 
         canvas.setOnMousePressed(event -> {
             oldMousePosX = event.getSceneX();
             oldMousePosY = event.getSceneY();
         });
-        canvas.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                double x = event.getSceneX();
-                double y = event.getSceneY();
-                double angleX;
-                double angleY;
-                double dx = x - oldMousePosX;
-                double dy = y - oldMousePosY;
+        canvas.setOnMouseDragged(event -> {
+            double x = event.getSceneX();
+            double y = event.getSceneY();
 
-                if (dx > 0) {
-                    scene.getCamera().movePosition(new Vector3(TRANSLATION, 0, 0));
-                    angleY = TRANSLATION;
-                } else if (dx < 0) {
-                    scene.getCamera().movePosition(new Vector3(-TRANSLATION, 0, 0));
-                    angleY = -TRANSLATION;
-                } else {
-                    angleY = 0;
-                }
+            double dx = x - oldMousePosX;
+            double dy = y - oldMousePosY;
 
-                if (dy > 0) {
-                    scene.getCamera().movePosition(new Vector3(0, TRANSLATION, 0));
-                    angleX = -TRANSLATION;
-                } else if (dy < 0) {
-                    scene.getCamera().movePosition(new Vector3(0, -TRANSLATION, 0));
-                    angleX = TRANSLATION;
-                } else {
-                    angleX = 0;
-                }
+            if (dx > 0) {
+                scene.getCamera().movePosition(new Vector3(TRANSLATION, 0, 0));
+            } else if (dx < 0) {
+                scene.getCamera().movePosition(new Vector3(-TRANSLATION, 0, 0));
+            }
+
+            if (dy > 0) {
+                scene.getCamera().movePosition(new Vector3(0, TRANSLATION, 0));
+            } else if (dy < 0) {
+                scene.getCamera().movePosition(new Vector3(0, -TRANSLATION, 0));
             }
         });
 
@@ -557,11 +550,7 @@ public class GuiController extends Pane {
         });
 
         canvas.setOnScroll(event -> {
-            double x = event.getDeltaX();
             double y = event.getDeltaY();
-
-            double dx = x - oldMousePosX;
-            double dy = y - oldMousePosY;
 
             if (y < 0) {
                 scene.getCamera().setPosition(Vector3.sum(scene.getCamera().getPosition(), new Vector3(0, 0, TRANSLATION)));
@@ -598,6 +587,11 @@ public class GuiController extends Pane {
     }
 
     public void onMultiView() {
+        if(multiList.isEmpty()){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Не выбрано несколько моделей. [ЛКМ + ctrl]", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
         for (Button b : multiList) {
             scene.addActiveIndex(modelButtonList.indexOf(b));
         }

@@ -2,7 +2,6 @@ package com.cgvsu.model;
 import com.cgvsu.math.*;
 import com.cgvsu.render_engine.GraphicConveyor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ModelOnScene extends Model {
