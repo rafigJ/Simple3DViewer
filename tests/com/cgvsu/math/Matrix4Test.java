@@ -71,4 +71,24 @@ class Matrix4Test {
         assert (v4.getM() - vF.getM()) < eps;
     }
 
+    @Test
+    void inv() {
+        float[][] matrix = new float[][] {
+                {-1,0,0,0},
+                {0,1,0,0},
+                {0,0,-1,15},
+                {0,0,0,1}
+        };
+
+        float[][] matrixRes = Matrix4.inverse(matrix).getData();
+        float[][] matrixResult = new float[][] {
+                {-1,0,0,0},
+                {0,1,0,0},
+                {0,0,-1,15},
+                {0,0,0,1}
+        };
+
+        Arrays.deepEquals(matrixRes, matrixResult);
+    }
+
 }

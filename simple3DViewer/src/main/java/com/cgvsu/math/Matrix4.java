@@ -2,6 +2,7 @@ package com.cgvsu.math;
 
 public class Matrix4 {
     private float[][] data;
+    static final float EPS = 0.00000001f;
 
     public Matrix4(float[][] matrix) {
         this.data = matrix;
@@ -171,4 +172,138 @@ public class Matrix4 {
         }
         return matrix;
     }
+
+    public static Matrix4 inverse(float[][] matrix) {
+        if (matrix.length != matrix[0].length) return null;
+        int n = matrix.length;
+        float[][] augmented = new float[n][n * 2];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) augmented[i][j] = matrix[i][j];
+            augmented[i][i + n] = 1;
+        }
+        solve(augmented);
+        float[][] inv = new float[n][n];
+        for (int i = 0; i < n; i++) for (int j = 0; j < n; j++) inv[i][j] = augmented[i][j + n];
+        return new Matrix4(inv);
+    }
+
+    // Solves a system of linear equations as an augmented matrix
+    // with the rightmost column containing the constants. The answers
+    // will be stored on the rightmost column after the algorithm is done.
+    // NOTE: make sure your matrix is consistent and does not have multiple
+    // solutions before you solve the system if you want a unique valid answer.
+    // Time Complexity: O(r²c)
+    static void solve(float[][] augmentedMatrix) {
+        int nRows = augmentedMatrix.length, nCols = augmentedMatrix[0].length, lead = 0;
+        for (int r = 0; r < nRows; r++) {
+            if (lead >= nCols) break;
+            int i = r;
+            while (Math.abs(augmentedMatrix[i][lead]) < EPS) {
+                if (++i == nRows) {
+                    i = r;
+                    if (++lead == nCols) return;
+                }
+            }
+            float[] temp = augmentedMatrix[r];
+            augmentedMatrix[r] = augmentedMatrix[i];
+            augmentedMatrix[i] = temp;
+            float lv = augmentedMatrix[r][lead];
+            for (int j = 0; j < nCols; j++) augmentedMatrix[r][j] /= lv;
+            for (i = 0; i < nRows; i++) {
+                if (i != r) {
+                    lv = augmentedMatrix[i][lead];
+                    for (int j = 0; j < nCols; j++) augmentedMatrix[i][j] -= lv * augmentedMatrix[r][j];
+                }
+            }
+            lead++;
+        }
+    }
+
+//    public static float det(float[][] matrix) {
+//        int n = matrix.length;
+//        if (n == 1) return matrix[0][0];
+//        float ans = 0;
+//        float[][] B = new float[n - 1][n - 1];
+//        int l = 1;
+//        for (int i = 0; i < n; ++i) {
+//            int x = 0, y = 0;
+//            for (int j = 1; j < n; ++j) {
+//                for (int k = 0; k < n; ++k) {
+//                    if (i == k) {
+//                        continue;
+//                    }
+//                    B[x][y] = matrix[j][k];
+//                    ++y;
+//                    if (y == n - 1) {
+//                        y = 0;
+//                        ++x;
+//                    }
+//                }
+//            }
+//            ans += l * matrix[0][i] * det(B);
+//            l *= (-1);
+//        }
+//        return ans;
+//    }
+
+//    public static Matrix4 invMatrix(float[][] matrix) {
+//        double temp;
+//
+//        int n = matrix.length;
+//        float [][] E = new float [n][n];
+//
+//
+//        for (int i = 0; i < n; i++)
+//            for (int j = 0; j < n; j++)
+//            {
+//                E[i][j] = 0f;
+//
+//                if (i == j)
+//                    E[i][j] = 1f;
+//            }
+//
+//        for (int k = 0; k < n; k++)
+//        {
+//            temp = matrix[k][k];
+//
+//            for (int j = 0; j < n; j++)
+//            {
+//                matrix[k][j] /= temp;
+//                E[k][j] /= temp;
+//            }
+//
+//            for (int i = k + 1; i < n; i++)
+//            {
+//                temp = matrix[i][k];
+//
+//                for (int j = 0; j < n; j++)
+//                {
+//                    matrix[i][j] -= matrix[k][j] * temp;
+//                    E[i][j] -= E[k][j] * temp;
+//                }
+//            }
+//        }
+//
+//        for (int k = n - 1; k > 0; k--)
+//        {
+//            for (int i = k - 1; i >= 0; i--)
+//            {
+//                temp = matrix[i][k];
+//
+//                for (int j = 0; j < n; j++)
+//                {
+//                    matrix[i][j] -= matrix[k][j] * temp;
+//                    E[i][j] -= E[k][j] * temp;
+//                }
+//            }
+//        }
+//
+//        for (int i = 0; i < n; i++) {
+//            for (int j = 0; j < n; j++) {
+//                matrix[i][j] = E[i][j];
+//            }
+//        }
+//
+//        return new Matrix4(matrix);
+//    }
 }
