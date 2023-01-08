@@ -141,7 +141,13 @@ public class GuiController extends Pane {
     @FXML
     private void saveObj() {
         if (activeB == null) {
-            System.out.println("ERROR SELECT MODEL");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Выберите модельку, которую необходимо сохранить", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+        if(cameraButtonList.contains(activeB)){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Камеру нельзя сохранить", ButtonType.OK);
+            alert.showAndWait();
             return;
         }
         scene.saveModel(canvas, modelButtonList.indexOf(activeB));
@@ -173,7 +179,11 @@ public class GuiController extends Pane {
     }
 
     private void removeCamera(int index) {
-        if (index == 0) return;
+        if (index == 0) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Стандартную камеру нельзя удалить", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
         scene.getCameraList().remove(index);
         cameraButtonList.remove(index);
         vBoxCam.getChildren().remove(index);
@@ -202,6 +212,10 @@ public class GuiController extends Pane {
             }
             if (c != -1) removeCamera(c);
             if (m != -1) removeModel(m);
+            else if(c == -1) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Вы не выбрали Модель/Камеру, которую необходимо удалить!", ButtonType.OK);
+                alert.showAndWait();
+            }
         }
         activeB = null;
     }
@@ -251,6 +265,10 @@ public class GuiController extends Pane {
     }
 
     private void rotateScaleTranslation() {
+        if(modelButtonList.isEmpty()){
+            updateSpinners(-1);
+            return;
+        }
         float scX = sX.getValue().floatValue();
         float scY = sY.getValue().floatValue();
         float scZ = sZ.getValue().floatValue();
@@ -388,9 +406,20 @@ public class GuiController extends Pane {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg", "Model (*.png)", "*.png"));
         fileChooser.setTitle("Load Texture");
-
+        if(cameraButtonList.contains(activeB)){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "На камеру нельзя наложить текстуру", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
+        if (activeB == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Вы не выбрали Модель на которую необходимо наложить текстуру!", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
         File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
-        if (file == null || activeB == null || cameraButtonList.contains(activeB)) {
+        if(file == null){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Выберите файл", ButtonType.OK);
+            alert.showAndWait();
             return;
         }
         try {
@@ -420,6 +449,10 @@ public class GuiController extends Pane {
             Button n = cameraName.getText().trim().isEmpty() ? newCameraButton(Integer.toString(cameraButtonList.size())) :
                     newCameraButton(cameraName.getText());
             putCamera(n, c);
+        }
+        else {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Введите координаты векторов в следующем формате: x, y, z", ButtonType.OK);
+            alert.showAndWait();
         }
     }
 
@@ -554,6 +587,11 @@ public class GuiController extends Pane {
     }
 
     public void onMultiView() {
+        if(multiList.isEmpty()){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Не выбрано несколько моделей. [ЛКМ + ctrl]", ButtonType.OK);
+            alert.showAndWait();
+            return;
+        }
         for (Button b : multiList) {
             scene.addActiveIndex(modelButtonList.indexOf(b));
         }
