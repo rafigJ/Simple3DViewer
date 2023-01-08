@@ -1,6 +1,6 @@
 package com.cgvsu.math;
 
-import com.cgvsu.render_engine.Triangle;
+import com.cgvsu.tools.Triangle;
 
 public class Barycentric {
     private final float l1;
@@ -30,4 +30,5 @@ public class Barycentric {
     public boolean isInside(){
         return (l1 >= 0 && l1 <= 1 && l2 >= 0 && l2 <= 1 && l3 >= 0 && l3 <= 1);
     }
+
 }

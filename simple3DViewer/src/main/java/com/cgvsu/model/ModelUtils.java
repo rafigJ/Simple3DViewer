@@ -10,10 +10,10 @@ import static com.cgvsu.math.Vector3f.*;
 public class ModelUtils {
 
     public static void recalculateNormals(Model model) {
-        model.normals.clear();
+        model.getNormals().clear();
         for (int i = 0; i < model.getVertices().size(); i++) {
             try {
-                model.normals.add(calculateNormalForVertexInModel(model, i));
+                model.getNormals().add(calculateNormalForVertexInModel(model, i));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -28,7 +28,7 @@ public class ModelUtils {
         Vector3 vector1 = fromTwoPoints(model.getVertices().get(vertexIndices.get(0)), model.getVertices().get(vertexIndices.get(1)));
         Vector3 vector2 = fromTwoPoints(model.getVertices().get(vertexIndices.get(0)), model.getVertices().get(vertexIndices.get(verticesCount - 1)));
 
-        return calculateCrossProduct(vector1, vector2);
+        return Vector3.crossProduct(vector1, vector2);
     }
 
     protected static Vector3 calculateNormalForVertexInModel(final Model model, final int vertexIndex) throws Exception {
