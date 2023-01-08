@@ -312,7 +312,7 @@ public class GuiController extends Pane {
 
     private SpinnerValueFactory<Double>[] getSpinnerValue(int index) {
         SpinnerValueFactory<Double>[] res = new SpinnerValueFactory.DoubleSpinnerValueFactory[9];
-        double[] arr = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+        double[] arr = {1, 1, 1, 0, 0, 0, 0, 0, 0};
         if (index != -1) {
             ModelOnScene model = scene.getModelList().get(index);
             arr[0] = model.getVS().getX();
