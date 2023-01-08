@@ -3,7 +3,7 @@ package com.cgvsu;
 import com.cgvsu.math.Vector3;
 import com.cgvsu.model.ModelOnScene;
 import com.cgvsu.render_engine.Camera;
-import com.cgvsu.tools.TextureSettings;
+import com.cgvsu.tools.RenderSettings;
 import javafx.animation.*;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -89,7 +89,7 @@ public class GuiController extends Pane {
         Button n = newCameraButton("Standard camera");
         putCamera(n, scene.getCamera());
         KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
-            TextureSettings settings = new TextureSettings(textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected());
+            RenderSettings settings = new RenderSettings(textureCheck.isSelected(), shadowCheck.isSelected(), meshCheck.isSelected(), fillCheck.isSelected());
             TRANSLATION = (float) speedSlider.getValue();
             speedLabel.setText("Speed: " + TRANSLATION);
             scene.update(canvas, settings);
@@ -394,7 +394,7 @@ public class GuiController extends Pane {
     // Загрузка текстуры для каждой модели по отдельности. Пока что меняю статическое поле в render
     public void onOpenTexture() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.jpg)", "*.jpg", "Model (*.png)", "*.png"));
         fileChooser.setTitle("Load Texture");
 
         File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
